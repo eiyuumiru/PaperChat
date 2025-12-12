@@ -1,0 +1,1058 @@
+/* ============================================
+   PAPERCHAT - STUDYGRAM DESIGN SYSTEM
+   React Version
+   ============================================ */
+
+/* Highlight.js Theme Override */
+@import 'highlight.js/styles/github-dark.css';
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* Backgrounds */
+  --paper-cream: #FFF7EA;
+  --paper-white: #FFFAF3;
+  --dot-grid-tint: #D7C2A8;
+  --body-bg: #f9f0e5;
+  
+  /* Ink & Text */
+  --ink-primary: #1F2937;
+  --ink-secondary: #4B5563;
+  --accent-rose: #BE123C;
+  --accent-blue: #2563EB;
+  
+  /* Pastels */
+  --pastel-yellow: rgba(255, 245, 157, 0.9);
+  --pastel-blue: rgba(179, 229, 252, 0.9);
+  --pastel-pink: rgba(255, 205, 210, 0.9);
+  --pastel-green: rgba(200, 230, 201, 0.9);
+  --pastel-purple: rgba(225, 190, 231, 0.9);
+  
+  /* Sticky Note Colors */
+  --sticky-yellow: #fff9c4;
+  --sticky-pink: #fce4ec;
+  --sticky-blue: #e3f2fd;
+  --sticky-green: #e8f5e9;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  scroll-behavior: smooth;
+  background-color: var(--body-bg);
+  background-image: url("https://www.transparenttextures.com/patterns/lined-paper-2.png");
+  font-family: "Patrick Hand", "Mali", system-ui, sans-serif;
+  color: var(--ink-primary);
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.app-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.app-header {
+  text-align: center;
+  padding: 30px 20px;
+  position: relative;
+}
+
+.app-title {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 4px rgba(37, 99, 235, 0.18);
+  margin-bottom: 8px;
+}
+
+.app-subtitle {
+  font-family: "Mali", cursive;
+  font-size: 1.1rem;
+  color: var(--ink-secondary);
+  font-weight: 500;
+}
+
+/* Decorative Stars */
+.deco-star {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.7;
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.deco-star:nth-child(1) { top: 10px; left: 10%; animation-delay: 0s; }
+.deco-star:nth-child(2) { top: 20px; right: 15%; animation-delay: 0.5s; }
+.deco-star:nth-child(3) { bottom: 10px; left: 20%; animation-delay: 1s; }
+
+@keyframes twinkle {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ============================================
+   TAB NAVIGATION
+   ============================================ */
+
+.tab-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  font-family: "Mali", cursive;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 12px 28px;
+  border: 3px solid var(--ink-primary);
+  border-radius: 18px;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 4px 4px 0px var(--ink-primary);
+}
+
+.tab-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--ink-primary);
+}
+
+.tab-btn.active {
+  background: linear-gradient(to top, var(--pastel-blue) 55%, transparent 55%);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--ink-primary);
+}
+
+.tab-btn .tab-icon {
+  margin-right: 8px;
+}
+
+/* ============================================
+   PANELS
+   ============================================ */
+
+.tab-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel,
+.image-panel {
+  background-color: var(--paper-white);
+  border: 3px solid var(--ink-primary);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+}
+
+/* Dot Grid Background */
+.chat-panel::before,
+.image-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(var(--dot-grid-tint) 0.9px, transparent 0.9px);
+  background-size: 18px 18px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.image-panel::before {
+  opacity: 0.4;
+}
+
+/* ============================================
+   MODEL SELECTOR
+   ============================================ */
+
+.model-selector-wrapper {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.model-label {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  color: var(--ink-primary);
+  font-size: 1rem;
+}
+
+.model-select {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1rem;
+  padding: 10px 40px 10px 15px;
+  border: 2px solid var(--ink-primary);
+  border-radius: 12px;
+  background-color: var(--paper-cream);
+  color: var(--ink-primary);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231F2937' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  min-width: 200px;
+  transition: all 0.2s ease;
+}
+
+.model-select:hover {
+  background-color: var(--paper-white);
+  box-shadow: 2px 2px 0px var(--ink-primary);
+}
+
+.model-select:focus {
+  outline: none;
+  box-shadow: 3px 3px 0px var(--accent-blue);
+}
+
+/* Chat Header with Memory Info */
+.chat-header {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 15px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.memory-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: var(--paper-cream);
+  border: 2px solid var(--dot-grid-tint);
+  border-radius: 10px;
+}
+
+.memory-badge {
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.95rem;
+  color: var(--ink-secondary);
+}
+
+.memory-warning {
+  color: var(--accent-rose);
+  font-weight: 600;
+}
+
+.clear-history-btn {
+  font-family: "Mali", cursive;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 2px solid var(--ink-primary);
+  border-radius: 8px;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 2px 2px 0px var(--ink-primary);
+}
+
+.clear-history-btn:hover {
+  background-color: var(--sticky-pink);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--ink-primary);
+}
+
+.clear-history-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--ink-primary);
+}
+
+/* ============================================
+   MESSAGES
+   ============================================ */
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px 5px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background-color: var(--dot-grid-tint);
+  border-radius: 10px;
+}
+
+/* Message Bubbles */
+.message {
+  max-width: 85%;
+  padding: 15px 18px;
+  border-radius: 12px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: var(--sticky-blue);
+  border: 2px solid rgba(3, 105, 161, 0.3);
+  transform: rotate(0.5deg);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background-color: var(--sticky-yellow);
+  border: 2px solid rgba(255, 200, 100, 0.4);
+  transform: rotate(-0.5deg);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.message-role {
+  font-family: "Mali", cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.message.user .message-role { color: var(--accent-blue); }
+.message.assistant .message-role { color: var(--accent-rose); }
+/* Shift assistant accent to blue tone */
+.message.assistant .message-role { color: var(--accent-blue); }
+
+.message-content {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.message.user .message-content { white-space: pre-wrap; }
+.message.assistant .message-content { white-space: normal; }
+
+/* Washi Tape Effect */
+.message::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 60px;
+  height: 18px;
+  border-radius: 2px;
+  opacity: 0.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message.user::before { background-color: rgba(100, 180, 255, 0.4); }
+.message.assistant::before { background-color: rgba(255, 100, 100, 0.3); }
+
+/* Loading Animation */
+.message.loading .message-content {
+  display: flex;
+  gap: 5px;
+}
+
+.loading-dot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: bounce 1.4s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(1) { animation-delay: 0s; }
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+}
+
+/* ============================================
+   INPUT AREA
+   ============================================ */
+
+.input-area {
+  position: relative;
+  z-index: 10;
+  margin-top: 15px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.input-wrapper {
+  flex: 1;
+}
+
+.message-input {
+  width: 100%;
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.1rem;
+  padding: 15px 18px;
+  border: 3px solid var(--ink-primary);
+  border-radius: 15px;
+  background-color: var(--paper-cream);
+  color: var(--ink-primary);
+  resize: none;
+  min-height: 56px;
+  max-height: 150px;
+  transition: all 0.2s ease;
+}
+
+.message-input:focus {
+  outline: none;
+  background-color: var(--paper-white);
+  box-shadow: 4px 4px 0px var(--accent-blue);
+}
+
+.message-input::placeholder {
+  color: var(--ink-secondary);
+  opacity: 0.7;
+}
+
+.send-btn {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 15px 25px;
+  border: 3px solid var(--ink-primary);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 4px 4px 0px var(--ink-primary);
+  white-space: nowrap;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--ink-primary);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--ink-primary);
+}
+
+.send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   IMAGE PANEL
+   ============================================ */
+
+.image-controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.prompt-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prompt-label {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--ink-primary);
+}
+
+.prompt-input {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.1rem;
+  padding: 15px 18px;
+  border: 3px solid var(--ink-primary);
+  border-radius: 15px;
+  background-color: var(--paper-cream);
+  color: var(--ink-primary);
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease;
+}
+
+.prompt-input:focus {
+  outline: none;
+  background-color: var(--paper-white);
+  box-shadow: 4px 4px 0px var(--accent-blue);
+}
+
+.prompt-input::placeholder {
+  color: var(--ink-secondary);
+  opacity: 0.7;
+}
+
+.image-options {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.generate-btn {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 15px 30px;
+  border: 3px solid var(--ink-primary);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 4px 4px 0px var(--ink-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--ink-primary);
+}
+
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Image Result */
+.image-result {
+  position: relative;
+  z-index: 1;
+  margin-top: 25px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-placeholder {
+  text-align: center;
+  padding: 60px 30px;
+  background-color: var(--paper-cream);
+  border: 3px dashed var(--dot-grid-tint);
+  border-radius: 20px;
+  width: 100%;
+}
+
+.image-placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.image-placeholder-text {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  color: var(--ink-secondary);
+}
+
+.image-placeholder-text.error {
+  color: var(--accent-rose);
+}
+
+/* Polaroid Frame */
+.generated-image-wrapper {
+  position: relative;
+  display: inline-block;
+  transform: rotate(-1deg);
+}
+
+.generated-image-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  width: 80px;
+  height: 25px;
+  background-color: rgba(255, 180, 100, 0.5);
+  border-radius: 2px;
+  z-index: 10;
+}
+
+.polaroid-frame {
+  background-color: var(--paper-white);
+  padding: 15px 15px 50px 15px;
+  border: 3px solid var(--ink-primary);
+  box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+}
+
+.generated-image {
+  max-width: 100%;
+  max-height: 400px;
+  display: block;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.polaroid-caption {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1rem;
+  color: var(--ink-secondary);
+  text-align: center;
+  margin-top: 12px;
+  padding: 0 10px;
+  word-break: break-word;
+}
+
+/* Image Loading */
+.image-loading {
+  text-align: center;
+  padding: 60px 30px;
+}
+
+.image-loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid var(--paper-cream);
+  border-top: 5px solid var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.image-loading-text {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  color: var(--ink-primary);
+}
+
+.image-loading-subtext {
+  font-family: "Patrick Hand", cursive;
+  color: var(--ink-secondary);
+  margin-top: 10px;
+}
+
+/* ============================================
+   WELCOME MESSAGE
+   ============================================ */
+
+.welcome-message {
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.welcome-title {
+  font-family: "Pacifico", cursive;
+  font-size: 1.8rem;
+  color: var(--accent-blue);
+  margin-bottom: 10px;
+}
+
+.welcome-text {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.2rem;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+}
+
+.tips-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.tip-card {
+  background-color: var(--sticky-pink);
+  padding: 15px 20px;
+  border-radius: 10px;
+  border: 2px solid rgba(190, 18, 60, 0.2);
+  transform: rotate(-1deg);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08);
+  font-family: "Patrick Hand", cursive;
+  font-size: 1rem;
+  max-width: 200px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tip-card:nth-child(2) {
+  background-color: var(--sticky-green);
+  transform: rotate(1deg);
+}
+
+.tip-card:nth-child(3) {
+  background-color: var(--sticky-blue);
+  transform: rotate(-0.5deg);
+}
+
+.tip-card:hover {
+  transform: scale(1.05) rotate(0deg);
+  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================
+   ERROR & UTILITIES
+   ============================================ */
+
+.error-message {
+  background-color: #fef2f2;
+  border: 2px solid var(--accent-rose);
+  border-radius: 10px;
+  padding: 15px 18px;
+  margin: 10px 0;
+  font-family: "Patrick Hand", cursive;
+  color: var(--accent-rose);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Highlight Classes */
+.hl-yellow {
+  background: linear-gradient(to top, var(--pastel-yellow) 55%, transparent 55%);
+  padding: 0.02em 0.14em;
+}
+
+.hl-blue {
+  background: linear-gradient(to top, var(--pastel-blue) 55%, transparent 55%);
+  padding: 0.02em 0.14em;
+}
+
+.hl-pink {
+  background: linear-gradient(to top, var(--pastel-pink) 55%, transparent 55%);
+  padding: 0.02em 0.14em;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  font-family: "Mali", cursive;
+  color: var(--ink-secondary);
+  font-size: 0.95rem;
+}
+
+.app-footer a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   MARKDOWN STYLES
+   ============================================ */
+
+.markdown-body {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  margin: 1em 0 0.5em 0;
+  color: var(--ink-primary);
+}
+
+.markdown-body h1 { font-size: 1.5em; color: var(--accent-rose); }
+.markdown-body h2 { font-size: 1.35em; color: var(--accent-rose); }
+.markdown-body h3 { font-size: 1.2em; }
+
+.markdown-body h1:first-child,
+.markdown-body h2:first-child,
+.markdown-body h3:first-child {
+  margin-top: 0;
+}
+
+.markdown-body p {
+  margin: 0.8em 0;
+}
+
+.markdown-body p:first-child { margin-top: 0; }
+.markdown-body p:last-child { margin-bottom: 0; }
+
+.markdown-body a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 3px;
+}
+
+.markdown-body strong { font-weight: 700; }
+.markdown-body em { font-style: italic; }
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.8em 0;
+  padding-left: 1.5em;
+}
+
+.markdown-body li { margin: 0.4em 0; }
+.markdown-body ul { list-style-type: disc; }
+.markdown-body ol { list-style-type: decimal; }
+
+/* Inline Code */
+.markdown-body code {
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 0.9em;
+  background-color: rgba(215, 194, 168, 0.3);
+  padding: 0.2em 0.5em;
+  border-radius: 6px;
+  border: 1px solid var(--dot-grid-tint);
+}
+
+/* Code Blocks */
+.markdown-body pre {
+  background-color: #2d2d2d;
+  border: 2px solid var(--ink-primary);
+  border-radius: 12px;
+  padding: 1em;
+  margin: 1em 0;
+  overflow-x: auto;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.markdown-body pre::before {
+  content: "code";
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  font-family: "Mali", cursive;
+  font-size: 0.7em;
+  background-color: var(--accent-blue);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.markdown-body pre code {
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 0.85em;
+  background: none;
+  padding: 0;
+  border: none;
+  color: #d4d4d4;
+  display: block;
+  white-space: pre;
+  line-height: 1.5;
+}
+
+/* Blockquote */
+.markdown-body blockquote {
+  margin: 1em 0;
+  padding: 0.8em 1em;
+  border-left: 4px solid var(--accent-rose);
+  background: linear-gradient(to top, var(--pastel-pink) 55%, transparent 55%);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+.markdown-body blockquote p { margin: 0; }
+
+/* Tables */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.95em;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 0.6em 0.8em;
+  border: 2px solid var(--ink-primary);
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: var(--pastel-yellow);
+  font-family: "Mali", cursive;
+  font-weight: 600;
+}
+
+.markdown-body tr:nth-child(even) {
+  background-color: rgba(255, 247, 234, 0.5);
+}
+
+.markdown-body hr {
+  border: none;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-rose), var(--accent-blue));
+  margin: 1.5em 0;
+  border-radius: 2px;
+}
+
+/* ============================================
+   KATEX / LATEX STYLES
+   ============================================ */
+
+.markdown-body .katex {
+  font-size: 1.1em;
+}
+
+.markdown-body .katex-display {
+  margin: 1em 0;
+  padding: 0.8em;
+  background-color: rgba(255, 247, 234, 0.7);
+  border-radius: 10px;
+  border: 2px dashed var(--dot-grid-tint);
+  overflow-x: auto;
+}
+
+.markdown-body .katex-display > .katex {
+  white-space: normal;
+}
+
+/* Math inline styling */
+.markdown-body .math-inline {
+  padding: 0.1em 0.3em;
+  background-color: rgba(215, 194, 168, 0.2);
+  border-radius: 4px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 15px;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+  }
+  
+  .tab-container {
+    gap: 10px;
+  }
+  
+  .tab-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+  
+  .chat-panel,
+  .image-panel {
+    padding: 15px;
+    border-radius: 20px;
+  }
+  
+  .input-area {
+    flex-direction: column;
+  }
+  
+  .send-btn,
+  .generate-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .image-options {
+    flex-direction: column;
+  }
+  
+  .message {
+    max-width: 95%;
+  }
+}
