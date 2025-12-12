@@ -30,18 +30,28 @@ const CHAT_MODELS = [
   }
 ]
 
-// Image models - only the best
+// Image models - ordered by stability
 const IMAGE_MODELS = [
   {
-    group: 'Top Picks',
+    group: 'Gemini',
     models: [
       { value: 'gemini-3-pro-image-preview', label: 'Gemini 3 Pro Image' },
+      { value: 'gemini-2.5-flash-image-preview', label: 'Gemini 2.5 Flash Image' }
+    ]
+  },
+  {
+    group: 'OpenAI',
+    models: [
       { value: 'gpt-image-1', label: 'GPT Image 1' },
-      { value: 'dall-e-3', label: 'DALL-E 3' },
-      { value: 'google/imagen-3', label: 'Imagen 3' },
-      { value: 'black-forest-labs/FLUX.2-pro', label: 'FLUX 2 Pro' },
+      { value: 'dall-e-3', label: 'DALL-E 3' }
+    ]
+  },
+  {
+    group: 'Khác',
+    models: [
       { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
-      { value: 'stabilityai/stable-diffusion-3.5-large', label: 'SD 3.5 Large' }
+      { value: 'stabilityai/stable-diffusion-3.5-large', label: 'SD 3.5 Large' },
+      { value: 'google/imagen-3', label: 'Imagen 3' }
     ]
   }
 ]

@@ -1072,3 +1072,244 @@ body {
     max-width: 95%;
   }
 }
+
+/* ============================================
+   IMAGE UPLOAD STYLES
+   ============================================ */
+
+/* Input area with image upload */
+.input-area {
+  flex-wrap: wrap;
+}
+
+.input-area.drag-over {
+  background-color: var(--pastel-blue);
+  border: 3px dashed var(--accent-blue);
+  border-radius: 15px;
+  transition: all 0.2s ease;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Image Upload Button */
+.image-upload-btn {
+  font-size: 1.4rem;
+  padding: 10px 14px;
+  border: 2px solid var(--ink-primary);
+  border-radius: 12px;
+  background-color: var(--paper-cream);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.image-upload-btn:hover:not(:disabled) {
+  background-color: var(--sticky-blue);
+  transform: scale(1.05);
+  box-shadow: 2px 2px 0px var(--ink-primary);
+}
+
+.image-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Image Preview Container */
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.image-preview {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 10px;
+  border: 3px solid var(--ink-primary);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+.image-preview-remove {
+  position: absolute;
+  top: -8px;
+  left: 180px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-primary);
+  background-color: var(--accent-rose);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.image-preview-remove:hover {
+  transform: scale(1.1);
+  background-color: #dc2626;
+}
+
+/* Message Images */
+.message-image-container {
+  margin-bottom: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+.message-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-primary);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+
+/* Mini polaroid effect for message images */
+.message.user .message-image-container {
+  background-color: white;
+  padding: 6px 6px 16px 6px;
+  border-radius: 4px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.15);
+  transform: rotate(1deg);
+}
+
+.message.user .message-image {
+  border: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   IMAGE EDIT UPLOAD STYLES (Image Panel)
+   ============================================ */
+
+.image-upload-section {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: var(--paper-cream);
+  border: 2px dashed var(--dot-grid-tint);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.image-upload-section.drag-over {
+  background-color: var(--pastel-blue);
+  border-color: var(--accent-blue);
+}
+
+.image-upload-section.has-image {
+  border-style: solid;
+  border-color: var(--ink-primary);
+}
+
+.upload-label {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink-primary);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  opacity: 0.6;
+}
+
+.upload-text {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1rem;
+  color: var(--ink-secondary);
+  text-align: center;
+}
+
+.upload-text-small {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Edit Image Preview */
+.edit-image-preview-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 10px;
+  border: 2px solid var(--ink-primary);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+
+.edit-image-remove {
+  font-family: "Mali", cursive;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: 2px solid var(--accent-rose);
+  border-radius: 8px;
+  background-color: white;
+  color: var(--accent-rose);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-image-remove:hover {
+  background-color: var(--accent-rose);
+  color: white;
+}
+
+/* Responsive adjustments for image upload */
+@media (max-width: 768px) {
+  .image-preview {
+    max-width: 150px;
+    max-height: 120px;
+  }
+  
+  .image-preview-remove {
+    left: 130px;
+  }
+  
+  .input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .image-upload-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+

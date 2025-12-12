@@ -2,17 +2,22 @@ import ReactMarkdown from 'react-markdown'
 import { remarkPlugins, rehypePlugins } from '../utils/markdown'
 import { toStringContent } from '../utils/content'
 
-function Message({ role, content }) {
+function Message({ role, content, image }) {
   const roleLabel = role === 'user' ? 'Bạn' : 'AI'
 
   const normalizeLatexBlocks = (text) => {
     let t = text
+
+    // Fix malformed AI output: \left$...\right$ -> \left(...\right)
+    t = t.replace(/\\left\$/g, '\\left(')
+    t = t.replace(/\\right\$/g, '\\right)')
+
     // Block math: \[ ... \] -> $$ ... $$
-    t = t.replace(/\\\[(.*?)\\\]/gs, (_, inner) => `$$${inner}$$`)
+    t = t.replace(/\\\[([\s\S]*?)\\\]/g, (_, inner) => `$$${inner}$$`)
+
     // Inline math: \( ... \) -> $ ... $
-    t = t.replace(/\\\((.*?)\\\)/gs, (_, inner) => `$${inner}$`)
-    // Inline math without delimiters but inside parentheses containing backslash, e.g. (\Delta > 0)
-    t = t.replace(/\(([^)]*\\[^)]*)\)/g, (_, inner) => `$${inner}$`)
+    t = t.replace(/\\\(([\s\S]*?)\\\)/g, (_, inner) => `$${inner}$`)
+
     return t
   }
 
@@ -22,6 +27,13 @@ function Message({ role, content }) {
     <div className={`message ${role}`}>
       <div className="message-role">{roleLabel}</div>
       <div className="message-content markdown-body">
+        {/* Display image if present */}
+        {image && (
+          <div className="message-image-container">
+            <img src={image} alt="Attached" className="message-image" />
+          </div>
+        )}
+
         {role === 'user' ? (
           <p>{safeContent}</p>
         ) : (
@@ -52,3 +64,4 @@ function LoadingMessage() {
 
 export default Message
 export { LoadingMessage }
+
