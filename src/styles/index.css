@@ -260,6 +260,22 @@ body {
   box-shadow: 3px 3px 0px var(--accent-blue);
 }
 
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-label {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  color: var(--ink-primary);
+  font-size: 1rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
 /* Chat Header with Memory Info */
 .chat-header {
   position: relative;
