@@ -8,7 +8,7 @@ const CHAT_MODELS = [
   {
     group: 'OpenAI',
     models: [
-      { value: 'gpt-5.2', label: 'GPT-5.2' },
+      { value: 'gpt-5.2-thinking', label: 'GPT-5.2 Thinking' },
       { value: 'gpt-5.1-codex-max', label: 'GPT-5.1 Codex Max' },
       { value: 'o3', label: 'o3 (Reasoning)' }
     ]
