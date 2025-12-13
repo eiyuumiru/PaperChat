@@ -9,10 +9,8 @@ const CHAT_MODELS = [
     group: 'OpenAI',
     models: [
       { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2' },
-      { value: 'gpt-5.1-codex', label: 'GPT-5.1 Codex' },
-      { value: 'o3', label: 'o3 (Reasoning)' },
-      { value: 'o1', label: 'o1 (Reasoning)' },
-      { value: 'o1-pro', label: 'o1 Pro (Reasoning)' }
+      { value: 'openrouter:openai/gpt-4o-search-preview', label: 'GPT-4o Search' },
+      { value: 'o3', label: 'o3 (Reasoning)' }
     ]
   },
   {
@@ -26,8 +24,6 @@ const CHAT_MODELS = [
     group: 'Gemini',
     models: [
       { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' },
-      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-      { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' }
     ]
   },
   {
