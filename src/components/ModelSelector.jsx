@@ -37,13 +37,6 @@ const CHAT_MODELS = [
       { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner' },
       { value: 'openrouter:tngtech/deepseek-r1t2-chimera:free', label: 'DeepSeek R1 Chimera (Free)' }
     ]
-  },
-  {
-    group: 'Moonshot',
-    models: [
-      { value: 'openrouter:moonshotai/kimi-k2:free', label: 'Kimi K2 (Free)' },
-      { value: 'openrouter:moonshotai/kimi-k2-thinking', label: 'Kimi K2 Thinking' }
-    ]
   }
 ]
 
