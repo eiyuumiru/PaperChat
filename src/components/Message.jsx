@@ -13,10 +13,10 @@ function Message({ role, content, images }) {
     t = t.replace(/\\right\$/g, "\\right)");
 
     // Block math: \[ ... \] -> $$ ... $$
-    t = t.replace(/\\\[([\\s\\S]*?)\\\]/g, (_, inner) => `$$${inner}$$`);
+    t = t.replace(/\\\[([\s\S]*?)\\\]/g, (_, inner) => `$$${inner}$$`);
 
     // Inline math: \( ... \) -> $ ... $
-    t = t.replace(/\\\(([\\s\\S]*?)\\\)/g, (_, inner) => `$${inner}$`);
+    t = t.replace(/\\\(([\s\S]*?)\\\)/g, (_, inner) => `$${inner}$`);
 
     return t;
   };
