@@ -49,7 +49,11 @@ export function useImageGeneration() {
     setLastPrompt(prompt.trim())
 
     try {
-      const response = await window.puter.ai.txt2img(prompt.trim(), { model })
+      const isTogetherModel = model.includes('/')
+      const response = await window.puter.ai.txt2img(prompt.trim(), {
+        model,
+        ...(isTogetherModel && { provider: 'together' })
+      })
 
       if (response?.success === false) {
         throw { error: response.error || {} }
@@ -139,7 +143,11 @@ export function useImageGeneration() {
             enhancedPrompt = analysisResponse
           }
 
-          response = await window.puter.ai.txt2img(enhancedPrompt, { model })
+          const isTogetherModel = model.includes('/')
+          response = await window.puter.ai.txt2img(enhancedPrompt, {
+            model,
+            ...(isTogetherModel && { provider: 'together' })
+          })
         } finally {
           try { await window.puter.fs.delete(puterFile.path) } catch { }
         }
