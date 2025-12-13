@@ -1,120 +1,130 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { useImageGeneration } from '../hooks/useImageGeneration'
-import { useAutoDismiss } from '../hooks/useAutoDismiss'
-import { DEFAULT_IMAGE_MODEL, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '../utils/constants'
-import ModelSelector from './ModelSelector'
-import { ImageLoading, ImageError, GeneratedImage, ImagePlaceholder } from './ImageComponents'
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useImageGeneration } from "../hooks/useImageGeneration";
+import { useAutoDismiss } from "../hooks/useAutoDismiss";
+import {
+  DEFAULT_IMAGE_MODEL,
+  ALLOWED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
+} from "../utils/constants";
+import ModelSelector from "./ModelSelector";
+import {
+  ImageLoading,
+  ImageError,
+  GeneratedImage,
+  ImagePlaceholder,
+} from "./ImageComponents";
 
 function ImagePanel() {
-  const [prompt, setPrompt] = useState('')
-  const [model, setModel] = useState(DEFAULT_IMAGE_MODEL)
-  const [sourceImage, setSourceImage] = useState(null) // { file: File, preview: string }
-  const [isDragOver, setIsDragOver] = useState(false)
-  const { imageUrl, isLoading, error, lastPrompt, generateImage, editImage, setError } = useImageGeneration()
+  const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState(DEFAULT_IMAGE_MODEL);
+  const [sourceImage, setSourceImage] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const {
+    imageUrl,
+    isLoading,
+    error,
+    lastPrompt,
+    generateImage,
+    editImage,
+    setError,
+  } = useImageGeneration();
 
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
 
-
-  useAutoDismiss(error, setError)
-
+  useAutoDismiss(error, setError);
 
   useEffect(() => {
     return () => {
       if (sourceImage?.preview) {
-        URL.revokeObjectURL(sourceImage.preview)
+        URL.revokeObjectURL(sourceImage.preview);
       }
-    }
-  }, [sourceImage])
+    };
+  }, [sourceImage]);
 
+  const handleImageSelect = useCallback(
+    (file) => {
+      if (!file) return;
 
-  const handleImageSelect = useCallback((file) => {
-    if (!file) return
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setError(
+          "Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.",
+        );
+        return;
+      }
 
-    // Validate type
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError('Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.')
-      return
-    }
+      if (file.size > MAX_IMAGE_SIZE) {
+        setError("Ảnh quá lớn. Kích thước tối đa là 5MB.");
+        return;
+      }
 
-    // Validate size
-    if (file.size > MAX_IMAGE_SIZE) {
-      setError('Ảnh quá lớn. Kích thước tối đa là 5MB.')
-      return
-    }
-
-    // Create preview URL
-    const previewUrl = URL.createObjectURL(file)
-    setSourceImage({ file, preview: previewUrl })
-  }, [setError])
-
+      const previewUrl = URL.createObjectURL(file);
+      setSourceImage({ file, preview: previewUrl });
+    },
+    [setError],
+  );
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      handleImageSelect(file)
+      handleImageSelect(file);
     }
-    // Reset input so same file can be selected again
-    e.target.value = ''
-  }
-
+    e.target.value = "";
+  };
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-    setIsDragOver(true)
-  }
-
+    e.preventDefault();
+    setIsDragOver(true);
+  };
 
   const handleDragLeave = (e) => {
-    e.preventDefault()
-    setIsDragOver(false)
-  }
-
+    e.preventDefault();
+    setIsDragOver(false);
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    setIsDragOver(false)
+    e.preventDefault();
+    setIsDragOver(false);
 
-    const file = e.dataTransfer?.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      handleImageSelect(file)
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      handleImageSelect(file);
     }
-  }
+  };
 
+  const handlePaste = useCallback(
+    (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
 
-  const handlePaste = useCallback((e) => {
-    const items = e.clipboardData?.items
-    if (!items) return
-
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault()
-        const file = item.getAsFile()
-        if (file) handleImageSelect(file)
-        return
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) handleImageSelect(file);
+          return;
+        }
       }
-    }
-  }, [handleImageSelect])
-
+    },
+    [handleImageSelect],
+  );
 
   const handleRemoveImage = () => {
     if (sourceImage?.preview) {
-      URL.revokeObjectURL(sourceImage.preview)
+      URL.revokeObjectURL(sourceImage.preview);
     }
-    setSourceImage(null)
-  }
+    setSourceImage(null);
+  };
 
   const handleSubmit = (e) => {
-    e?.preventDefault()
+    e?.preventDefault();
     if (prompt.trim() && !isLoading) {
       if (sourceImage) {
-        // Edit with source image
-        editImage(prompt, sourceImage.file, model)
+        editImage(prompt, sourceImage.file, model);
       } else {
-        // Generate from scratch
-        generateImage(prompt, model)
+        generateImage(prompt, model);
       }
     }
-  }
+  };
 
   return (
     <div className="tab-panel active">
@@ -129,13 +139,14 @@ function ImagePanel() {
 
           <form className="prompt-section" onSubmit={handleSubmit}>
             <label className="prompt-label">
-              {sourceImage ? 'Mô tả chỉnh sửa:' : 'Mô tả hình ảnh:'}
+              {sourceImage ? "Mô tả chỉnh sửa:" : "Mô tả hình ảnh:"}
             </label>
             <textarea
               className="prompt-input"
-              placeholder={sourceImage
-                ? "Mô tả cách bạn muốn chỉnh sửa ảnh... Ví dụ: Thêm mũ phù thủy cho nhân vật, đổi nền thành bãi biển"
-                : "Mô tả chi tiết hình ảnh bạn muốn tạo... Ví dụ: A cute cat wearing a wizard hat, digital art style, vibrant colors"
+              placeholder={
+                sourceImage
+                  ? "Mô tả cách bạn muốn chỉnh sửa ảnh... Ví dụ: Thêm mũ phù thủy cho nhân vật, đổi nền thành bãi biển"
+                  : "Mô tả chi tiết hình ảnh bạn muốn tạo... Ví dụ: A cute cat wearing a wizard hat, digital art style, vibrant colors"
               }
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -143,9 +154,8 @@ function ImagePanel() {
             />
           </form>
 
-          {/* Image Upload Section */}
           <div
-            className={`image-upload-section ${isDragOver ? 'drag-over' : ''} ${sourceImage ? 'has-image' : ''}`}
+            className={`image-upload-section ${isDragOver ? "drag-over" : ""} ${sourceImage ? "has-image" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -154,18 +164,21 @@ function ImagePanel() {
               Ảnh gốc (tùy chọn - để chỉnh sửa):
             </label>
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
 
             {sourceImage ? (
               <div className="edit-image-preview-container">
-                <img src={sourceImage.preview} alt="Source" className="edit-image-preview" />
+                <img
+                  src={sourceImage.preview}
+                  alt="Source"
+                  className="edit-image-preview"
+                />
                 <button
                   type="button"
                   className="edit-image-remove"
@@ -196,7 +209,7 @@ function ImagePanel() {
               onClick={handleSubmit}
               disabled={isLoading || !prompt.trim()}
             >
-              {sourceImage ? 'Chỉnh sửa ảnh' : 'Tạo hình ảnh'}
+              {sourceImage ? "Chỉnh sửa ảnh" : "Tạo hình ảnh"}
             </button>
           </div>
         </div>
@@ -214,8 +227,7 @@ function ImagePanel() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ImagePanel
-
+export default ImagePanel;

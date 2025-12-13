@@ -6,64 +6,74 @@
 
 const CHAT_MODELS = [
   {
-    group: 'OpenAI',
+    group: "OpenAI",
     models: [
-      { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2' },
-      { value: 'openrouter:openai/gpt-4o-search-preview', label: 'GPT-4o Search' },
-      { value: 'o3', label: 'o3 (Reasoning)' }
-    ]
+      { value: "gpt-5.2-chat-latest", label: "GPT-5.2" },
+      {
+        value: "openrouter:openai/gpt-4o-search-preview",
+        label: "GPT-4o Search",
+      },
+      { value: "o3", label: "o3 (Reasoning)" },
+    ],
   },
   {
-    group: 'Claude',
+    group: "Claude",
     models: [
-      { value: 'claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
-      { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' }
-    ]
+      { value: "claude-opus-4-5-20251101", label: "Claude Opus 4.5" },
+      { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5" },
+    ],
   },
   {
-    group: 'Gemini',
-    models: [
-      { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' },
-    ]
+    group: "Gemini",
+    models: [{ value: "gemini-3-pro-preview", label: "Gemini 3 Pro" }],
   },
   {
-    group: 'DeepSeek',
+    group: "DeepSeek",
     models: [
-      { value: 'deepseek-chat', label: 'DeepSeek Chat' },
-      { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner' },
-      { value: 'openrouter:tngtech/deepseek-r1t2-chimera:free', label: 'DeepSeek R1 Chimera (Free)' }
-    ]
-  }
-]
+      { value: "deepseek-chat", label: "DeepSeek Chat" },
+      { value: "deepseek-reasoner", label: "DeepSeek Reasoner" },
+      {
+        value: "openrouter:tngtech/deepseek-r1t2-chimera:free",
+        label: "DeepSeek R1 Chimera (Free)",
+      },
+    ],
+  },
+];
 
 // Image models - ordered by stability
 const IMAGE_MODELS = [
   {
-    group: 'Gemini',
+    group: "Gemini",
     models: [
-      { value: 'gemini-3-pro-image-preview', label: 'Gemini 3 Pro Image' },
-      { value: 'gemini-2.5-flash-image-preview', label: 'Gemini 2.5 Flash Image' }
-    ]
+      { value: "gemini-3-pro-image-preview", label: "Gemini 3 Pro Image" },
+      {
+        value: "gemini-2.5-flash-image-preview",
+        label: "Gemini 2.5 Flash Image",
+      },
+    ],
   },
   {
-    group: 'OpenAI',
+    group: "OpenAI",
     models: [
-      { value: 'gpt-image-1', label: 'GPT Image 1' },
-      { value: 'gpt-image-1-mini', label: 'GPT Image 1 Mini' },
-      { value: 'dall-e-3', label: 'DALL-E 3' }
-    ]
+      { value: "gpt-image-1", label: "GPT Image 1" },
+      { value: "gpt-image-1-mini", label: "GPT Image 1 Mini" },
+      { value: "dall-e-3", label: "DALL-E 3" },
+    ],
   },
   {
-    group: 'Khác',
+    group: "Khác",
     models: [
-      { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
-      { value: 'stabilityai/stable-diffusion-3.5-large', label: 'SD 3.5 Large' }
-    ]
-  }
-]
+      { value: "black-forest-labs/FLUX.1.1-pro", label: "FLUX 1.1 Pro" },
+      {
+        value: "stabilityai/stable-diffusion-3.5-large",
+        label: "SD 3.5 Large",
+      },
+    ],
+  },
+];
 
 function ModelSelector({ type, value, onChange, label }) {
-  const modelGroups = type === 'chat' ? CHAT_MODELS : IMAGE_MODELS
+  const modelGroups = type === "chat" ? CHAT_MODELS : IMAGE_MODELS;
 
   return (
     <div className="model-selector">
@@ -74,9 +84,9 @@ function ModelSelector({ type, value, onChange, label }) {
         onChange={(e) => onChange(e.target.value)}
         title="Chọn model AI"
       >
-        {modelGroups.map(group => (
+        {modelGroups.map((group) => (
           <optgroup key={group.group} label={group.group}>
-            {group.models.map(model => (
+            {group.models.map((model) => (
               <option key={model.value} value={model.value}>
                 {model.label}
               </option>
@@ -85,8 +95,8 @@ function ModelSelector({ type, value, onChange, label }) {
         ))}
       </select>
     </div>
-  )
+  );
 }
 
-export default ModelSelector
-export { CHAT_MODELS, IMAGE_MODELS }
+export default ModelSelector;
+export { CHAT_MODELS, IMAGE_MODELS };

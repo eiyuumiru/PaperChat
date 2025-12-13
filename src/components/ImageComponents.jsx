@@ -7,11 +7,12 @@ export function ImagePlaceholder() {
     <div className="image-placeholder">
       <div className="image-placeholder-icon"></div>
       <p className="image-placeholder-text">
-        Hình ảnh được tạo sẽ hiển thị ở đây<br />
+        Hình ảnh được tạo sẽ hiển thị ở đây
+        <br />
         <span className="hl-blue">Nhập prompt và nhấn "Tạo hình ảnh"</span>
       </p>
     </div>
-  )
+  );
 }
 
 export function ImageLoading() {
@@ -23,7 +24,7 @@ export function ImageLoading() {
         Quá trình này có thể mất 10-30 giây
       </p>
     </div>
-  )
+  );
 }
 
 export function ImageError({ message }) {
@@ -31,15 +32,17 @@ export function ImageError({ message }) {
     <div className="image-placeholder">
       <div className="image-placeholder-icon"></div>
       <p className="image-placeholder-text error">
-        {message}<br />
+        {message}
+        <br />
         <span className="hl-yellow">Vui lòng thử lại</span>
       </p>
     </div>
-  )
+  );
 }
 
 export function GeneratedImage({ url, prompt }) {
-  const shortPrompt = prompt.length > 100 ? prompt.substring(0, 100) + '...' : prompt
+  const shortPrompt =
+    prompt.length > 100 ? prompt.substring(0, 100) + "..." : prompt;
 
   return (
     <div className="generated-image-wrapper">
@@ -48,5 +51,5 @@ export function GeneratedImage({ url, prompt }) {
         <p className="polaroid-caption">"{shortPrompt}"</p>
       </div>
     </div>
-  )
+  );
 }

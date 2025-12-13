@@ -1,8 +1,11 @@
 const TIPS = [
-  { text: 'Giải thích quantum computing', prompt: 'Giải thích quantum computing đơn giản' },
-  { text: 'Viết thơ về mùa thu', prompt: 'Viết một bài thơ về mùa thu' },
-  { text: 'Ý tưởng startup', prompt: 'Cho tôi 5 ý tưởng startup công nghệ' }
-]
+  {
+    text: "Giải thích quantum computing",
+    prompt: "Giải thích quantum computing đơn giản",
+  },
+  { text: "Viết thơ về mùa thu", prompt: "Viết một bài thơ về mùa thu" },
+  { text: "Ý tưởng startup", prompt: "Cho tôi 5 ý tưởng startup công nghệ" },
+];
 
 function WelcomeMessage({ onPromptClick }) {
   return (
@@ -10,8 +13,9 @@ function WelcomeMessage({ onPromptClick }) {
       <div className="welcome-icon"></div>
       <h2 className="welcome-title">Xin chào!</h2>
       <p className="welcome-text">
-        Mình là trợ lý AI của bạn. Hãy hỏi bất cứ điều gì nhé!<br />
-        <span className="hl-yellow">Miễn phí</span> và{' '}
+        Mình là trợ lý AI của bạn. Hãy hỏi bất cứ điều gì nhé!
+        <br />
+        <span className="hl-yellow">Miễn phí</span> và{" "}
         <span className="hl-pink">không giới hạn</span>
       </p>
       <div className="tips-container">
@@ -26,7 +30,7 @@ function WelcomeMessage({ onPromptClick }) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export default WelcomeMessage
+export default WelcomeMessage;

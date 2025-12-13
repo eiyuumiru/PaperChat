@@ -1,159 +1,165 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { useChat } from '../hooks/useChat'
-import { useAutoDismiss } from '../hooks/useAutoDismiss'
-import { DEFAULT_CHAT_MODEL, TEXTAREA_MIN_HEIGHT, TEXTAREA_MAX_HEIGHT, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE, WEB_SEARCH_MODEL } from '../utils/constants'
-import ModelSelector from './ModelSelector'
-import Message, { LoadingMessage } from './Message'
-import WelcomeMessage from './WelcomeMessage'
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useChat } from "../hooks/useChat";
+import { useAutoDismiss } from "../hooks/useAutoDismiss";
+import {
+  DEFAULT_CHAT_MODEL,
+  TEXTAREA_MIN_HEIGHT,
+  TEXTAREA_MAX_HEIGHT,
+  ALLOWED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
+  WEB_SEARCH_MODEL,
+} from "../utils/constants";
+import ModelSelector from "./ModelSelector";
+import Message, { LoadingMessage } from "./Message";
+import WelcomeMessage from "./WelcomeMessage";
 
 function ChatPanel() {
-  const [input, setInput] = useState('')
-  const [model, setModel] = useState(DEFAULT_CHAT_MODEL)
-  const [attachedImage, setAttachedImage] = useState(null) // { file: File, preview: string }
-  const [isDragOver, setIsDragOver] = useState(false)
-  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
-  const { messages, isLoading, isSearching, error, sendMessage, sendMessageWithImage, setError } = useChat()
+  const [input, setInput] = useState("");
+  const [model, setModel] = useState(DEFAULT_CHAT_MODEL);
+  const [attachedImage, setAttachedImage] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const {
+    messages,
+    isLoading,
+    isSearching,
+    error,
+    sendMessage,
+    sendMessageWithImage,
+    setError,
+  } = useChat();
 
-  const messagesEndRef = useRef(null)
-  const textareaRef = useRef(null)
-  const fileInputRef = useRef(null)
-
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isLoading])
-
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
 
   useEffect(() => {
-    const textarea = textareaRef.current
+    const textarea = textareaRef.current;
     if (textarea) {
-      textarea.style.height = 'auto'
+      textarea.style.height = "auto";
       const nextHeight = Math.max(
         TEXTAREA_MIN_HEIGHT,
-        Math.min(textarea.scrollHeight, TEXTAREA_MAX_HEIGHT)
-      )
-      textarea.style.height = `${nextHeight}px`
+        Math.min(textarea.scrollHeight, TEXTAREA_MAX_HEIGHT),
+      );
+      textarea.style.height = `${nextHeight}px`;
     }
-  }, [input])
+  }, [input]);
 
-
-  useAutoDismiss(error, setError)
-
+  useAutoDismiss(error, setError);
 
   useEffect(() => {
     return () => {
       if (attachedImage?.preview) {
-        URL.revokeObjectURL(attachedImage.preview)
+        URL.revokeObjectURL(attachedImage.preview);
       }
-    }
-  }, [attachedImage])
+    };
+  }, [attachedImage]);
 
+  const handleImageSelect = useCallback(
+    (file) => {
+      if (!file) return;
 
-  const handleImageSelect = useCallback((file) => {
-    if (!file) return
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setError(
+          "Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.",
+        );
+        return;
+      }
 
-    // Validate type
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError('Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.')
-      return
-    }
+      if (file.size > MAX_IMAGE_SIZE) {
+        setError("Ảnh quá lớn. Kích thước tối đa là 5MB.");
+        return;
+      }
 
-    // Validate size
-    if (file.size > MAX_IMAGE_SIZE) {
-      setError('Ảnh quá lớn. Kích thước tối đa là 5MB.')
-      return
-    }
-
-    // Create preview URL
-    const previewUrl = URL.createObjectURL(file)
-    setAttachedImage({ file, preview: previewUrl })
-  }, [setError])
-
+      const previewUrl = URL.createObjectURL(file);
+      setAttachedImage({ file, preview: previewUrl });
+    },
+    [setError],
+  );
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      handleImageSelect(file)
+      handleImageSelect(file);
     }
-    // Reset input so same file can be selected again
-    e.target.value = ''
-  }
+    e.target.value = "";
+  };
 
+  const handlePaste = useCallback(
+    (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
 
-  const handlePaste = useCallback((e) => {
-    const items = e.clipboardData?.items
-    if (!items) return
-
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault()
-        const file = item.getAsFile()
-        if (file) handleImageSelect(file)
-        return
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) handleImageSelect(file);
+          return;
+        }
       }
-    }
-  }, [handleImageSelect])
-
+    },
+    [handleImageSelect],
+  );
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-    setIsDragOver(true)
-  }
-
+    e.preventDefault();
+    setIsDragOver(true);
+  };
 
   const handleDragLeave = (e) => {
-    e.preventDefault()
-    setIsDragOver(false)
-  }
-
+    e.preventDefault();
+    setIsDragOver(false);
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    setIsDragOver(false)
+    e.preventDefault();
+    setIsDragOver(false);
 
-    const file = e.dataTransfer?.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      handleImageSelect(file)
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      handleImageSelect(file);
     }
-  }
-
+  };
 
   const handleRemoveImage = () => {
     if (attachedImage?.preview) {
-      URL.revokeObjectURL(attachedImage.preview)
+      URL.revokeObjectURL(attachedImage.preview);
     }
-    setAttachedImage(null)
-  }
+    setAttachedImage(null);
+  };
 
   const handleSubmit = (e) => {
-    e?.preventDefault()
-    if (isLoading) return
+    e?.preventDefault();
+    if (isLoading) return;
 
     if (attachedImage) {
-      // Send with image (web search not supported with images)
-      sendMessageWithImage(input, attachedImage.file, model)
-      setInput('')
-      handleRemoveImage()
+      sendMessageWithImage(input, attachedImage.file, model);
+      setInput("");
+      handleRemoveImage();
     } else if (input.trim()) {
-      // Send text with optional web search
-      sendMessage(input, model, webSearchEnabled)
-      setInput('')
+      sendMessage(input, model, webSearchEnabled);
+      setInput("");
     }
-  }
+  };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
     }
-  }
+  };
 
   const handlePromptClick = (prompt) => {
-    setInput(prompt)
-    textareaRef.current?.focus()
-  }
+    setInput(prompt);
+    textareaRef.current?.focus();
+  };
 
-  const canSubmit = !isLoading && (input.trim() || attachedImage)
+  const canSubmit = !isLoading && (input.trim() || attachedImage);
 
   return (
     <div className="tab-panel active">
@@ -172,30 +178,36 @@ function ChatPanel() {
             <WelcomeMessage onPromptClick={handlePromptClick} />
           ) : (
             messages.map((msg, idx) => (
-              <Message key={idx} role={msg.role} content={msg.content} image={msg.image} />
+              <Message
+                key={idx}
+                role={msg.role}
+                content={msg.content}
+                image={msg.image}
+              />
             ))
           )}
 
           {isLoading && <LoadingMessage searching={isSearching} />}
 
-          {error && (
-            <div className="error-message">{error}</div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
           <div ref={messagesEndRef} />
         </div>
 
         <form
-          className={`input-area ${isDragOver ? 'drag-over' : ''}`}
+          className={`input-area ${isDragOver ? "drag-over" : ""}`}
           onSubmit={handleSubmit}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {/* Image Preview */}
           {attachedImage && (
             <div className="image-preview-container">
-              <img src={attachedImage.preview} alt="Preview" className="image-preview" />
+              <img
+                src={attachedImage.preview}
+                alt="Preview"
+                className="image-preview"
+              />
               <button
                 type="button"
                 className="image-preview-remove"
@@ -208,16 +220,14 @@ function ChatPanel() {
           )}
 
           <div className="input-wrapper">
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
 
-            {/* Image upload button */}
             <button
               type="button"
               className="image-upload-btn"
@@ -228,15 +238,20 @@ function ChatPanel() {
               📷
             </button>
 
-            {/* Web search toggle */}
             <button
               type="button"
-              className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
+              className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? "active" : ""} ${model === WEB_SEARCH_MODEL ? "always-on" : ""}`}
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-              title={model === WEB_SEARCH_MODEL
-                ? "Model này đã có sẵn tìm kiếm web"
-                : webSearchEnabled ? "Tắt tìm kiếm web" : "Bật tìm kiếm web"}
-              disabled={isLoading || !!attachedImage || model === WEB_SEARCH_MODEL}
+              title={
+                model === WEB_SEARCH_MODEL
+                  ? "Model này đã có sẵn tìm kiếm web"
+                  : webSearchEnabled
+                    ? "Tắt tìm kiếm web"
+                    : "Bật tìm kiếm web"
+              }
+              disabled={
+                isLoading || !!attachedImage || model === WEB_SEARCH_MODEL
+              }
             >
               🔍
             </button>
@@ -244,7 +259,11 @@ function ChatPanel() {
             <textarea
               ref={textareaRef}
               className="message-input"
-              placeholder={attachedImage ? "Nhập câu hỏi về ảnh..." : "Nhập tin nhắn của bạn..."}
+              placeholder={
+                attachedImage
+                  ? "Nhập câu hỏi về ảnh..."
+                  : "Nhập tin nhắn của bạn..."
+              }
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -252,18 +271,13 @@ function ChatPanel() {
               rows={1}
             />
           </div>
-          <button
-            type="submit"
-            className="send-btn"
-            disabled={!canSubmit}
-          >
+          <button type="submit" className="send-btn" disabled={!canSubmit}>
             Gửi
           </button>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-export default ChatPanel
-
+export default ChatPanel;

@@ -130,6 +130,13 @@ body {
   margin-bottom: 8px;
 }
 
+.title-emoji {
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  background: none;
+  color: initial;
+}
+
 .app-subtitle {
   font-family: "Mali", cursive;
   font-size: 1.1rem;
@@ -250,6 +257,227 @@ body {
 
 [data-theme="dark"] .message.assistant::before {
   background-color: rgba(255, 100, 100, 0.2);
+}
+
+/* Help Button */
+.help-btn {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 12px;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.help-btn:hover {
+  transform: translate(-2px, -2px) rotate(-2deg);
+  box-shadow: 5px 5px 12px rgba(215, 194, 168, 0.5), 0 2px 4px rgba(0, 0, 0, 0.06);
+  background-color: var(--paper-cream);
+}
+
+[data-theme="dark"] .help-btn {
+  border-color: rgba(100, 100, 130, 0.5);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .help-btn:hover {
+  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Help Modal Overlay */
+.help-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Help Modal Container */
+.help-modal {
+  position: relative;
+  width: min(90vw, 550px);
+  max-height: 85vh;
+  overflow-y: auto;
+  background-color: var(--paper-cream);
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.15), 0 4px 15px rgba(0, 0, 0, 0.1);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dot grid background for modal */
+.help-modal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(var(--dot-grid-tint) 0.9px, transparent 0.9px);
+  background-size: 18px 18px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 18px;
+}
+
+.help-modal>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* Close button */
+.help-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 50%;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.help-modal-close:hover {
+  background-color: var(--sticky-pink);
+  transform: scale(1.1);
+}
+
+/* Modal Title */
+.help-modal-title {
+  font-family: "Pacifico", cursive;
+  font-size: 1.8rem;
+  color: var(--accent-blue);
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Help Sections */
+.help-section {
+  background-color: var(--paper-white);
+  border: 2px solid rgba(215, 194, 168, 0.4);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.3), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.help-section-title {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent-rose);
+  margin-bottom: 10px;
+}
+
+.help-section p {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink-primary);
+}
+
+/* Help Steps */
+.help-steps {
+  font-family: "Patrick Hand", cursive;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--ink-primary);
+}
+
+.help-step {
+  margin-bottom: 10px;
+  padding-left: 0;
+}
+
+.help-steps a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 3px;
+}
+
+.help-note {
+  font-size: 0.9rem;
+  color: var(--ink-secondary);
+  font-style: italic;
+}
+
+/* Help Footer */
+.help-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px dashed var(--dot-grid-tint);
+}
+
+.help-footer p {
+  font-family: "Mali", cursive;
+  font-size: 0.95rem;
+  color: var(--ink-secondary);
+}
+
+.help-footer a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.help-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Dark mode modal */
+[data-theme="dark"] .help-modal {
+  border-color: rgba(100, 100, 130, 0.4);
+  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .help-section {
+  border-color: rgba(100, 100, 130, 0.3);
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .help-modal-close {
+  border-color: rgba(100, 100, 130, 0.5);
 }
 
 /* ============================================

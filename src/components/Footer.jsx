@@ -1,13 +1,13 @@
 function Footer() {
   return (
     <footer className="app-footer">
-      Made with 💕 using{' '}
+      Made with 💕 using{" "}
       <a href="https://puter.com" target="_blank" rel="noopener noreferrer">
         Puter.js
-      </a>{' '}
+      </a>{" "}
       ✨
     </footer>
-  )
+  );
 }
 
-export default Footer
+export default Footer;
