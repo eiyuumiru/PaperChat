@@ -34,7 +34,7 @@ export function useChat() {
   const [error, setError] = useState(null)
   const messagesRef = useRef([])
 
-  // Keep ref in sync with state for stable references
+
   messagesRef.current = messages
 
   /**
@@ -55,10 +55,8 @@ export function useChat() {
     setError(null)
 
     try {
-      // Build messages history for context (last N messages)
       const history = messagesWithUser.slice(-MAX_CHAT_HISTORY)
 
-      // Build API messages (without image data for history - text only)
       const messagesForAPI = history.map(msg => ({
         role: msg.role,
         content: msg.content
@@ -68,16 +66,13 @@ export function useChat() {
         model: model
       })
 
-      // Parse response safely
+
       const responseText = normalizeContent(response)
 
-      // Add AI assistant message using functional update to ensure consistency
       const assistantMessage = { role: 'assistant', content: responseText }
       setMessages(prev => [...prev, assistantMessage])
     } catch (err) {
-      console.error('Chat error:', err)
       setError(err.message || 'Không thể kết nối với AI')
-      // Remove the user message on error to keep state consistent
       setMessages(currentMessages)
     } finally {
       setIsLoading(false)
@@ -149,7 +144,6 @@ export function useChat() {
       const assistantMessage = { role: 'assistant', content: responseText }
       setMessages(prev => [...prev, assistantMessage])
     } catch (err) {
-      console.error('Chat with image error:', err)
       setError(err.message || 'Không thể gửi tin nhắn với ảnh')
       // Remove the user message on error
       setMessages(currentMessages)
@@ -158,8 +152,8 @@ export function useChat() {
       if (uploadedPath) {
         try {
           await window.puter.fs.delete(uploadedPath)
-        } catch (cleanupErr) {
-          console.warn('Failed to cleanup temp file:', cleanupErr)
+        } catch {
+          // Silent cleanup
         }
       }
       setIsLoading(false)

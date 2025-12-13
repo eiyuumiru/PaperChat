@@ -17,12 +17,12 @@ function ChatPanel() {
   const textareaRef = useRef(null)
   const fileInputRef = useRef(null)
 
-  // Auto scroll to bottom
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading])
 
-  // Auto resize textarea
+
   useEffect(() => {
     const textarea = textareaRef.current
     if (textarea) {
@@ -35,10 +35,10 @@ function ChatPanel() {
     }
   }, [input])
 
-  // Auto dismiss error
+
   useAutoDismiss(error, setError)
 
-  // Cleanup preview URL on unmount or when image changes
+
   useEffect(() => {
     return () => {
       if (attachedImage?.preview) {
@@ -47,7 +47,7 @@ function ChatPanel() {
     }
   }, [attachedImage])
 
-  // Handle image file selection
+
   const handleImageSelect = useCallback((file) => {
     if (!file) return
 
@@ -68,7 +68,7 @@ function ChatPanel() {
     setAttachedImage({ file, preview: previewUrl })
   }, [setError])
 
-  // Handle file input change
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -78,7 +78,7 @@ function ChatPanel() {
     e.target.value = ''
   }
 
-  // Handle paste event (Ctrl+V)
+
   const handlePaste = useCallback((e) => {
     const items = e.clipboardData?.items
     if (!items) return
@@ -93,19 +93,19 @@ function ChatPanel() {
     }
   }, [handleImageSelect])
 
-  // Handle drag over
+
   const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragOver(true)
   }
 
-  // Handle drag leave
+
   const handleDragLeave = (e) => {
     e.preventDefault()
     setIsDragOver(false)
   }
 
-  // Handle drop
+
   const handleDrop = (e) => {
     e.preventDefault()
     setIsDragOver(false)
@@ -116,7 +116,7 @@ function ChatPanel() {
     }
   }
 
-  // Remove attached image
+
   const handleRemoveImage = () => {
     if (attachedImage?.preview) {
       URL.revokeObjectURL(attachedImage.preview)

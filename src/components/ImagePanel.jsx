@@ -14,10 +14,10 @@ function ImagePanel() {
 
   const fileInputRef = useRef(null)
 
-  // Auto dismiss error
+
   useAutoDismiss(error, setError)
 
-  // Cleanup preview URL on unmount or when image changes
+
   useEffect(() => {
     return () => {
       if (sourceImage?.preview) {
@@ -26,7 +26,7 @@ function ImagePanel() {
     }
   }, [sourceImage])
 
-  // Handle image file selection
+
   const handleImageSelect = useCallback((file) => {
     if (!file) return
 
@@ -47,7 +47,7 @@ function ImagePanel() {
     setSourceImage({ file, preview: previewUrl })
   }, [setError])
 
-  // Handle file input change
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -57,19 +57,19 @@ function ImagePanel() {
     e.target.value = ''
   }
 
-  // Handle drag over
+
   const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragOver(true)
   }
 
-  // Handle drag leave
+
   const handleDragLeave = (e) => {
     e.preventDefault()
     setIsDragOver(false)
   }
 
-  // Handle drop
+
   const handleDrop = (e) => {
     e.preventDefault()
     setIsDragOver(false)
@@ -80,7 +80,7 @@ function ImagePanel() {
     }
   }
 
-  // Handle paste event (Ctrl+V)
+
   const handlePaste = useCallback((e) => {
     const items = e.clipboardData?.items
     if (!items) return
@@ -95,7 +95,7 @@ function ImagePanel() {
     }
   }, [handleImageSelect])
 
-  // Remove source image
+
   const handleRemoveImage = () => {
     if (sourceImage?.preview) {
       URL.revokeObjectURL(sourceImage.preview)
