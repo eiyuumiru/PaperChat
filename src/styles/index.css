@@ -38,6 +38,37 @@
 }
 
 /* ============================================
+   DARK MODE VARIABLES - Studygram Night Theme
+   ============================================ */
+
+[data-theme="dark"] {
+  /* Dark Backgrounds - warm dark paper tones */
+  --paper-cream: #1e1e2a;
+  --paper-white: #252536;
+  --dot-grid-tint: #4a4a5e;
+  --body-bg: #14141c;
+
+  /* Light Ink - warm whites for readability */
+  --ink-primary: #f0ede8;
+  --ink-secondary: #b8b5ae;
+  --accent-rose: #ff7ba3;
+  --accent-blue: #7db8f5;
+
+  /* Pastels - brighter for dark mode highlights */
+  --pastel-yellow: rgba(255, 245, 157, 0.45);
+  --pastel-blue: rgba(179, 229, 252, 0.45);
+  --pastel-pink: rgba(255, 205, 210, 0.45);
+  --pastel-green: rgba(200, 230, 201, 0.45);
+  --pastel-purple: rgba(225, 190, 231, 0.45);
+
+  /* Sticky Notes - warm tones for dark mode */
+  --sticky-yellow: #4a4230;
+  --sticky-pink: #5a3545;
+  --sticky-blue: #354555;
+  --sticky-green: #354540;
+}
+
+/* ============================================
    BASE STYLES
    ============================================ */
 
@@ -144,6 +175,81 @@ body {
     transform: scale(1.2);
     opacity: 1;
   }
+}
+
+/* Header Controls - Theme Toggle & GitHub */
+.header-controls-row {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.theme-toggle-btn,
+.github-link {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 12px;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+}
+
+.theme-toggle-btn:hover,
+.github-link:hover {
+  transform: translate(-2px, -2px) rotate(-2deg);
+  box-shadow: 5px 5px 12px rgba(215, 194, 168, 0.5), 0 2px 4px rgba(0, 0, 0, 0.06);
+  background-color: var(--paper-cream);
+}
+
+.theme-toggle-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 6px rgba(215, 194, 168, 0.3);
+}
+
+/* Dark mode specific overrides */
+[data-theme="dark"] .theme-toggle-btn,
+[data-theme="dark"] .github-link {
+  border-color: rgba(100, 100, 130, 0.5);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover,
+[data-theme="dark"] .github-link:hover {
+  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Dark mode body background */
+[data-theme="dark"] body {
+  background-image: none;
+  background-color: var(--body-bg);
+}
+
+/* Dark mode code blocks */
+[data-theme="dark"] .markdown-body pre {
+  background-color: #1a1a24;
+  border-color: rgba(100, 100, 130, 0.3);
+}
+
+/* Dark mode message washi tape */
+[data-theme="dark"] .message.user::before {
+  background-color: rgba(100, 180, 255, 0.25);
+}
+
+[data-theme="dark"] .message.assistant::before {
+  background-color: rgba(255, 100, 100, 0.2);
 }
 
 /* ============================================
@@ -1194,6 +1300,20 @@ body {
   padding: 0.1em 0.3em;
   background-color: rgba(215, 194, 168, 0.2);
   border-radius: 4px;
+}
+
+/* Dark mode KaTeX overrides */
+[data-theme="dark"] .markdown-body .katex-display {
+  background-color: rgba(40, 40, 55, 0.9);
+  border-color: rgba(100, 100, 130, 0.4);
+}
+
+[data-theme="dark"] .markdown-body .katex {
+  color: #f0ede8;
+}
+
+[data-theme="dark"] .markdown-body .math-inline {
+  background-color: rgba(100, 100, 130, 0.3);
 }
 
 /* ============================================
