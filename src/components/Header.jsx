@@ -117,7 +117,7 @@ function Header() {
                 Generation
                 <span className="hl-yellow"> hoàn toàn miễn phí</span>, sử dụng
                 <span className="hl-blue"> Puter.js</span> để kết nối với các mô
-                hình AI hàng đầu như GPT-4, Claude, Gemini và nhiều model khác.
+                hình AI hàng đầu như GPT-5.2, Claude, Gemini và nhiều model khác.
               </p>
             </div>
 
