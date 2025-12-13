@@ -8,32 +8,32 @@ const CHAT_MODELS = [
   {
     group: 'OpenAI',
     models: [
-      { value: 'openrouter:openai/gpt-5.2-chat', label: 'GPT-5.2' },
-      { value: 'openrouter:openai/gpt-5.1-codex', label: 'GPT-5.1 Codex' },
-      { value: 'openrouter:openai/o3', label: 'o3 (Reasoning)' },
-      { value: 'openrouter:openai/o1', label: 'o1 (Reasoning)' },
-      { value: 'openrouter:openai/o1-pro', label: 'o1 Pro (Reasoning)' }
+      { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2' },
+      { value: 'gpt-5.1-codex', label: 'GPT-5.1 Codex' },
+      { value: 'o3', label: 'o3 (Reasoning)' },
+      { value: 'o1', label: 'o1 (Reasoning)' },
+      { value: 'o1-pro', label: 'o1 Pro (Reasoning)' }
     ]
   },
   {
     group: 'Claude',
     models: [
-      { value: 'openrouter:anthropic/claude-opus-4.5', label: 'Claude Opus 4.5' },
-      { value: 'openrouter:anthropic/claude-sonnet-4.5', label: 'Claude Sonnet 4.5' }
+      { value: 'claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
+      { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' }
     ]
   },
   {
     group: 'Gemini',
     models: [
-      { value: 'openrouter:google/gemini-3-pro-preview', label: 'Gemini 3 Pro' },
-      { value: 'openrouter:google/gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-      { value: 'openrouter:google/gemini-2.5-flash', label: 'Gemini 2.5 Flash' }
+      { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' },
+      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+      { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' }
     ]
   },
   {
     group: 'DeepSeek',
     models: [
-      { value: 'openrouter:deepseek/deepseek-chat', label: 'DeepSeek Chat' },
+      { value: 'deepseek-chat', label: 'DeepSeek Chat' },
       { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner' },
       { value: 'openrouter:tngtech/deepseek-r1t2-chimera:free', label: 'DeepSeek R1 Chimera (Free)' }
     ]
