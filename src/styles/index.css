@@ -413,7 +413,6 @@ body {
   align-self: flex-end;
   background-color: var(--sticky-blue);
   border: 2px solid rgba(3, 105, 161, 0.3);
-  transform: rotate(0.5deg);
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -421,7 +420,6 @@ body {
   align-self: flex-start;
   background-color: var(--sticky-yellow);
   border: 2px solid rgba(255, 200, 100, 0.4);
-  transform: rotate(-0.5deg);
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -536,6 +534,78 @@ body {
 
 .input-wrapper {
   flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+}
+
+/* Action buttons (image upload, web search) */
+.image-upload-btn,
+.web-search-btn {
+  font-size: 1.3rem;
+  width: 48px;
+  /* Fixed width */
+  height: 48px;
+  /* Fixed height */
+  padding: 0;
+  /* Remove padding to force size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 12px;
+  background-color: var(--paper-cream);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.image-upload-btn:hover:not(:disabled),
+.web-search-btn:hover:not(:disabled) {
+  background-color: var(--paper-white);
+  transform: scale(1.05);
+}
+
+.image-upload-btn:disabled,
+.web-search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Web search active state */
+.web-search-btn.active {
+  background-color: var(--pastel-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Web search always-on state (model has built-in search) */
+.web-search-btn.always-on {
+  background-color: var(--pastel-green);
+  border-color: #22c55e;
+}
+
+/* Search indicator in loading message */
+.search-indicator {
+  font-family: "Mali", cursive;
+  font-size: 0.95rem;
+  color: var(--accent-blue);
+  margin-right: 10px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .message-input {
@@ -1196,17 +1266,15 @@ body {
 }
 
 /* Image Upload Button */
-.image-upload-btn {
-  font-size: 1.4rem;
-  padding: 14px 16px;
-  border: 2px solid rgba(215, 194, 168, 0.6);
-  border-radius: 15px;
-  background-color: var(--paper-cream);
-  cursor: pointer;
-  transition: all 0.2s ease;
+.image-upload-btn,
+.web-search-btn {
+  font-size: 1.5rem;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 14px;
   line-height: 1;
   flex-shrink: 0;
-  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;

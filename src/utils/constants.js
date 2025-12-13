@@ -5,6 +5,7 @@
 // Default model values
 export const DEFAULT_CHAT_MODEL = 'gpt-5.2-chat-latest'
 export const DEFAULT_IMAGE_MODEL = 'gemini-3-pro-image-preview'
+export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview'
 
 // UI Constants
 export const TEXTAREA_MIN_HEIGHT = 56

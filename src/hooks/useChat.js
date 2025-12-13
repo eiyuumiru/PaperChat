@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { normalizeContent } from '../utils/content'
-import { MAX_CHAT_HISTORY, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } from '../utils/constants'
+import { MAX_CHAT_HISTORY, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES, WEB_SEARCH_MODEL } from '../utils/constants'
 
 /**
  * Validate image file
@@ -28,44 +28,78 @@ function fileToDataURL(file) {
   })
 }
 
+/**
+ * Perform web search using GPT-4o Search model
+ */
+async function performWebSearch(query) {
+  const searchPrompt = `Tìm kiếm thông tin mới nhất về: "${query}". Trả về kết quả ngắn gọn, chính xác với nguồn nếu có.`
+
+  const response = await window.puter.ai.chat(searchPrompt, {
+    model: WEB_SEARCH_MODEL
+  })
+
+  return normalizeContent(response)
+}
+
 export function useChat() {
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
   const messagesRef = useRef([])
 
 
   messagesRef.current = messages
 
   /**
-   * Send a text-only message
+   * Send a text-only message (with optional web search)
    */
-  const sendMessage = useCallback(async (content, model) => {
+  const sendMessage = useCallback(async (content, model, enableWebSearch = false) => {
     if (!content.trim() || isLoading) return
 
     const userMessage = { role: 'user', content: content.trim() }
 
-    // Get current messages before updating state
     const currentMessages = messagesRef.current
     const messagesWithUser = [...currentMessages, userMessage]
 
-    // Optimistically add user message to UI
     setMessages(messagesWithUser)
     setIsLoading(true)
     setError(null)
 
     try {
+      let systemContext = null
+
+      // Web Search Chain: search first, then use results as context
+      if (enableWebSearch && model !== WEB_SEARCH_MODEL) {
+        setIsSearching(true)
+        try {
+          const searchResults = await performWebSearch(content.trim())
+          systemContext = `[Kết quả tìm kiếm web]\n${searchResults}\n\n[Hướng dẫn]\nDựa trên thông tin tìm kiếm ở trên, hãy trả lời câu hỏi của người dùng một cách chính xác và đầy đủ.`
+        } catch {
+          // If search fails, continue without search results
+        } finally {
+          setIsSearching(false)
+        }
+      }
+
       const history = messagesWithUser.slice(-MAX_CHAT_HISTORY)
 
-      const messagesForAPI = history.map(msg => ({
+      const messagesForAPI = []
+
+      // Add system context from web search if available
+      if (systemContext) {
+        messagesForAPI.push({ role: 'system', content: systemContext })
+      }
+
+      // Add conversation history
+      messagesForAPI.push(...history.map(msg => ({
         role: msg.role,
         content: msg.content
-      }))
+      })))
 
       const response = await window.puter.ai.chat(messagesForAPI, {
         model: model
       })
-
 
       const responseText = normalizeContent(response)
 
@@ -76,6 +110,7 @@ export function useChat() {
       setMessages(currentMessages)
     } finally {
       setIsLoading(false)
+      setIsSearching(false)
     }
   }, [isLoading])
 
@@ -168,6 +203,7 @@ export function useChat() {
   return {
     messages,
     isLoading,
+    isSearching,
     error,
     sendMessage,
     sendMessageWithImage,

@@ -49,11 +49,12 @@ function Message({ role, content, image }) {
   )
 }
 
-function LoadingMessage() {
+function LoadingMessage({ searching = false }) {
   return (
     <div className="message assistant loading">
       <div className="message-role">AI</div>
       <div className="message-content">
+        {searching && <span className="search-indicator">🔍 Đang tìm kiếm web...</span>}
         <span className="loading-dot"></span>
         <span className="loading-dot"></span>
         <span className="loading-dot"></span>

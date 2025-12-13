@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useChat } from '../hooks/useChat'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
-import { DEFAULT_CHAT_MODEL, TEXTAREA_MIN_HEIGHT, TEXTAREA_MAX_HEIGHT, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '../utils/constants'
+import { DEFAULT_CHAT_MODEL, TEXTAREA_MIN_HEIGHT, TEXTAREA_MAX_HEIGHT, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE, WEB_SEARCH_MODEL } from '../utils/constants'
 import ModelSelector from './ModelSelector'
 import Message, { LoadingMessage } from './Message'
 import WelcomeMessage from './WelcomeMessage'
@@ -11,7 +11,8 @@ function ChatPanel() {
   const [model, setModel] = useState(DEFAULT_CHAT_MODEL)
   const [attachedImage, setAttachedImage] = useState(null) // { file: File, preview: string }
   const [isDragOver, setIsDragOver] = useState(false)
-  const { messages, isLoading, error, sendMessage, sendMessageWithImage, setError } = useChat()
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
+  const { messages, isLoading, isSearching, error, sendMessage, sendMessageWithImage, setError } = useChat()
 
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
@@ -129,13 +130,13 @@ function ChatPanel() {
     if (isLoading) return
 
     if (attachedImage) {
-      // Send with image
+      // Send with image (web search not supported with images)
       sendMessageWithImage(input, attachedImage.file, model)
       setInput('')
       handleRemoveImage()
     } else if (input.trim()) {
-      // Send text only
-      sendMessage(input, model)
+      // Send text with optional web search
+      sendMessage(input, model, webSearchEnabled)
       setInput('')
     }
   }
@@ -175,7 +176,7 @@ function ChatPanel() {
             ))
           )}
 
-          {isLoading && <LoadingMessage />}
+          {isLoading && <LoadingMessage searching={isSearching} />}
 
           {error && (
             <div className="error-message">{error}</div>
@@ -225,6 +226,19 @@ function ChatPanel() {
               disabled={isLoading}
             >
               📷
+            </button>
+
+            {/* Web search toggle */}
+            <button
+              type="button"
+              className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
+              onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+              title={model === WEB_SEARCH_MODEL
+                ? "Model này đã có sẵn tìm kiếm web"
+                : webSearchEnabled ? "Tắt tìm kiếm web" : "Bật tìm kiếm web"}
+              disabled={isLoading || !!attachedImage || model === WEB_SEARCH_MODEL}
+            >
+              🔍
             </button>
 
             <textarea
