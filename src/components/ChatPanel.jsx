@@ -7,6 +7,7 @@ import {
   TEXTAREA_MAX_HEIGHT,
   ALLOWED_IMAGE_TYPES,
   MAX_IMAGE_SIZE,
+  MAX_IMAGES,
   WEB_SEARCH_MODEL,
 } from "../utils/constants";
 import ModelSelector from "./ModelSelector";
@@ -16,7 +17,7 @@ import WelcomeMessage from "./WelcomeMessage";
 function ChatPanel() {
   const [input, setInput] = useState("");
   const [model, setModel] = useState(DEFAULT_CHAT_MODEL);
-  const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedImages, setAttachedImages] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const {
@@ -25,7 +26,7 @@ function ChatPanel() {
     isSearching,
     error,
     sendMessage,
-    sendMessageWithImage,
+    sendMessageWithImages,
     setError,
   } = useChat();
 
@@ -53,38 +54,56 @@ function ChatPanel() {
 
   useEffect(() => {
     return () => {
-      if (attachedImage?.preview) {
-        URL.revokeObjectURL(attachedImage.preview);
-      }
+      attachedImages.forEach((img) => {
+        if (img.preview) URL.revokeObjectURL(img.preview);
+      });
     };
-  }, [attachedImage]);
+  }, [attachedImages]);
 
   const handleImageSelect = useCallback(
-    (file) => {
-      if (!file) return;
+    (files) => {
+      const fileArray = Array.from(files);
+      const validFiles = [];
 
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        setError(
-          "Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.",
-        );
-        return;
+      for (const file of fileArray) {
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+          setError(
+            "Định dạng ảnh không được hỗ trợ. Chỉ hỗ trợ JPEG, PNG, GIF, WebP.",
+          );
+          continue;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+          setError("Một số ảnh quá lớn. Kích thước tối đa là 5MB mỗi ảnh.");
+          continue;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        validFiles.push({ file, preview: previewUrl });
       }
 
-      if (file.size > MAX_IMAGE_SIZE) {
-        setError("Ảnh quá lớn. Kích thước tối đa là 5MB.");
-        return;
+      if (validFiles.length > 0) {
+        setAttachedImages((prev) => {
+          const combined = [...prev, ...validFiles];
+          if (combined.length > MAX_IMAGES) {
+            setError(`Chỉ có thể đính kèm tối đa ${MAX_IMAGES} ảnh.`);
+            // Revoke URLs for files that won't be added
+            validFiles.slice(MAX_IMAGES - prev.length).forEach((img) => {
+              URL.revokeObjectURL(img.preview);
+            });
+            return combined.slice(0, MAX_IMAGES);
+          }
+          return combined;
+        });
       }
-
-      const previewUrl = URL.createObjectURL(file);
-      setAttachedImage({ file, preview: previewUrl });
     },
     [setError],
   );
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImageSelect(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleImageSelect(files);
     }
     e.target.value = "";
   };
@@ -94,13 +113,17 @@ function ChatPanel() {
       const items = e.clipboardData?.items;
       if (!items) return;
 
+      const imageFiles = [];
       for (const item of items) {
         if (item.type.startsWith("image/")) {
-          e.preventDefault();
           const file = item.getAsFile();
-          if (file) handleImageSelect(file);
-          return;
+          if (file) imageFiles.push(file);
         }
+      }
+
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        handleImageSelect(imageFiles);
       }
     },
     [handleImageSelect],
@@ -120,27 +143,44 @@ function ChatPanel() {
     e.preventDefault();
     setIsDragOver(false);
 
-    const file = e.dataTransfer?.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      handleImageSelect(file);
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const imageFiles = Array.from(files).filter((file) =>
+        file.type.startsWith("image/"),
+      );
+      if (imageFiles.length > 0) {
+        handleImageSelect(imageFiles);
+      }
     }
   };
 
-  const handleRemoveImage = () => {
-    if (attachedImage?.preview) {
-      URL.revokeObjectURL(attachedImage.preview);
-    }
-    setAttachedImage(null);
+  const handleRemoveImage = (index) => {
+    setAttachedImages((prev) => {
+      const newImages = [...prev];
+      if (newImages[index]?.preview) {
+        URL.revokeObjectURL(newImages[index].preview);
+      }
+      newImages.splice(index, 1);
+      return newImages;
+    });
+  };
+
+  const handleClearAllImages = () => {
+    attachedImages.forEach((img) => {
+      if (img.preview) URL.revokeObjectURL(img.preview);
+    });
+    setAttachedImages([]);
   };
 
   const handleSubmit = (e) => {
     e?.preventDefault();
     if (isLoading) return;
 
-    if (attachedImage) {
-      sendMessageWithImage(input, attachedImage.file, model);
+    if (attachedImages.length > 0) {
+      const files = attachedImages.map((img) => img.file);
+      sendMessageWithImages(input, files, model);
       setInput("");
-      handleRemoveImage();
+      handleClearAllImages();
     } else if (input.trim()) {
       sendMessage(input, model, webSearchEnabled);
       setInput("");
@@ -159,7 +199,7 @@ function ChatPanel() {
     textareaRef.current?.focus();
   };
 
-  const canSubmit = !isLoading && (input.trim() || attachedImage);
+  const canSubmit = !isLoading && (input.trim() || attachedImages.length > 0);
 
   return (
     <div className="tab-panel active">
@@ -182,7 +222,7 @@ function ChatPanel() {
                 key={idx}
                 role={msg.role}
                 content={msg.content}
-                image={msg.image}
+                images={msg.images}
               />
             ))
           )}
@@ -201,21 +241,40 @@ function ChatPanel() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {attachedImage && (
-            <div className="image-preview-container">
-              <img
-                src={attachedImage.preview}
-                alt="Preview"
-                className="image-preview"
-              />
-              <button
-                type="button"
-                className="image-preview-remove"
-                onClick={handleRemoveImage}
-                title="Xóa ảnh"
-              >
-                ✕
-              </button>
+          {attachedImages.length > 0 && (
+            <div className="images-preview-container">
+              <div className="images-preview-header">
+                <span className="images-count">
+                  {attachedImages.length}/{MAX_IMAGES} ảnh
+                </span>
+                <button
+                  type="button"
+                  className="clear-all-images-btn"
+                  onClick={handleClearAllImages}
+                  title="Xóa tất cả ảnh"
+                >
+                  Xóa tất cả
+                </button>
+              </div>
+              <div className="images-preview-grid">
+                {attachedImages.map((img, index) => (
+                  <div key={index} className="image-preview-item">
+                    <img
+                      src={img.preview}
+                      alt={`Preview ${index + 1}`}
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      className="image-preview-remove"
+                      onClick={() => handleRemoveImage(index)}
+                      title="Xóa ảnh"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -225,17 +284,21 @@ function ChatPanel() {
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={handleFileChange}
+              multiple
               style={{ display: "none" }}
             />
 
             <button
               type="button"
-              className="image-upload-btn"
+              className={`image-upload-btn ${attachedImages.length > 0 ? "has-images" : ""}`}
               onClick={() => fileInputRef.current?.click()}
-              title="Đính kèm ảnh (hoặc paste Ctrl+V)"
-              disabled={isLoading}
+              title={`Đính kèm ảnh (${attachedImages.length}/${MAX_IMAGES})`}
+              disabled={isLoading || attachedImages.length >= MAX_IMAGES}
             >
               📷
+              {attachedImages.length > 0 && (
+                <span className="image-count-badge">{attachedImages.length}</span>
+              )}
             </button>
 
             <button
@@ -250,7 +313,7 @@ function ChatPanel() {
                     : "Bật tìm kiếm web"
               }
               disabled={
-                isLoading || !!attachedImage || model === WEB_SEARCH_MODEL
+                isLoading || attachedImages.length > 0 || model === WEB_SEARCH_MODEL
               }
             >
               🔍
@@ -260,8 +323,8 @@ function ChatPanel() {
               ref={textareaRef}
               className="message-input"
               placeholder={
-                attachedImage
-                  ? "Nhập câu hỏi về ảnh..."
+                attachedImages.length > 0
+                  ? `Nhập câu hỏi về ${attachedImages.length} ảnh...`
                   : "Nhập tin nhắn của bạn..."
               }
               value={input}

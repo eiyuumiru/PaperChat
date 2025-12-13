@@ -14,6 +14,7 @@ export const ERROR_AUTO_DISMISS_TIME = 5000;
 export const MAX_CHAT_HISTORY = 40;
 
 // Image Upload Constants
+export const MAX_IMAGES = 10; // Maximum number of images per message
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",

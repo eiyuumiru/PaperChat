@@ -1592,7 +1592,7 @@ body {
 }
 
 /* ============================================
-   IMAGE UPLOAD STYLES
+   IMAGE UPLOAD STYLES - MULTIPLE IMAGES
    ============================================ */
 
 /* Input area with image upload */
@@ -1626,6 +1626,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .image-upload-btn:hover:not(:disabled) {
@@ -1639,35 +1640,101 @@ body {
   cursor: not-allowed;
 }
 
-/* Image Preview Container */
-.image-preview-container {
-  position: relative;
+.image-upload-btn.has-images {
+  background-color: var(--sticky-green);
+}
+
+/* Image Count Badge */
+.image-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  background-color: var(--accent-rose);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Multiple Images Preview Container */
+.images-preview-container {
   width: 100%;
   margin-bottom: 12px;
+  background-color: var(--paper-cream);
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid rgba(215, 194, 168, 0.5);
+}
+
+.images-preview-header {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.images-count {
+  font-family: "Mali", cursive;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.clear-all-images-btn {
+  font-family: "Mali", cursive;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border: 2px solid var(--accent-rose);
+  border-radius: 6px;
+  background-color: white;
+  color: var(--accent-rose);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-all-images-btn:hover {
+  background-color: var(--accent-rose);
+  color: white;
+}
+
+/* Images Preview Grid */
+.images-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-preview-item {
+  position: relative;
 }
 
 .image-preview {
-  max-width: 200px;
-  max-height: 150px;
-  border-radius: 10px;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
   border: 2px solid rgba(215, 194, 168, 0.5);
-  box-shadow: 4px 4px 12px rgba(215, 194, 168, 0.5), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.4), 0 2px 4px rgba(0, 0, 0, 0.05);
   object-fit: cover;
 }
 
 .image-preview-remove {
   position: absolute;
-  top: -8px;
-  left: 180px;
-  width: 24px;
-  height: 24px;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid rgba(215, 194, 168, 0.6);
   background-color: var(--accent-rose);
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -1682,28 +1749,57 @@ body {
   background-color: #dc2626;
 }
 
-/* Message Images */
-.message-image-container {
+/* Message Images - Multiple */
+.message-images-container {
   margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.message-images-container.single {
+  display: block;
+}
+
+.message-images-container.multiple {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  max-width: 400px;
+}
+
+.message-image-wrapper {
   position: relative;
   display: inline-block;
 }
 
 .message-image {
   max-width: 100%;
-  max-height: 300px;
+  max-height: 200px;
   border-radius: 8px;
   border: 2px solid rgba(215, 194, 168, 0.5);
   box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.4), 0 2px 4px rgba(0, 0, 0, 0.05);
+  object-fit: cover;
+  width: 100%;
+}
+
+.message-images-container.single .message-image {
+  max-height: 300px;
+  width: auto;
   object-fit: contain;
 }
 
 /* Mini polaroid effect for message images */
-.message.user .message-image-container {
+.message.user .message-images-container {
   background-color: white;
-  padding: 6px 6px 16px 6px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 6px;
   box-shadow: 3px 3px 12px rgba(215, 194, 168, 0.5), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: rotate(0.5deg);
+}
+
+.message.user .message-images-container.single {
+  padding: 6px 6px 16px 6px;
   transform: rotate(1deg);
 }
 
@@ -1813,13 +1909,18 @@ body {
 
 /* Responsive adjustments for image upload */
 @media (max-width: 768px) {
-  .image-preview {
-    max-width: 150px;
-    max-height: 120px;
+  .images-preview-grid {
+    gap: 8px;
   }
 
-  .image-preview-remove {
-    left: 130px;
+  .image-preview {
+    width: 60px;
+    height: 60px;
+  }
+
+  .message-images-container.multiple {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    max-width: 300px;
   }
 
   .input-wrapper {

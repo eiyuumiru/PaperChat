@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import { remarkPlugins, rehypePlugins } from "../utils/markdown";
 import { toStringContent } from "../utils/content";
 
-function Message({ role, content, image }) {
+function Message({ role, content, images }) {
   const roleLabel = role === "user" ? "Bạn" : "AI";
 
   const normalizeLatexBlocks = (text) => {
@@ -13,10 +13,10 @@ function Message({ role, content, image }) {
     t = t.replace(/\\right\$/g, "\\right)");
 
     // Block math: \[ ... \] -> $$ ... $$
-    t = t.replace(/\\\[([\s\S]*?)\\\]/g, (_, inner) => `$$${inner}$$`);
+    t = t.replace(/\\\[([\\s\\S]*?)\\\]/g, (_, inner) => `$$${inner}$$`);
 
     // Inline math: \( ... \) -> $ ... $
-    t = t.replace(/\\\(([\s\S]*?)\\\)/g, (_, inner) => `$${inner}$`);
+    t = t.replace(/\\\(([\\s\\S]*?)\\\)/g, (_, inner) => `$${inner}$`);
 
     return t;
   };
@@ -27,9 +27,13 @@ function Message({ role, content, image }) {
     <div className={`message ${role}`}>
       <div className="message-role">{roleLabel}</div>
       <div className="message-content markdown-body">
-        {image && (
-          <div className="message-image-container">
-            <img src={image} alt="Attached" className="message-image" />
+        {images && images.length > 0 && (
+          <div className={`message-images-container ${images.length === 1 ? "single" : "multiple"}`}>
+            {images.map((img, index) => (
+              <div key={index} className="message-image-wrapper">
+                <img src={img} alt={`Attached ${index + 1}`} className="message-image" />
+              </div>
+            ))}
           </div>
         )}
 

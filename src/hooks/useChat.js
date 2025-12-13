@@ -125,21 +125,25 @@ export function useChat() {
   );
 
   /**
-   * Send a message with an image attachment
+   * Send a message with multiple image attachments
    */
-  const sendMessageWithImage = useCallback(
-    async (content, imageFile, model) => {
+  const sendMessageWithImages = useCallback(
+    async (content, imageFiles, model) => {
       if (isLoading) return;
 
-      const validation = validateImageFile(imageFile);
-      if (!validation.valid) {
-        setError(validation.error);
-        return;
+      // Validate all images
+      for (const imageFile of imageFiles) {
+        const validation = validateImageFile(imageFile);
+        if (!validation.valid) {
+          setError(validation.error);
+          return;
+        }
       }
 
-      let imageDataUrl;
+      // Convert all images to data URLs for display
+      let imageDataUrls = [];
       try {
-        imageDataUrl = await fileToDataURL(imageFile);
+        imageDataUrls = await Promise.all(imageFiles.map(fileToDataURL));
       } catch {
         setError("Không thể đọc file ảnh");
         return;
@@ -147,8 +151,8 @@ export function useChat() {
 
       const userMessage = {
         role: "user",
-        content: content.trim() || "Hãy mô tả ảnh này",
-        image: imageDataUrl,
+        content: content.trim() || "Hãy mô tả các ảnh này",
+        images: imageDataUrls,
       };
 
       const currentMessages = messagesRef.current;
@@ -158,19 +162,26 @@ export function useChat() {
       setIsLoading(true);
       setError(null);
 
-      let uploadedPath = null;
+      const uploadedPaths = [];
 
       try {
-        const fileName = `chat_image_${Date.now()}.${imageFile.name.split(".").pop()}`;
-        const puterFile = await window.puter.fs.write(fileName, imageFile);
-        uploadedPath = puterFile.path;
+        // Upload all images to Puter FS
+        for (let i = 0; i < imageFiles.length; i++) {
+          const imageFile = imageFiles[i];
+          const fileName = `chat_image_${Date.now()}_${i}.${imageFile.name.split(".").pop()}`;
+          const puterFile = await window.puter.fs.write(fileName, imageFile);
+          uploadedPaths.push(puterFile.path);
+        }
+
+        // Build multimodal content array
+        const contentArray = [
+          ...uploadedPaths.map((path) => ({ type: "file", puter_path: path })),
+          { type: "text", text: content.trim() || "Hãy mô tả các ảnh này" },
+        ];
 
         const multimodalMessage = {
           role: "user",
-          content: [
-            { type: "file", puter_path: uploadedPath },
-            { type: "text", text: content.trim() || "Hãy mô tả ảnh này" },
-          ],
+          content: contentArray,
         };
 
         const response = await window.puter.ai.chat([multimodalMessage], {
@@ -185,9 +196,10 @@ export function useChat() {
         setError(err.message || "Không thể gửi tin nhắn với ảnh");
         setMessages(currentMessages);
       } finally {
-        if (uploadedPath) {
+        // Clean up uploaded files
+        for (const path of uploadedPaths) {
           try {
-            await window.puter.fs.delete(uploadedPath);
+            await window.puter.fs.delete(path);
           } catch { }
         }
         setIsLoading(false);
@@ -207,7 +219,7 @@ export function useChat() {
     isSearching,
     error,
     sendMessage,
-    sendMessageWithImage,
+    sendMessageWithImages,
     clearMessages,
     setError,
   };
