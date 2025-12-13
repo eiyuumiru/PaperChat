@@ -8,16 +8,16 @@ const CHAT_MODELS = [
   {
     group: 'OpenAI',
     models: [
-      { value: 'gpt-5.2-thinking', label: 'GPT-5.2 Thinking' },
-      { value: 'gpt-5.1-codex-max', label: 'GPT-5.1 Codex Max' },
+      { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2' },
+      { value: 'gpt-5.1-codex', label: 'GPT-5.1 Codex' },
       { value: 'o3', label: 'o3 (Reasoning)' }
     ]
   },
   {
     group: 'Claude',
     models: [
-      { value: 'claude-opus-4-5', label: 'Claude Opus 4.5' },
-      { value: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5' }
+      { value: 'claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
+      { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' }
     ]
   },
   {
@@ -43,6 +43,7 @@ const IMAGE_MODELS = [
     group: 'OpenAI',
     models: [
       { value: 'gpt-image-1', label: 'GPT Image 1' },
+      { value: 'gpt-image-1-mini', label: 'GPT Image 1 Mini' },
       { value: 'dall-e-3', label: 'DALL-E 3' }
     ]
   },
@@ -50,8 +51,7 @@ const IMAGE_MODELS = [
     group: 'Khác',
     models: [
       { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
-      { value: 'stabilityai/stable-diffusion-3.5-large', label: 'SD 3.5 Large' },
-      { value: 'google/imagen-3', label: 'Imagen 3' }
+      { value: 'stabilityai/stable-diffusion-3.5-large', label: 'SD 3.5 Large' }
     ]
   }
 ]

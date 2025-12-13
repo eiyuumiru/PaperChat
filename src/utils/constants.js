@@ -3,7 +3,7 @@
  */
 
 // Default model values
-export const DEFAULT_CHAT_MODEL = 'gpt-5.2-thinking'
+export const DEFAULT_CHAT_MODEL = 'gpt-5.2-chat-latest'
 export const DEFAULT_IMAGE_MODEL = 'gemini-3-pro-image-preview'
 
 // UI Constants

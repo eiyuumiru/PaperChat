@@ -47,6 +47,7 @@ export function useImageGeneration() {
 
     try {
       console.log('Generating image with model:', model, 'prompt:', prompt.trim())
+      console.log('Puter available:', !!window.puter, 'puter.ai:', !!window.puter?.ai)
 
       // Call Puter AI for image generation
       const response = await window.puter.ai.txt2img(prompt.trim(), {
@@ -54,6 +55,16 @@ export function useImageGeneration() {
       })
 
       console.log('Image generation response:', response, 'type:', typeof response)
+      console.log('Response JSON:', JSON.stringify(response, null, 2))
+
+      // Check for API error response format: {success: false, error: {...}}
+      if (response && response.success === false) {
+        const errorInfo = response.error || {}
+        console.error('API returned error (full):', JSON.stringify(response, null, 2))
+        console.error('Error object:', JSON.stringify(errorInfo, null, 2))
+        const errorMessage = errorInfo.message || errorInfo.code || errorInfo.status || JSON.stringify(errorInfo)
+        throw new Error(`Lỗi API: ${errorMessage}`)
+      }
 
       // Handle various response formats
       let imageUrl = null
@@ -101,7 +112,21 @@ export function useImageGeneration() {
       }
     } catch (err) {
       console.error('Image generation error:', err)
-      const errorMsg = err.message || 'Không thể tạo hình ảnh'
+      console.error('Error details:', err.status, err.code, err.response)
+
+      let errorMsg = 'Không thể tạo hình ảnh'
+
+      // Check for specific HTTP error codes
+      if (err.status === 451 || err.message?.includes('451')) {
+        errorMsg = `Model "${model}" bị chặn (Lỗi 451). Vui lòng thử model khác như DALL-E 3 hoặc GPT Image.`
+      } else if (err.status === 429 || err.message?.includes('429')) {
+        errorMsg = 'Quá nhiều yêu cầu. Vui lòng đợi một chút rồi thử lại.'
+      } else if (err.status === 503 || err.message?.includes('503')) {
+        errorMsg = 'Model đang bận. Vui lòng thử lại sau.'
+      } else if (err.message) {
+        errorMsg = err.message
+      }
+
       setError(errorMsg)
       setImageUrl(null)
     } finally {
