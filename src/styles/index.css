@@ -194,6 +194,225 @@ body {
   z-index: 100;
 }
 
+/* ============================================
+   SETTINGS DROPDOWN
+   ============================================ */
+
+/* Settings wrapper - fixed to viewport top-right */
+.settings-wrapper {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+}
+
+/* Settings Button */
+.settings-btn {
+  font-family: "Mali", cursive;
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 12px;
+  background-color: var(--paper-white);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.settings-btn:hover {
+  transform: translate(-2px, -2px) rotate(-2deg);
+  box-shadow: 5px 5px 12px rgba(215, 194, 168, 0.5), 0 2px 4px rgba(0, 0, 0, 0.06);
+  background-color: var(--paper-cream);
+}
+
+[data-theme="dark"] .settings-btn {
+  border-color: rgba(100, 100, 130, 0.5);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .settings-btn:hover {
+  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Settings Dropdown */
+.settings-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background-color: var(--paper-cream);
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 6px 6px 20px rgba(215, 194, 168, 0.6), 0 4px 10px rgba(0, 0, 0, 0.08);
+  animation: settingsSlideDown 0.2s ease-out;
+}
+
+@keyframes settingsSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dot grid background for dropdown */
+.settings-dropdown::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(var(--dot-grid-tint) 0.7px, transparent 0.7px);
+  background-size: 14px 14px;
+  opacity: 0.3;
+  pointer-events: none;
+  border-radius: 14px;
+  z-index: 0;
+}
+
+/* Settings Item */
+.settings-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink-primary);
+  font-family: "Mali", cursive;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.settings-item:hover {
+  background-color: var(--paper-white);
+  transform: translateX(2px);
+}
+
+.settings-item-icon {
+  flex-shrink: 0;
+  color: var(--ink-secondary);
+}
+
+.settings-item-label {
+  flex: 1;
+  text-align: left;
+}
+
+.settings-item-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--accent-blue) 0%, #3B82F6 100%);
+  color: white;
+}
+
+/* Settings Divider */
+.settings-divider {
+  height: 2px;
+  margin: 8px 0;
+  background: linear-gradient(90deg, transparent, var(--dot-grid-tint), transparent);
+  border-radius: 1px;
+}
+
+/* Settings Account Section */
+.settings-account {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: var(--paper-white);
+}
+
+.settings-account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-account-name {
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+  word-break: break-all;
+}
+
+.settings-auth-btn {
+  font-family: "Mali", cursive;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.settings-auth-btn.signin {
+  border: 2px solid var(--accent-blue);
+  background-color: white;
+  color: var(--accent-blue);
+}
+
+.settings-auth-btn.signin:hover {
+  background-color: var(--accent-blue);
+  color: white;
+}
+
+.settings-auth-btn.signout {
+  border: 2px solid var(--accent-rose);
+  background-color: white;
+  color: var(--accent-rose);
+}
+
+.settings-auth-btn.signout:hover {
+  background-color: var(--accent-rose);
+  color: white;
+}
+
+/* Dark mode settings */
+[data-theme="dark"] .settings-dropdown {
+  border-color: rgba(100, 100, 130, 0.5);
+  box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .settings-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .settings-account {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .settings-auth-btn.signin,
+[data-theme="dark"] .settings-auth-btn.signout {
+  background-color: transparent;
+}
+
 .theme-toggle-btn,
 .github-link {
   font-family: "Mali", cursive;
@@ -569,6 +788,11 @@ body {
   background: linear-gradient(135deg, var(--accent-blue) 0%, #3B82F6 100%);
   padding: 4px 12px;
   border-radius: 8px;
+}
+
+.version-tag.major {
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 50%, #DC2626 100%);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
 }
 
 .version-date {

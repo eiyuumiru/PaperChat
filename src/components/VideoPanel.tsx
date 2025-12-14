@@ -6,6 +6,7 @@
 import { useState, type FormEvent } from 'react';
 import { useVideoGeneration } from '../hooks/useVideoGeneration';
 import { useAutoDismiss } from '../hooks/useAutoDismiss';
+import { useLanguage } from '../utils/i18n';
 import type { ModelGroup } from '../types';
 
 /**
@@ -48,29 +49,10 @@ const VIDEO_MODELS: ModelGroup[] = [
             { value: 'minimax/hailuo-02', label: 'Hailuo 02' },
         ],
     },
-    {
-        group: 'Khác',
-        models: [
-            { value: 'pixverse/pixverse-v5', label: 'PixVerse V5' },
-            { value: 'Wan-AI/Wan2.2-T2V-A14B', label: 'Wan 2.2 T2V' },
-            { value: 'vidu/vidu-2.0', label: 'Vidu 2.0' },
-            { value: 'vidu/vidu-q1', label: 'Vidu Q1' },
-        ],
-    },
-];
-
-const DURATION_OPTIONS = [
-    { value: 4, label: '4 giây' },
-    { value: 8, label: '8 giây' },
-    { value: 12, label: '12 giây' },
-];
-
-const SIZE_OPTIONS = [
-    { value: '1280x720', label: '1280x720 (Ngang)' },
-    { value: '720x1280', label: '720x1280 (Dọc)' },
 ];
 
 function VideoPanel(): React.ReactElement {
+    const { t, language } = useLanguage();
     const [prompt, setPrompt] = useState('');
     const [model, setModel] = useState<string>('sora-2');
     const [seconds, setSeconds] = useState(4);
@@ -87,6 +69,32 @@ function VideoPanel(): React.ReactElement {
 
     useAutoDismiss(error, setError);
 
+    // Localized options
+    const DURATION_OPTIONS = [
+        { value: 4, label: `4 ${t('seconds')}` },
+        { value: 8, label: `8 ${t('seconds')}` },
+        { value: 12, label: `12 ${t('seconds')}` },
+    ];
+
+    const SIZE_OPTIONS = [
+        { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
+        { value: '720x1280', label: `720x1280 (${t('vertical')})` },
+    ];
+
+    // Localized model groups
+    const localizedModels: ModelGroup[] = [
+        ...VIDEO_MODELS,
+        {
+            group: t('other'),
+            models: [
+                { value: 'pixverse/pixverse-v5', label: 'PixVerse V5' },
+                { value: 'Wan-AI/Wan2.2-T2V-A14B', label: 'Wan 2.2 T2V' },
+                { value: 'vidu/vidu-2.0', label: 'Vidu 2.0' },
+                { value: 'vidu/vidu-q1', label: 'Vidu Q1' },
+            ],
+        },
+    ];
+
     const handleSubmit = (e?: FormEvent): void => {
         e?.preventDefault();
         if (prompt.trim() && !isLoading) {
@@ -101,28 +109,28 @@ function VideoPanel(): React.ReactElement {
             <div className="alpha-warning">
                 <span className="alpha-warning-icon">⚠️</span>
                 <span className="alpha-warning-text">
-                    <strong>Tính năng tạm ngừng:</strong> Tạo video hiện không hoạt động do{' '}
+                    <strong>{t('videoFeaturePaused')}</strong> {t('videoNotWorking')}{' '}
                     <a
                         href="https://github.com/HeyPuter/puter/issues/2175"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        lỗi từ Puter.js (issue #2175)
+                        {t('puterBug')}
                     </a>
-                    . Vui lòng chờ bản fix.
+                    . {t('pleaseWait')}
                 </span>
             </div>
             <div className="image-panel">
                 <div className="image-controls">
                     <div className="model-selector">
-                        <label className="form-label">Chọn Model:</label>
+                        <label className="form-label">{t('selectModel')}</label>
                         <select
                             className="model-select"
                             value={model}
                             onChange={(e) => setModel(e.target.value)}
-                            title="Chọn model AI"
+                            title={language === 'vi' ? 'Chọn model AI' : 'Select AI model'}
                         >
-                            {VIDEO_MODELS.map((group) => (
+                            {localizedModels.map((group) => (
                                 <optgroup key={group.group} label={group.group}>
                                     {group.models.map((m) => (
                                         <option key={m.value} value={m.value}>
@@ -136,7 +144,7 @@ function VideoPanel(): React.ReactElement {
 
                     <div className="video-options-row">
                         <div className="video-option">
-                            <label className="form-label">Thời lượng:</label>
+                            <label className="form-label">{t('duration')}</label>
                             <select
                                 className="model-select"
                                 value={seconds}
@@ -151,7 +159,7 @@ function VideoPanel(): React.ReactElement {
                         </div>
 
                         <div className="video-option">
-                            <label className="form-label">Kích thước:</label>
+                            <label className="form-label">{t('size')}</label>
                             <select
                                 className="model-select"
                                 value={size}
@@ -173,16 +181,16 @@ function VideoPanel(): React.ReactElement {
                                 checked={testMode}
                                 onChange={(e) => setTestMode(e.target.checked)}
                             />
-                            <span>Test Mode</span>
-                            <span className="test-mode-hint">(Không tốn credits)</span>
+                            <span>{t('testMode')}</span>
+                            <span className="test-mode-hint">{t('testModeHint')}</span>
                         </label>
                     </div>
 
                     <form className="prompt-section" onSubmit={handleSubmit}>
-                        <label className="prompt-label">Mô tả video:</label>
+                        <label className="prompt-label">{t('describeVideo')}</label>
                         <textarea
                             className="prompt-input"
-                            placeholder="Mô tả chi tiết video bạn muốn tạo... Ví dụ: A fox sprinting through a snow-covered forest at dusk, cinematic lighting"
+                            placeholder={t('videoPlaceholder')}
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                         />
@@ -194,7 +202,7 @@ function VideoPanel(): React.ReactElement {
                             onClick={() => handleSubmit()}
                             disabled={isLoading || !prompt.trim()}
                         >
-                            {isLoading ? 'Đang tạo...' : 'Tạo video'}
+                            {isLoading ? t('generatingVideo') : t('generateVideo')}
                         </button>
                     </div>
                 </div>
@@ -203,9 +211,9 @@ function VideoPanel(): React.ReactElement {
                     {isLoading ? (
                         <div className="image-loading">
                             <div className="image-loading-spinner"></div>
-                            <p className="image-loading-text">Đang tạo video...</p>
+                            <p className="image-loading-text">{t('videoLoadingText')}</p>
                             <p className="image-loading-subtext">
-                                Quá trình này có thể mất 1-5 phút
+                                {t('videoLoadingSubtext')}
                             </p>
                         </div>
                     ) : error ? (
@@ -214,7 +222,7 @@ function VideoPanel(): React.ReactElement {
                             <p className="image-placeholder-text error">
                                 {error}
                                 <br />
-                                <span className="hl-yellow">Vui lòng thử lại</span>
+                                <span className="hl-yellow">{t('pleaseTryAgain')}</span>
                             </p>
                         </div>
                     ) : videoUrl ? (
@@ -234,9 +242,9 @@ function VideoPanel(): React.ReactElement {
                         <div className="image-placeholder">
                             <div className="image-placeholder-icon">🎬</div>
                             <p className="image-placeholder-text">
-                                Video được tạo sẽ hiển thị ở đây
+                                {t('videoPlaceholderText')}
                                 <br />
-                                <span className="hl-blue">Nhập prompt và nhấn "Tạo video"</span>
+                                <span className="hl-blue">{t('videoPlaceholderHint')}</span>
                             </p>
                         </div>
                     )}

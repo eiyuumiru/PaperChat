@@ -4,6 +4,7 @@
  */
 
 import type { ModelSelectorProps, ModelGroup } from '../types';
+import { useLanguage } from '../utils/i18n';
 
 /**
  * Chat models configuration
@@ -69,20 +70,29 @@ const IMAGE_MODELS: ModelGroup[] = [
             { value: 'dall-e-3', label: 'DALL-E 3' },
         ],
     },
-    {
-        group: 'Khác',
-        models: [
-            { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
-            {
-                value: 'stabilityai/stable-diffusion-3.5-large',
-                label: 'SD 3.5 Large',
-            },
-        ],
-    },
 ];
 
 function ModelSelector({ type, value, onChange, label }: ModelSelectorProps): React.ReactElement {
-    const modelGroups = type === 'chat' ? CHAT_MODELS : IMAGE_MODELS;
+    const { t, language } = useLanguage();
+
+    // Add "Other" group dynamically with translation
+    const getChatModels = (): ModelGroup[] => CHAT_MODELS;
+
+    const getImageModels = (): ModelGroup[] => [
+        ...IMAGE_MODELS,
+        {
+            group: t('other'),
+            models: [
+                { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
+                {
+                    value: 'stabilityai/stable-diffusion-3.5-large',
+                    label: 'SD 3.5 Large',
+                },
+            ],
+        },
+    ];
+
+    const modelGroups = type === 'chat' ? getChatModels() : getImageModels();
 
     return (
         <div className="model-selector">
@@ -91,7 +101,7 @@ function ModelSelector({ type, value, onChange, label }: ModelSelectorProps): Re
                 className="model-select"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                title="Chọn model AI"
+                title={language === 'vi' ? 'Chọn model AI' : 'Select AI model'}
             >
                 {modelGroups.map((group) => (
                     <optgroup key={group.group} label={group.group}>

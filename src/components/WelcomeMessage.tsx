@@ -2,36 +2,41 @@
  * WelcomeMessage Component
  */
 
-import type { WelcomeMessageProps, Tip } from '../types';
+import type { WelcomeMessageProps } from '../types';
+import { useLanguage, type TranslationKey } from '../utils/i18n';
 
-const TIPS: Tip[] = [
-    {
-        text: 'Giải thích quantum computing',
-        prompt: 'Giải thích quantum computing đơn giản',
-    },
-    { text: 'Viết thơ về mùa thu', prompt: 'Viết một bài thơ về mùa thu' },
-    { text: 'Ý tưởng startup', prompt: 'Cho tôi 5 ý tưởng startup công nghệ' },
+interface LocalizedTip {
+    textKey: TranslationKey;
+    promptKey: TranslationKey;
+}
+
+const TIPS: LocalizedTip[] = [
+    { textKey: 'tipQuantum', promptKey: 'tipQuantumPrompt' },
+    { textKey: 'tipPoem', promptKey: 'tipPoemPrompt' },
+    { textKey: 'tipStartup', promptKey: 'tipStartupPrompt' },
 ];
 
 function WelcomeMessage({ onPromptClick }: WelcomeMessageProps): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <div className="welcome-message">
             <div className="welcome-icon"></div>
-            <h2 className="welcome-title">Xin chào!</h2>
+            <h2 className="welcome-title">{t('welcomeTitle')}</h2>
             <p className="welcome-text">
-                Mình là trợ lý AI của bạn. Hãy hỏi bất cứ điều gì nhé!
+                {t('welcomeText')}
                 <br />
-                <span className="hl-yellow">Miễn phí</span> và{' '}
-                <span className="hl-pink">không giới hạn</span>
+                <span className="hl-yellow">{t('free')}</span> {t('and')}{' '}
+                <span className="hl-pink">{t('unlimited')}</span>
             </p>
             <div className="tips-container">
                 {TIPS.map((tip, idx) => (
                     <div
                         key={idx}
                         className="tip-card"
-                        onClick={() => onPromptClick(tip.prompt)}
+                        onClick={() => onPromptClick(t(tip.promptKey))}
                     >
-                        {tip.text}
+                        {t(tip.textKey)}
                     </div>
                 ))}
             </div>

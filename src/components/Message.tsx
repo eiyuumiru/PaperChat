@@ -5,6 +5,7 @@
 import ReactMarkdown from 'react-markdown';
 import { remarkPlugins, rehypePlugins } from '../utils/markdown';
 import { ContentNormalizer } from '../utils/content';
+import { useLanguage } from '../utils/i18n';
 import type { MessageProps, LoadingMessageProps, ChatAttachment } from '../types';
 
 /**
@@ -36,7 +37,8 @@ interface ExtendedMessageProps extends Omit<MessageProps, 'images'> {
 }
 
 function Message({ role, content, attachments }: ExtendedMessageProps): React.ReactElement {
-    const roleLabel = role === 'user' ? 'Bạn' : 'AI';
+    const { t } = useLanguage();
+    const roleLabel = role === 'user' ? t('you') : t('ai');
     const safeContent = LaTeXNormalizer.normalize(ContentNormalizer.toString(content));
 
     const imageAttachments = attachments?.filter(a => a.type === 'image') || [];
@@ -85,12 +87,14 @@ function Message({ role, content, attachments }: ExtendedMessageProps): React.Re
 }
 
 function LoadingMessage({ searching = false }: LoadingMessageProps): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <div className="message assistant loading">
-            <div className="message-role">AI</div>
+            <div className="message-role">{t('ai')}</div>
             <div className="message-content">
                 {searching && (
-                    <span className="search-indicator">🔍 Đang tìm kiếm web...</span>
+                    <span className="search-indicator">🔍 {t('searchingWeb')}</span>
                 )}
                 <span className="loading-dot"></span>
                 <span className="loading-dot"></span>

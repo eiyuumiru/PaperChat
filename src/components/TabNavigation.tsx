@@ -2,15 +2,23 @@
  * TabNavigation Component
  */
 
-import type { TabNavigationProps, TabItem } from '../types';
+import type { TabNavigationProps, TabId } from '../types';
+import { useLanguage, type TranslationKey } from '../utils/i18n';
 
-const TABS: TabItem[] = [
-    { id: 'chat', label: 'Chat văn bản' },
-    { id: 'image', label: 'Tạo hình ảnh' },
-    { id: 'video', label: 'Tạo video' },
+interface LocalizedTab {
+    id: TabId;
+    labelKey: TranslationKey;
+}
+
+const TABS: LocalizedTab[] = [
+    { id: 'chat', labelKey: 'tabChat' },
+    { id: 'image', labelKey: 'tabImage' },
+    { id: 'video', labelKey: 'tabVideo' },
 ];
 
 function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <nav className="tab-container">
             {TABS.map((tab) => (
@@ -19,7 +27,7 @@ function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps): React.R
                     className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
                     onClick={() => setActiveTab(tab.id)}
                 >
-                    {tab.label}
+                    {t(tab.labelKey)}
                 </button>
             ))}
         </nav>

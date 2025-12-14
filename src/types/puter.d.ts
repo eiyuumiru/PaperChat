@@ -62,9 +62,22 @@ interface PuterFS {
     delete(path: string): Promise<void>;
 }
 
+interface PuterUser {
+    username?: string;
+    email?: string;
+}
+
+interface PuterAuth {
+    isSignedIn(): boolean;
+    getUser(): Promise<PuterUser>;
+    signIn(): Promise<void>;
+    signOut(): Promise<void>;
+}
+
 interface Puter {
     ai: PuterAI;
     fs: PuterFS;
+    auth: PuterAuth;
 }
 
 declare global {

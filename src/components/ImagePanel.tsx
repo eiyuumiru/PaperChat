@@ -6,6 +6,7 @@
 import { useState, useRef, useCallback, useEffect, type ChangeEvent, type DragEvent, type ClipboardEvent, type FormEvent } from 'react';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { useAutoDismiss } from '../hooks/useAutoDismiss';
+import { useLanguage } from '../utils/i18n';
 import { DEFAULT_IMAGE_MODEL } from '../utils/constants';
 import { ImageValidator } from '../utils/fileValidator';
 import ModelSelector from './ModelSelector';
@@ -18,6 +19,7 @@ import {
 import type { SourceImage } from '../types';
 
 function ImagePanel(): React.ReactElement {
+    const { t } = useLanguage();
     const [prompt, setPrompt] = useState('');
     const [model, setModel] = useState<string>(DEFAULT_IMAGE_MODEL);
     const [sourceImage, setSourceImage] = useState<SourceImage | null>(null);
@@ -128,8 +130,7 @@ function ImagePanel(): React.ReactElement {
             <div className="unstable-warning">
                 <span className="unstable-warning-icon">⚡</span>
                 <span className="unstable-warning-text">
-                    <strong>Lưu ý:</strong> Tạo ảnh có thể không ổn định,
-                    tốn nhiều credits và có tỷ lệ lỗi cao với một số model.
+                    <strong>{t('note')}</strong> {t('imageWarning')}
                 </span>
             </div>
             <div className="image-panel">
@@ -138,19 +139,19 @@ function ImagePanel(): React.ReactElement {
                         type="image"
                         value={model}
                         onChange={setModel}
-                        label="Chọn Model:"
+                        label={t('selectModel')}
                     />
 
                     <form className="prompt-section" onSubmit={handleSubmit}>
                         <label className="prompt-label">
-                            {sourceImage ? 'Mô tả chỉnh sửa:' : 'Mô tả hình ảnh:'}
+                            {sourceImage ? t('describeEdit') : t('describeImage')}
                         </label>
                         <textarea
                             className="prompt-input"
                             placeholder={
                                 sourceImage
-                                    ? 'Mô tả cách bạn muốn chỉnh sửa ảnh... Ví dụ: Thêm mũ phù thủy cho nhân vật, đổi nền thành bãi biển'
-                                    : 'Mô tả chi tiết hình ảnh bạn muốn tạo... Ví dụ: A cute cat wearing a wizard hat, digital art style, vibrant colors'
+                                    ? t('editPlaceholder')
+                                    : t('imagePlaceholder')
                             }
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
@@ -165,7 +166,7 @@ function ImagePanel(): React.ReactElement {
                         onDrop={handleDrop}
                     >
                         <label className="upload-label">
-                            Ảnh gốc (tùy chọn - để chỉnh sửa):
+                            {t('sourceImageLabel')}
                         </label>
 
                         <input
@@ -188,7 +189,7 @@ function ImagePanel(): React.ReactElement {
                                     className="edit-image-remove"
                                     onClick={handleRemoveImage}
                                 >
-                                    Xóa ảnh gốc
+                                    {t('removeSourceImage')}
                                 </button>
                             </div>
                         ) : (
@@ -198,10 +199,10 @@ function ImagePanel(): React.ReactElement {
                             >
                                 <span className="upload-icon">📤</span>
                                 <p className="upload-text">
-                                    Kéo thả ảnh vào đây hoặc nhấn để chọn
+                                    {t('dropImageHere')}
                                 </p>
                                 <p className="upload-text upload-text-small">
-                                    Hỗ trợ: JPEG, PNG, GIF, WebP (tối đa 5MB)
+                                    {t('imageFormats')}
                                 </p>
                             </div>
                         )}
@@ -213,7 +214,7 @@ function ImagePanel(): React.ReactElement {
                             onClick={() => handleSubmit()}
                             disabled={isLoading || !prompt.trim()}
                         >
-                            {sourceImage ? 'Chỉnh sửa ảnh' : 'Tạo hình ảnh'}
+                            {sourceImage ? t('editImage') : t('generateImage')}
                         </button>
                     </div>
                 </div>

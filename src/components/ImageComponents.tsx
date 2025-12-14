@@ -3,40 +3,47 @@
  */
 
 import type { ImageErrorProps, GeneratedImageProps } from '../types';
+import { useLanguage } from '../utils/i18n';
 
 export function ImagePlaceholder(): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <div className="image-placeholder">
             <div className="image-placeholder-icon"></div>
             <p className="image-placeholder-text">
-                Hình ảnh được tạo sẽ hiển thị ở đây
+                {t('imagePlaceholderText')}
                 <br />
-                <span className="hl-blue">Nhập prompt và nhấn "Tạo hình ảnh"</span>
+                <span className="hl-blue">{t('imagePlaceholderHint')}</span>
             </p>
         </div>
     );
 }
 
 export function ImageLoading(): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <div className="image-loading">
             <div className="image-loading-spinner"></div>
-            <p className="image-loading-text">Đang tạo hình ảnh...</p>
+            <p className="image-loading-text">{t('imageLoadingText')}</p>
             <p className="image-loading-subtext">
-                Quá trình này có thể mất 10-30 giây
+                {t('imageLoadingSubtext')}
             </p>
         </div>
     );
 }
 
 export function ImageError({ message }: ImageErrorProps): React.ReactElement {
+    const { t } = useLanguage();
+
     return (
         <div className="image-placeholder">
             <div className="image-placeholder-icon"></div>
             <p className="image-placeholder-text error">
                 {message}
                 <br />
-                <span className="hl-yellow">Vui lòng thử lại</span>
+                <span className="hl-yellow">{t('pleaseTryAgain')}</span>
             </p>
         </div>
     );

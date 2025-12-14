@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect, useCallback, type ChangeEvent, type DragEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react';
 import { useChat } from '../hooks/useChat';
 import { useAutoDismiss } from '../hooks/useAutoDismiss';
+import { useLanguage } from '../utils/i18n';
 import {
     DEFAULT_CHAT_MODEL,
     TEXTAREA_MIN_HEIGHT,
@@ -21,6 +22,7 @@ import WelcomeMessage from './WelcomeMessage';
 import type { AttachedFile } from '../types';
 
 function ChatPanel(): React.ReactElement {
+    const { t } = useLanguage();
     const [input, setInput] = useState('');
     const [model, setModel] = useState<string>(DEFAULT_CHAT_MODEL);
     const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
@@ -86,7 +88,6 @@ function ChatPanel(): React.ReactElement {
                 if (category === 'image') {
                     preview = FileValidator.createPreviewURL(file);
                 } else {
-                    // For documents, use extension as preview indicator
                     preview = FileValidator.getExtension(file);
                 }
 
@@ -97,8 +98,7 @@ function ChatPanel(): React.ReactElement {
                 setAttachedFiles((prev) => {
                     const combined = [...prev, ...validFiles];
                     if (combined.length > MAX_FILES) {
-                        setError(`Chỉ có thể đính kèm tối đa ${MAX_FILES} files.`);
-                        // Revoke URLs for image files that won't be added
+                        setError(t('maxFilesError', { count: MAX_FILES }));
                         validFiles.slice(MAX_FILES - prev.length).forEach((f) => {
                             if (f.category === 'image') {
                                 FileValidator.revokePreviewURL(f.preview);
@@ -110,7 +110,7 @@ function ChatPanel(): React.ReactElement {
                 });
             }
         },
-        [setError]
+        [setError, t]
     );
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -158,7 +158,6 @@ function ChatPanel(): React.ReactElement {
 
         const files = e.dataTransfer?.files;
         if (files && files.length > 0) {
-            // Accept all files on drop
             handleFileSelect(Array.from(files));
         }
     };
@@ -175,14 +174,14 @@ function ChatPanel(): React.ReactElement {
         });
     };
 
-    const handleClearAllFiles = (): void => {
+    const handleClearAllFiles = useCallback((): void => {
         attachedFiles.forEach((f) => {
             if (f.preview && f.category === 'image') {
                 FileValidator.revokePreviewURL(f.preview);
             }
         });
         setAttachedFiles([]);
-    };
+    }, [attachedFiles]);
 
     const handleSubmit = (e?: FormEvent): void => {
         e?.preventDefault();
@@ -211,20 +210,17 @@ function ChatPanel(): React.ReactElement {
         textareaRef.current?.focus();
     };
 
-    // Check if current model supports file upload
     const isFileUploadDisabled = NO_FILE_UPLOAD_MODELS.includes(model as typeof NO_FILE_UPLOAD_MODELS[number]);
 
-    // Clear attached files when switching to a model that doesn't support file upload
     useEffect(() => {
         if (isFileUploadDisabled && attachedFiles.length > 0) {
             handleClearAllFiles();
-            setError('Model này không hỗ trợ upload file. Đã xóa các file đính kèm.');
+            setError(t('modelNoFileUploadReset'));
         }
-    }, [model, isFileUploadDisabled, attachedFiles.length, handleClearAllFiles, setError]);
+    }, [model, isFileUploadDisabled, attachedFiles.length, handleClearAllFiles, setError, t]);
 
     const canSubmit = !isLoading && (input.trim() || attachedFiles.length > 0);
 
-    // Count files by category
     const imageCount = attachedFiles.filter(f => f.category === 'image').length;
     const docCount = attachedFiles.filter(f => f.category === 'document').length;
 
@@ -236,7 +232,7 @@ function ChatPanel(): React.ReactElement {
                         type="chat"
                         value={model}
                         onChange={setModel}
-                        label="Chọn Model:"
+                        label={t('selectModel')}
                     />
                 </div>
 
@@ -273,17 +269,17 @@ function ChatPanel(): React.ReactElement {
                             <div className="files-preview-header">
                                 <span className="files-count">
                                     {attachedFiles.length}/{MAX_FILES} files
-                                    {imageCount > 0 && ` (${imageCount} ảnh`}
-                                    {docCount > 0 && `${imageCount > 0 ? ', ' : ' ('}${docCount} tài liệu`}
+                                    {imageCount > 0 && ` (${imageCount} ${t('images')}`}
+                                    {docCount > 0 && `${imageCount > 0 ? ', ' : ' ('}${docCount} ${t('documents')}`}
                                     {(imageCount > 0 || docCount > 0) && ')'}
                                 </span>
                                 <button
                                     type="button"
                                     className="clear-all-files-btn"
                                     onClick={handleClearAllFiles}
-                                    title="Xóa tất cả files"
+                                    title={t('clearAllFiles')}
                                 >
-                                    Xóa tất cả
+                                    {t('clearAll')}
                                 </button>
                             </div>
                             <div className="files-preview-grid">
@@ -310,7 +306,7 @@ function ChatPanel(): React.ReactElement {
                                             type="button"
                                             className="file-preview-remove"
                                             onClick={() => handleRemoveFile(index)}
-                                            title="Xóa file"
+                                            title={t('removeFile')}
                                         >
                                             ✕
                                         </button>
@@ -335,8 +331,8 @@ function ChatPanel(): React.ReactElement {
                             onClick={() => fileInputRef.current?.click()}
                             title={
                                 isFileUploadDisabled
-                                    ? 'Model này không hỗ trợ upload file'
-                                    : `Đính kèm file (${attachedFiles.length}/${MAX_FILES})`
+                                    ? t('modelNoFileUpload')
+                                    : `${t('attachFile')} (${attachedFiles.length}/${MAX_FILES})`
                             }
                             disabled={isLoading || attachedFiles.length >= MAX_FILES || isFileUploadDisabled}
                         >
@@ -352,10 +348,10 @@ function ChatPanel(): React.ReactElement {
                             onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                             title={
                                 model === WEB_SEARCH_MODEL
-                                    ? 'Model này đã có sẵn tìm kiếm web'
+                                    ? t('webSearchBuiltIn')
                                     : webSearchEnabled
-                                        ? 'Tắt tìm kiếm web'
-                                        : 'Bật tìm kiếm web'
+                                        ? t('webSearchOff')
+                                        : t('webSearchOn')
                             }
                             disabled={
                                 isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
@@ -369,8 +365,8 @@ function ChatPanel(): React.ReactElement {
                             className="message-input"
                             placeholder={
                                 attachedFiles.length > 0
-                                    ? `Nhập câu hỏi về ${attachedFiles.length} file${attachedFiles.length > 1 ? 's' : ''}...`
-                                    : 'Nhập tin nhắn của bạn...'
+                                    ? t('chatPlaceholderWithFiles', { count: attachedFiles.length })
+                                    : t('chatPlaceholder')
                             }
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
@@ -380,7 +376,7 @@ function ChatPanel(): React.ReactElement {
                         />
                     </div>
                     <button type="submit" className="send-btn" disabled={!canSubmit}>
-                        Gửi
+                        {t('send')}
                     </button>
                 </form>
             </div>
