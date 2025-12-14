@@ -1,0 +1,27 @@
+/**
+ * Application constants
+ * Typed constants for the application
+ */
+
+// Default model values
+export const DEFAULT_CHAT_MODEL = 'gpt-5.2-chat-latest' as const;
+export const DEFAULT_IMAGE_MODEL = 'gemini-3-pro-image-preview' as const;
+export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview' as const;
+
+// UI Constants
+export const TEXTAREA_MIN_HEIGHT = 56 as const;
+export const TEXTAREA_MAX_HEIGHT = 150 as const;
+export const MAX_CHAT_HISTORY = 40 as const;
+
+// Image Upload Constants
+export const MAX_IMAGES = 10;
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export const ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+] as const;
+
+export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
