@@ -101,8 +101,15 @@ function VideoPanel(): React.ReactElement {
             <div className="alpha-warning">
                 <span className="alpha-warning-icon">⚠️</span>
                 <span className="alpha-warning-text">
-                    <strong>Tính năng Alpha:</strong> Tạo video đang ở giai đoạn rất sớm.
-                    Tính năng này rất không ổn định và có thể không hoạt động.
+                    <strong>Tính năng tạm ngừng:</strong> Tạo video hiện không hoạt động do{' '}
+                    <a
+                        href="https://github.com/HeyPuter/puter/issues/2175"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        lỗi từ Puter.js (issue #2175)
+                    </a>
+                    . Vui lòng chờ bản fix.
                 </span>
             </div>
             <div className="image-panel">

@@ -12,7 +12,13 @@ export type MessageRole = 'user' | 'assistant';
 export interface ChatMessage {
     role: MessageRole;
     content: string;
-    images?: string[];
+    attachments?: ChatAttachment[];
+}
+
+export interface ChatAttachment {
+    type: 'image' | 'document';
+    url?: string;      // For images (data URL)
+    name?: string;     // For documents (filename)
 }
 
 // ==================== Model Types ====================
@@ -45,21 +51,26 @@ export interface Tip {
     prompt: string;
 }
 
-// ==================== Image Types ====================
+// ==================== File Types ====================
 
-export interface ImageAttachment {
+export interface FileAttachment {
     file: File;
-    preview: string;
+    preview: string;     // URL for images, icon for documents
+    category: 'image' | 'document';
 }
 
 // Type aliases for semantic clarity
-export type AttachedImage = ImageAttachment;
-export type SourceImage = ImageAttachment;
+export type AttachedFile = FileAttachment;
+export type AttachedImage = FileAttachment; // Backward compatibility
+export type SourceImage = FileAttachment;
 
-export interface ImageValidationResult {
+export interface FileValidationResult {
     valid: boolean;
     error?: string;
 }
+
+// Backward compatibility
+export type ImageValidationResult = FileValidationResult;
 
 // ==================== Hook Return Types ====================
 
@@ -73,9 +84,9 @@ export interface UseChatReturn {
         model: string,
         enableWebSearch?: boolean
     ) => Promise<void>;
-    sendMessageWithImages: (
+    sendMessageWithFiles: (
         content: string,
-        imageFiles: File[],
+        files: File[],
         model: string
     ) => Promise<void>;
     clearMessages: () => void;
@@ -115,7 +126,7 @@ export interface UseVideoGenerationReturn {
 export interface MessageProps {
     role: MessageRole;
     content: string;
-    images?: string[];
+    attachments?: ChatAttachment[];
 }
 
 export interface LoadingMessageProps {

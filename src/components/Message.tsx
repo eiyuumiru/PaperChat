@@ -5,7 +5,7 @@
 import ReactMarkdown from 'react-markdown';
 import { remarkPlugins, rehypePlugins } from '../utils/markdown';
 import { ContentNormalizer } from '../utils/content';
-import type { MessageProps, LoadingMessageProps } from '../types';
+import type { MessageProps, LoadingMessageProps, ChatAttachment } from '../types';
 
 /**
  * LaTeXNormalizer - Utility class for normalizing LaTeX expressions
@@ -22,28 +22,48 @@ class LaTeXNormalizer {
         t = t.replace(/\\right\$/g, '\\right)');
 
         // Block math: \[ ... \] -> $$ ... $$
-        t = t.replace(/\\\[([\s\S]*?)\\\]/g, (_, inner: string) => `$$${inner}$$`);
+        t = t.replace(/\\\[([\\s\\S]*?)\\\]/g, (_, inner: string) => `$$${inner}$$`);
 
         // Inline math: \( ... \) -> $ ... $
-        t = t.replace(/\\\(([\s\S]*?)\\\)/g, (_, inner: string) => `$${inner}$`);
+        t = t.replace(/\\\(([\\s\\S]*?)\\\)/g, (_, inner: string) => `$${inner}$`);
 
         return t;
     }
 }
 
-function Message({ role, content, images }: MessageProps): React.ReactElement {
+interface ExtendedMessageProps extends Omit<MessageProps, 'images'> {
+    attachments?: ChatAttachment[];
+}
+
+function Message({ role, content, attachments }: ExtendedMessageProps): React.ReactElement {
     const roleLabel = role === 'user' ? 'Bạn' : 'AI';
     const safeContent = LaTeXNormalizer.normalize(ContentNormalizer.toString(content));
+
+    const imageAttachments = attachments?.filter(a => a.type === 'image') || [];
+    const docAttachments = attachments?.filter(a => a.type === 'document') || [];
 
     return (
         <div className={`message ${role}`}>
             <div className="message-role">{roleLabel}</div>
             <div className="message-content markdown-body">
-                {images && images.length > 0 && (
-                    <div className={`message-images-container ${images.length === 1 ? 'single' : 'multiple'}`}>
-                        {images.map((img, index) => (
+                {/* Image attachments */}
+                {imageAttachments.length > 0 && (
+                    <div className={`message-images-container ${imageAttachments.length === 1 ? 'single' : 'multiple'}`}>
+                        {imageAttachments.map((att, index) => (
                             <div key={index} className="message-image-wrapper">
-                                <img src={img} alt={`Attached ${index + 1}`} className="message-image" />
+                                <img src={att.url} alt={`Attached ${index + 1}`} className="message-image" />
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Document attachments */}
+                {docAttachments.length > 0 && (
+                    <div className="message-docs-container">
+                        {docAttachments.map((att, index) => (
+                            <div key={index} className="message-doc-badge">
+                                <span className="doc-icon">📄</span>
+                                <span className="doc-name">{att.name}</span>
                             </div>
                         ))}
                     </div>

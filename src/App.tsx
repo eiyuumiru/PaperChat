@@ -53,6 +53,17 @@ function App(): React.ReactElement {
                         <div className="alpha-modal-icon">🚨</div>
                         <h2 className="alpha-modal-title">Tính năng Alpha</h2>
                         <div className="alpha-modal-content">
+                            <div className="alpha-bug-warning">
+                                <strong>⛔ Lưu ý:</strong> Tạo video hiện không hoạt động do{' '}
+                                <a
+                                    href="https://github.com/HeyPuter/puter/issues/2175"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    lỗi từ Puter.js (issue #2175)
+                                </a>
+                                . Vui lòng chờ bản fix.
+                            </div>
                             <p>
                                 <strong>Tạo video bằng AI</strong> hiện đang trong giai đoạn <span className="alpha-highlight">Alpha</span>.
                             </p>

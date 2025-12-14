@@ -13,15 +13,24 @@ export const TEXTAREA_MIN_HEIGHT = 56 as const;
 export const TEXTAREA_MAX_HEIGHT = 150 as const;
 export const MAX_CHAT_HISTORY = 40 as const;
 
-// Image Upload Constants
-export const MAX_IMAGES = 10;
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+// File Upload Constants
+export const MAX_FILES = 10;
+export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
 
-export const ALLOWED_IMAGE_TYPES = [
+// Models that don't support file upload (via OpenRouter driver)
+export const NO_FILE_UPLOAD_MODELS = [
+    'driver:openrouter:gpt-5.2-pro',
+] as const;
+
+// Image types (for preview detection)
+export const IMAGE_TYPES = [
     'image/jpeg',
     'image/png',
     'image/gif',
     'image/webp',
 ] as const;
 
-export type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
+export type ImageType = (typeof IMAGE_TYPES)[number];
+
+// File type categories for UI
+export type FileCategory = 'image' | 'document';

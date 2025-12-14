@@ -5,9 +5,33 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { ContentNormalizer } from '../utils/content';
-import { ImageValidator } from '../utils/imageValidator';
+import { FileValidator } from '../utils/fileValidator';
 import { MAX_CHAT_HISTORY, WEB_SEARCH_MODEL } from '../utils/constants';
-import type { ChatMessage, UseChatReturn } from '../types';
+import type { ChatMessage, UseChatReturn, ChatAttachment } from '../types';
+
+/**
+ * Model config parsed from value string
+ */
+interface ModelConfig {
+    model: string;
+    driver?: string;
+}
+
+/**
+ * Parse model value to extract driver if present
+ * Format: "driver:driverName:modelName" or just "modelName"
+ */
+function parseModelConfig(modelValue: string): ModelConfig {
+    if (modelValue.startsWith('driver:')) {
+        const parts = modelValue.split(':');
+        // driver:openrouter:gpt-5.2-pro -> { model: 'gpt-5.2-pro', driver: 'openrouter' }
+        return {
+            driver: parts[1],
+            model: parts.slice(2).join(':'),
+        };
+    }
+    return { model: modelValue };
+}
 
 /**
  * ChatService - Handles chat-related API calls
@@ -79,30 +103,36 @@ class ChatService {
             }))
         );
 
+        const config = parseModelConfig(model);
         const response = await window.puter.ai.chat(messagesForAPI, {
-            model: model,
+            model: config.model,
+            ...(config.driver && { driver: config.driver }),
         });
 
         return ContentNormalizer.normalize(response);
     }
 
     /**
-     * Sends a message with image attachments
+     * Sends a message with file attachments (images and documents)
      */
     static async sendMultimodalMessage(
         content: string,
-        imageFiles: File[],
+        files: File[],
         model: string
     ): Promise<{ response: string; uploadedPaths: string[] }> {
         ChatService.ensurePuterAvailable();
 
         const uploadedPaths: string[] = [];
 
-        // Upload all images to Puter FS
-        for (let i = 0; i < imageFiles.length; i++) {
-            const imageFile = imageFiles[i];
-            const fileName = `chat_image_${Date.now()}_${i}.${imageFile.name.split('.').pop()}`;
-            const puterFile = await window.puter.fs.write(fileName, imageFile);
+        console.log('[DEBUG] Starting file upload, files:', files.length);
+
+        // Upload all files to Puter FS
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileName = `chat_file_${Date.now()}_${i}.${file.name.split('.').pop()}`;
+            console.log('[DEBUG] Uploading file:', fileName, file.type, file.size);
+            const puterFile = await window.puter.fs.write(fileName, file);
+            console.log('[DEBUG] Uploaded to:', puterFile.path);
             uploadedPaths.push(puterFile.path);
         }
 
@@ -115,7 +145,7 @@ class ChatService {
 
         const contentArray: ContentItem[] = [
             ...uploadedPaths.map((path) => ({ type: 'file', puter_path: path })),
-            { type: 'text', text: content || 'Hãy mô tả các ảnh này' },
+            { type: 'text', text: content || 'Hãy mô tả các files này' },
         ];
 
         const multimodalMessage = {
@@ -123,9 +153,17 @@ class ChatService {
             content: contentArray,
         };
 
+        console.log('[DEBUG] Sending multimodal message:', JSON.stringify(multimodalMessage, null, 2));
+
+        const config = parseModelConfig(model);
+        console.log('[DEBUG] Model config:', config);
+
         const response = await window.puter.ai.chat([multimodalMessage], {
-            model: model,
+            model: config.model,
+            ...(config.driver && { driver: config.driver }),
         });
+
+        console.log('[DEBUG] Raw response:', response);
 
         return {
             response: ContentNormalizer.normalize(response),
@@ -202,34 +240,36 @@ export function useChat(): UseChatReturn {
     );
 
     /**
-     * Send a message with multiple image attachments
+     * Send a message with file attachments (images or documents)
      */
-    const sendMessageWithImages = useCallback(
-        async (content: string, imageFiles: File[], model: string) => {
+    const sendMessageWithFiles = useCallback(
+        async (content: string, files: File[], model: string) => {
             if (isLoading) return;
 
-            // Validate all images
-            for (const imageFile of imageFiles) {
-                const validation = ImageValidator.validate(imageFile);
+            // Validate all files
+            for (const file of files) {
+                const validation = FileValidator.validate(file);
                 if (!validation.valid) {
-                    setError(validation.error || 'Invalid image');
+                    setError(validation.error || 'Invalid file');
                     return;
                 }
             }
 
-            // Convert all images to data URLs for display
-            let imageDataUrls: string[] = [];
-            try {
-                imageDataUrls = await Promise.all(imageFiles.map(ImageValidator.toDataURL));
-            } catch {
-                setError('Không thể đọc file ảnh');
-                return;
+            // Build attachments for display
+            const attachments: ChatAttachment[] = [];
+            for (const file of files) {
+                if (FileValidator.isImage(file)) {
+                    const url = await FileValidator.toDataURL(file);
+                    attachments.push({ type: 'image', url });
+                } else {
+                    attachments.push({ type: 'document', name: file.name });
+                }
             }
 
             const userMessage: ChatMessage = {
                 role: 'user',
-                content: content.trim() || 'Hãy mô tả các ảnh này',
-                images: imageDataUrls,
+                content: content.trim() || 'Hãy phân tích các files này',
+                attachments,
             };
 
             const currentMessages = messagesRef.current;
@@ -242,14 +282,15 @@ export function useChat(): UseChatReturn {
             let uploadedPaths: string[] = [];
 
             try {
-                const result = await ChatService.sendMultimodalMessage(content, imageFiles, model);
+                const result = await ChatService.sendMultimodalMessage(content, files, model);
                 uploadedPaths = result.uploadedPaths;
 
                 const assistantMessage: ChatMessage = { role: 'assistant', content: result.response };
                 setMessages((prev) => [...prev, assistantMessage]);
             } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Không thể gửi tin nhắn với ảnh';
-                setError(errorMessage);
+                console.error('File upload error:', err);
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                setError(errorMessage || 'Không thể gửi tin nhắn với files');
                 setMessages(currentMessages);
             } finally {
                 await ChatService.cleanupFiles(uploadedPaths);
@@ -270,7 +311,7 @@ export function useChat(): UseChatReturn {
         isSearching,
         error,
         sendMessage,
-        sendMessageWithImages,
+        sendMessageWithFiles,
         clearMessages,
         setError,
     };

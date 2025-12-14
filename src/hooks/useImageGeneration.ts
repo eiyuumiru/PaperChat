@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { ImageValidator } from '../utils/imageValidator';
+import { ImageValidator } from '../utils/fileValidator';
 import type { UseImageGenerationReturn } from '../types';
 
 /**

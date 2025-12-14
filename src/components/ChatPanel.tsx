@@ -1,6 +1,6 @@
 /**
  * ChatPanel Component
- * Main chat interface with image upload support
+ * Main chat interface with file upload support (images and documents)
  */
 
 import { useState, useRef, useEffect, useCallback, type ChangeEvent, type DragEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react';
@@ -10,19 +10,20 @@ import {
     DEFAULT_CHAT_MODEL,
     TEXTAREA_MIN_HEIGHT,
     TEXTAREA_MAX_HEIGHT,
-    MAX_IMAGES,
+    MAX_FILES,
     WEB_SEARCH_MODEL,
+    NO_FILE_UPLOAD_MODELS,
 } from '../utils/constants';
-import { ImageValidator } from '../utils/imageValidator';
+import { FileValidator } from '../utils/fileValidator';
 import ModelSelector from './ModelSelector';
 import Message, { LoadingMessage } from './Message';
 import WelcomeMessage from './WelcomeMessage';
-import type { AttachedImage } from '../types';
+import type { AttachedFile } from '../types';
 
 function ChatPanel(): React.ReactElement {
     const [input, setInput] = useState('');
     const [model, setModel] = useState<string>(DEFAULT_CHAT_MODEL);
-    const [attachedImages, setAttachedImages] = useState<AttachedImage[]>([]);
+    const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
     const [isDragOver, setIsDragOver] = useState(false);
     const [webSearchEnabled, setWebSearchEnabled] = useState(false);
     const {
@@ -31,7 +32,7 @@ function ChatPanel(): React.ReactElement {
         isSearching,
         error,
         sendMessage,
-        sendMessageWithImages,
+        sendMessageWithFiles,
         setError,
     } = useChat();
 
@@ -59,38 +60,51 @@ function ChatPanel(): React.ReactElement {
 
     useEffect(() => {
         return () => {
-            attachedImages.forEach((img) => {
-                if (img.preview) ImageValidator.revokePreviewURL(img.preview);
+            attachedFiles.forEach((f) => {
+                if (f.preview && f.category === 'image') {
+                    FileValidator.revokePreviewURL(f.preview);
+                }
             });
         };
-    }, [attachedImages]);
+    }, [attachedFiles]);
 
-    const handleImageSelect = useCallback(
+    const handleFileSelect = useCallback(
         (files: FileList | File[]) => {
             const fileArray = Array.from(files);
-            const validFiles: AttachedImage[] = [];
+            const validFiles: AttachedFile[] = [];
 
             for (const file of fileArray) {
-                const validation = ImageValidator.validate(file);
+                const validation = FileValidator.validate(file);
                 if (!validation.valid) {
-                    setError(validation.error || 'Invalid image');
+                    setError(validation.error || 'Invalid file');
                     continue;
                 }
 
-                const previewUrl = ImageValidator.createPreviewURL(file);
-                validFiles.push({ file, preview: previewUrl });
+                const category = FileValidator.getCategory(file);
+                let preview = '';
+
+                if (category === 'image') {
+                    preview = FileValidator.createPreviewURL(file);
+                } else {
+                    // For documents, use extension as preview indicator
+                    preview = FileValidator.getExtension(file);
+                }
+
+                validFiles.push({ file, preview, category });
             }
 
             if (validFiles.length > 0) {
-                setAttachedImages((prev) => {
+                setAttachedFiles((prev) => {
                     const combined = [...prev, ...validFiles];
-                    if (combined.length > MAX_IMAGES) {
-                        setError(`Chỉ có thể đính kèm tối đa ${MAX_IMAGES} ảnh.`);
-                        // Revoke URLs for files that won't be added
-                        validFiles.slice(MAX_IMAGES - prev.length).forEach((img) => {
-                            ImageValidator.revokePreviewURL(img.preview);
+                    if (combined.length > MAX_FILES) {
+                        setError(`Chỉ có thể đính kèm tối đa ${MAX_FILES} files.`);
+                        // Revoke URLs for image files that won't be added
+                        validFiles.slice(MAX_FILES - prev.length).forEach((f) => {
+                            if (f.category === 'image') {
+                                FileValidator.revokePreviewURL(f.preview);
+                            }
                         });
-                        return combined.slice(0, MAX_IMAGES);
+                        return combined.slice(0, MAX_FILES);
                     }
                     return combined;
                 });
@@ -102,7 +116,7 @@ function ChatPanel(): React.ReactElement {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const files = e.target.files;
         if (files && files.length > 0) {
-            handleImageSelect(files);
+            handleFileSelect(files);
         }
         e.target.value = '';
     };
@@ -112,20 +126,20 @@ function ChatPanel(): React.ReactElement {
             const items = e.clipboardData?.items;
             if (!items) return;
 
-            const imageFiles: File[] = [];
+            const pastedFiles: File[] = [];
             for (const item of items) {
                 if (item.type.startsWith('image/')) {
                     const file = item.getAsFile();
-                    if (file) imageFiles.push(file);
+                    if (file) pastedFiles.push(file);
                 }
             }
 
-            if (imageFiles.length > 0) {
+            if (pastedFiles.length > 0) {
                 e.preventDefault();
-                handleImageSelect(imageFiles);
+                handleFileSelect(pastedFiles);
             }
         },
-        [handleImageSelect]
+        [handleFileSelect]
     );
 
     const handleDragOver = (e: DragEvent<HTMLFormElement>): void => {
@@ -144,42 +158,41 @@ function ChatPanel(): React.ReactElement {
 
         const files = e.dataTransfer?.files;
         if (files && files.length > 0) {
-            const imageFiles = Array.from(files).filter((file) =>
-                file.type.startsWith('image/')
-            );
-            if (imageFiles.length > 0) {
-                handleImageSelect(imageFiles);
-            }
+            // Accept all files on drop
+            handleFileSelect(Array.from(files));
         }
     };
 
-    const handleRemoveImage = (index: number): void => {
-        setAttachedImages((prev) => {
-            const newImages = [...prev];
-            if (newImages[index]?.preview) {
-                ImageValidator.revokePreviewURL(newImages[index].preview);
+    const handleRemoveFile = (index: number): void => {
+        setAttachedFiles((prev) => {
+            const newFiles = [...prev];
+            const removed = newFiles[index];
+            if (removed?.preview && removed.category === 'image') {
+                FileValidator.revokePreviewURL(removed.preview);
             }
-            newImages.splice(index, 1);
-            return newImages;
+            newFiles.splice(index, 1);
+            return newFiles;
         });
     };
 
-    const handleClearAllImages = (): void => {
-        attachedImages.forEach((img) => {
-            if (img.preview) ImageValidator.revokePreviewURL(img.preview);
+    const handleClearAllFiles = (): void => {
+        attachedFiles.forEach((f) => {
+            if (f.preview && f.category === 'image') {
+                FileValidator.revokePreviewURL(f.preview);
+            }
         });
-        setAttachedImages([]);
+        setAttachedFiles([]);
     };
 
     const handleSubmit = (e?: FormEvent): void => {
         e?.preventDefault();
         if (isLoading) return;
 
-        if (attachedImages.length > 0) {
-            const files = attachedImages.map((img) => img.file);
-            sendMessageWithImages(input, files, model);
+        if (attachedFiles.length > 0) {
+            const files = attachedFiles.map((f) => f.file);
+            sendMessageWithFiles(input, files, model);
             setInput('');
-            handleClearAllImages();
+            handleClearAllFiles();
         } else if (input.trim()) {
             sendMessage(input, model, webSearchEnabled);
             setInput('');
@@ -198,7 +211,22 @@ function ChatPanel(): React.ReactElement {
         textareaRef.current?.focus();
     };
 
-    const canSubmit = !isLoading && (input.trim() || attachedImages.length > 0);
+    // Check if current model supports file upload
+    const isFileUploadDisabled = NO_FILE_UPLOAD_MODELS.includes(model as typeof NO_FILE_UPLOAD_MODELS[number]);
+
+    // Clear attached files when switching to a model that doesn't support file upload
+    useEffect(() => {
+        if (isFileUploadDisabled && attachedFiles.length > 0) {
+            handleClearAllFiles();
+            setError('Model này không hỗ trợ upload file. Đã xóa các file đính kèm.');
+        }
+    }, [model, isFileUploadDisabled, attachedFiles.length, handleClearAllFiles, setError]);
+
+    const canSubmit = !isLoading && (input.trim() || attachedFiles.length > 0);
+
+    // Count files by category
+    const imageCount = attachedFiles.filter(f => f.category === 'image').length;
+    const docCount = attachedFiles.filter(f => f.category === 'document').length;
 
     return (
         <div className="tab-panel active">
@@ -221,7 +249,7 @@ function ChatPanel(): React.ReactElement {
                                 key={idx}
                                 role={msg.role}
                                 content={msg.content}
-                                images={msg.images}
+                                attachments={msg.attachments}
                             />
                         ))
                     )}
@@ -240,34 +268,49 @@ function ChatPanel(): React.ReactElement {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                 >
-                    {attachedImages.length > 0 && (
-                        <div className="images-preview-container">
-                            <div className="images-preview-header">
-                                <span className="images-count">
-                                    {attachedImages.length}/{MAX_IMAGES} ảnh
+                    {attachedFiles.length > 0 && (
+                        <div className="files-preview-container">
+                            <div className="files-preview-header">
+                                <span className="files-count">
+                                    {attachedFiles.length}/{MAX_FILES} files
+                                    {imageCount > 0 && ` (${imageCount} ảnh`}
+                                    {docCount > 0 && `${imageCount > 0 ? ', ' : ' ('}${docCount} tài liệu`}
+                                    {(imageCount > 0 || docCount > 0) && ')'}
                                 </span>
                                 <button
                                     type="button"
-                                    className="clear-all-images-btn"
-                                    onClick={handleClearAllImages}
-                                    title="Xóa tất cả ảnh"
+                                    className="clear-all-files-btn"
+                                    onClick={handleClearAllFiles}
+                                    title="Xóa tất cả files"
                                 >
                                     Xóa tất cả
                                 </button>
                             </div>
-                            <div className="images-preview-grid">
-                                {attachedImages.map((img, index) => (
-                                    <div key={index} className="image-preview-item">
-                                        <img
-                                            src={img.preview}
-                                            alt={`Preview ${index + 1}`}
-                                            className="image-preview"
-                                        />
+                            <div className="files-preview-grid">
+                                {attachedFiles.map((f, index) => (
+                                    <div key={index} className={`file-preview-item ${f.category}`}>
+                                        {f.category === 'image' ? (
+                                            <img
+                                                src={f.preview}
+                                                alt={`Preview ${index + 1}`}
+                                                className="file-preview-image"
+                                            />
+                                        ) : (
+                                            <div className="file-preview-doc">
+                                                <span className="file-icon">📄</span>
+                                                <span className="file-ext">{f.preview}</span>
+                                                <span className="file-name" title={f.file.name}>
+                                                    {f.file.name.length > 15
+                                                        ? f.file.name.slice(0, 12) + '...'
+                                                        : f.file.name}
+                                                </span>
+                                            </div>
+                                        )}
                                         <button
                                             type="button"
-                                            className="image-preview-remove"
-                                            onClick={() => handleRemoveImage(index)}
-                                            title="Xóa ảnh"
+                                            className="file-preview-remove"
+                                            onClick={() => handleRemoveFile(index)}
+                                            title="Xóa file"
                                         >
                                             ✕
                                         </button>
@@ -281,7 +324,6 @@ function ChatPanel(): React.ReactElement {
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/jpeg,image/png,image/gif,image/webp"
                             onChange={handleFileChange}
                             multiple
                             style={{ display: 'none' }}
@@ -289,14 +331,18 @@ function ChatPanel(): React.ReactElement {
 
                         <button
                             type="button"
-                            className={`image-upload-btn ${attachedImages.length > 0 ? 'has-images' : ''}`}
+                            className={`file-upload-btn ${attachedFiles.length > 0 ? 'has-files' : ''}`}
                             onClick={() => fileInputRef.current?.click()}
-                            title={`Đính kèm ảnh (${attachedImages.length}/${MAX_IMAGES})`}
-                            disabled={isLoading || attachedImages.length >= MAX_IMAGES}
+                            title={
+                                isFileUploadDisabled
+                                    ? 'Model này không hỗ trợ upload file'
+                                    : `Đính kèm file (${attachedFiles.length}/${MAX_FILES})`
+                            }
+                            disabled={isLoading || attachedFiles.length >= MAX_FILES || isFileUploadDisabled}
                         >
-                            📷
-                            {attachedImages.length > 0 && (
-                                <span className="image-count-badge">{attachedImages.length}</span>
+                            📎
+                            {attachedFiles.length > 0 && (
+                                <span className="file-count-badge">{attachedFiles.length}</span>
                             )}
                         </button>
 
@@ -312,7 +358,7 @@ function ChatPanel(): React.ReactElement {
                                         : 'Bật tìm kiếm web'
                             }
                             disabled={
-                                isLoading || attachedImages.length > 0 || model === WEB_SEARCH_MODEL
+                                isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
                             }
                         >
                             🔍
@@ -322,8 +368,8 @@ function ChatPanel(): React.ReactElement {
                             ref={textareaRef}
                             className="message-input"
                             placeholder={
-                                attachedImages.length > 0
-                                    ? `Nhập câu hỏi về ${attachedImages.length} ảnh...`
+                                attachedFiles.length > 0
+                                    ? `Nhập câu hỏi về ${attachedFiles.length} file${attachedFiles.length > 1 ? 's' : ''}...`
                                     : 'Nhập tin nhắn của bạn...'
                             }
                             value={input}

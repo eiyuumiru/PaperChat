@@ -590,13 +590,25 @@ body {
   line-height: 1.6;
   color: var(--ink-primary);
   margin-bottom: 6px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  text-align: left;
 }
 
 .version-changes li:last-child {
   margin-bottom: 0;
+}
+
+/* Links in changelog */
+.version-changes a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+}
+
+.version-changes a:visited {
+  color: var(--accent-blue);
+}
+
+.version-changes a:hover {
+  color: #2563eb;
 }
 
 /* Change Type Badges */
@@ -607,7 +619,8 @@ body {
   padding: 2px 8px;
   border-radius: 6px;
   white-space: nowrap;
-  flex-shrink: 0;
+  display: inline;
+  margin-right: 6px;
 }
 
 .change-type.feature {
@@ -1939,6 +1952,220 @@ body {
   background-color: #dc2626;
 }
 
+/* ============================================
+   FILE UPLOAD STYLES (Images + Documents)
+   ============================================ */
+
+/* File Upload Button */
+.file-upload-btn {
+  font-size: 1.5rem;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  border-radius: 14px;
+  background-color: var(--paper-cream);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.file-upload-btn:hover:not(:disabled) {
+  background-color: var(--sticky-blue);
+  transform: scale(1.05);
+  box-shadow: 2px 2px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.file-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-upload-btn.has-files {
+  background-color: var(--sticky-green);
+}
+
+/* File Count Badge */
+.file-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  background-color: var(--accent-rose);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Files Preview Container */
+.files-preview-container {
+  width: 100%;
+  margin-bottom: 12px;
+  background-color: var(--paper-cream);
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid rgba(215, 194, 168, 0.5);
+}
+
+.files-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.files-count {
+  font-family: "Mali", cursive;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.clear-all-files-btn {
+  font-family: "Mali", cursive;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border: 2px solid var(--accent-rose);
+  border-radius: 6px;
+  background-color: white;
+  color: var(--accent-rose);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-all-files-btn:hover {
+  background-color: var(--accent-rose);
+  color: white;
+}
+
+/* Files Preview Grid */
+.files-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.file-preview-item {
+  position: relative;
+}
+
+.file-preview-item.image .file-preview-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  border: 2px solid rgba(215, 194, 168, 0.5);
+  box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.4), 0 2px 4px rgba(0, 0, 0, 0.05);
+  object-fit: cover;
+}
+
+/* Document Preview Badge */
+.file-preview-doc {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  border: 2px solid rgba(215, 194, 168, 0.5);
+  background-color: var(--paper-white);
+  box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.4), 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+}
+
+.file-preview-doc .file-icon {
+  font-size: 1.5rem;
+}
+
+.file-preview-doc .file-ext {
+  font-family: "Mali", cursive;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: var(--pastel-blue);
+  color: var(--accent-blue);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.file-preview-doc .file-name {
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.6rem;
+  color: var(--ink-secondary);
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.1;
+}
+
+.file-preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(215, 194, 168, 0.6);
+  background-color: var(--accent-rose);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.file-preview-remove:hover {
+  transform: scale(1.1);
+  background-color: #dc2626;
+}
+
+/* Message Documents Container */
+.message-docs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.message-doc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--paper-white);
+  border: 2px solid rgba(215, 194, 168, 0.5);
+  border-radius: 8px;
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.9rem;
+  color: var(--ink-primary);
+  box-shadow: 2px 2px 6px rgba(215, 194, 168, 0.3);
+}
+
+.message-doc-badge .doc-icon {
+  font-size: 1rem;
+}
+
+.message-doc-badge .doc-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Message Images - Multiple */
 .message-images-container {
   margin-bottom: 12px;
@@ -2596,6 +2823,77 @@ body {
   background: rgba(249, 115, 22, 0.1);
   padding: 10px;
   border-radius: 8px;
+}
+
+/* Alpha Bug Warning - prominent red warning */
+.alpha-bug-warning {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #dc2626;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #991b1b;
+  line-height: 1.4;
+}
+
+.alpha-bug-warning strong {
+  color: #7f1d1d;
+}
+
+.alpha-bug-warning a {
+  color: #dc2626;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.alpha-bug-warning a:visited {
+  color: #dc2626;
+}
+
+.alpha-bug-warning a:hover {
+  color: #b91c1c;
+}
+
+[data-theme="dark"] .alpha-bug-warning {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(185, 28, 28, 0.15) 100%);
+  border-color: rgba(220, 38, 38, 0.6);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .alpha-bug-warning strong {
+  color: #fecaca;
+}
+
+[data-theme="dark"] .alpha-bug-warning a {
+  color: #f87171;
+}
+
+[data-theme="dark"] .alpha-bug-warning a:visited {
+  color: #f87171;
+}
+
+/* Alpha warning banner link styles */
+.alpha-warning-text a {
+  color: #ea580c;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.alpha-warning-text a:visited {
+  color: #ea580c;
+}
+
+.alpha-warning-text a:hover {
+  color: #c2410c;
+}
+
+[data-theme="dark"] .alpha-warning-text a {
+  color: #fb923c;
+}
+
+[data-theme="dark"] .alpha-warning-text a:visited {
+  color: #fb923c;
 }
 
 .alpha-modal-actions {

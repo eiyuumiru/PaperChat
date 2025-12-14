@@ -37,7 +37,7 @@ interface PuterImageResponse {
 interface PuterAI {
     chat(
         messages: unknown,
-        options?: { model: string }
+        options?: { model: string; driver?: string }
     ): Promise<PuterAIResponse | string>;
 
     txt2img(

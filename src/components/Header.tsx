@@ -226,6 +226,38 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v2.1.2</span>
+                                    <span className="version-date">14/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type alpha">🔬 Alpha</span> Tạo video hiện không hoạt động do <a href="https://github.com/HeyPuter/puter/issues/2175" target="_blank" rel="noopener noreferrer">lỗi từ Puter.js (issue #2175)</a></li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <span className="version-tag">v2.1.1</span>
+                                    <span className="version-date">14/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type improve">⚡ Cải thiện</span> Tăng dung lượng upload file lên tối đa 20MB</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <span className="version-tag">v2.1.0</span>
+                                    <span className="version-date">14/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ Mới</span> Thêm GPT-5.2 Thinking - suy luận nâng cao (Chain-of-Thought)</li>
+                                    <li><span className="change-type beta">🧪 Beta</span> Thêm GPT-5.2 Pro - model AI mạnh nhất của OpenAI</li>
+                                    <li><span className="change-type feature">✨ Mới</span> Hỗ trợ upload nhiều loại file hơn để AI phân tích</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v2.0.0</span>
                                     <span className="version-date">14/12/2024</span>
                                 </div>

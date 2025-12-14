@@ -7,7 +7,7 @@ import { useState, useRef, useCallback, useEffect, type ChangeEvent, type DragEv
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { useAutoDismiss } from '../hooks/useAutoDismiss';
 import { DEFAULT_IMAGE_MODEL } from '../utils/constants';
-import { ImageValidator } from '../utils/imageValidator';
+import { ImageValidator } from '../utils/fileValidator';
 import ModelSelector from './ModelSelector';
 import {
     ImageLoading,
@@ -55,7 +55,7 @@ function ImagePanel(): React.ReactElement {
             }
 
             const previewUrl = ImageValidator.createPreviewURL(file);
-            setSourceImage({ file, preview: previewUrl });
+            setSourceImage({ file, preview: previewUrl, category: 'image' });
         },
         [setError]
     );
