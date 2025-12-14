@@ -1,70 +1,160 @@
-# PaperChat
+# PaperChat 🎉
 
-Ứng dụng web giao diện Studygram cho phép trò chuyện với AI và tạo hình ảnh miễn phí thông qua Puter AI.
+A beautiful **Studygram-styled** web application for AI Chat, Image Generation, and Video Generation — completely **free** via [Puter.js](https://puter.com).
 
-## Tính năng
-- **Chat văn bản**: Hỗ trợ nhiều model AI hàng đầu (GPT-5.2, Claude Opus 4.5, Gemini 3 Pro...), lưu ngữ cảnh 40 tin nhắn gần nhất, Enter để gửi / Shift+Enter để xuống dòng.
-- **Hiển thị nội dung phong phú**: Markdown với GitHub Flavored Markdown, LaTeX math, syntax highlighting cho code blocks; tự cuộn cuối, tự co giãn ô nhập, gợi ý prompt nhanh.
-- **Tạo hình ảnh**: Hỗ trợ các model image generation hàng đầu (Gemini 3 Pro Image, GPT Image 1, DALL-E 3, FLUX 2 Pro, Imagen 3, Stable Diffusion 3.5...), khung polaroid, trạng thái loading và xử lý lỗi thân thiện.
-- **Thiết kế Studygram**: Phông chữ viết tay, nền giấy kẻ, màu pastel, phù hợp khi demo hoặc dạy học.
-- **Công nghệ**: React 18 + Vite 6, Puter.js SDK (nạp từ CDN), react-markdown + highlight.js + KaTeX để hiển thị nội dung AI.
+<p align="center">
+  <strong>
+    <a href="#features">Features</a> •
+    <a href="#demo">Demo</a> •
+    <a href="#quick-start">Quick Start</a> •
+    <a href="#tech-stack">Tech Stack</a>
+  </strong>
+</p>
 
-## Yêu cầu
-- **Node.js** >= 20 (khuyến nghị cùng bản Vite 6)
-- **npm** hoặc package manager tương thích
-- **Tài khoản Puter** (đăng nhập trong trình duyệt; Puter.js cần quyền truy cập AI)
+<p align="center">
+  <a href="./README-vi.md">🇻🇳 Tiếng Việt</a>
+</p>
 
-## Cài đặt và chạy
+---
+
+## Features
+
+### 💬 AI Chat
+- **Multi-model support**: GPT-5.2, Claude Opus 4.5, Gemini 3 Pro, DeepSeek, o3 Reasoning, and more
+- **Multi-modal input**: Upload up to 10 images/files (max 20MB each) for AI analysis
+- **Rich content display**: Markdown (GFM), LaTeX math rendering, syntax-highlighted code blocks
+- **Smart UX**: 40-message context history, Enter to send / Shift+Enter for newline, quick prompt suggestions
+- **Web Search**: Integrated GPT-4o Search model for real-time information
+
+### Image Generation
+- **Top models**: Gemini 3 Pro Image, GPT Image 1, DALL-E 3, FLUX 1.1 Pro, Stable Diffusion 3.5
+- **Polaroid-style display**: Generated images appear in a beautiful polaroid frame
+- **Error handling**: Friendly loading states and error messages
+
+### Video Generation *(Alpha)*
+- **Cutting-edge models**: Sora 2, Veo 3.0, Kling 2.1, Seedance, and more
+- **Customizable**: Duration (4-12s) and resolution options
+- **Test Mode**: Try without consuming credits
+- **Note**: Currently experiencing issues due to [Puter.js bug #2175](https://github.com/HeyPuter/puter/issues/2175)
+
+### Studygram Design
+- Handwritten fonts, lined paper background, pastel colors
+- Light/Dark mode toggle
+- Responsive and mobile-friendly
+
+---
+
+## Demo
+
+Try PaperChat: **[Live Demo](https://chat.eiyuumiru.it.eu.org/)**
+
+---
+
+## Quick Start
+
+### Prerequisites
+- **Node.js** ≥ 20
+- **npm** or compatible package manager
+- **Puter account** (auto-created on first use via browser)
+
+### Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/eiyuumiru/PaperChat.git
+cd PaperChat
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
+```
+
+### Build for Production
+
+```bash
 npm run build
 npm run preview
 ```
 
-## Cách dùng nhanh
-1. Mở trang dev, chọn tab **Chat văn bản** hoặc **Tạo hình ảnh**
-2. Chọn model trong dropdown (mặc định: GPT-5.2 cho chat, Gemini 3 Pro Image cho image)
-3. **Chat**: Nhập nội dung, Enter để gửi; các tin gợi ý có thể bấm dùng ngay
-4. **Image**: Nhập mô tả, bấm "Tạo hình ảnh"; kết quả hiển thị dưới dạng polaroid, kèm nhắc lỗi nếu có
+---
 
-## Cấu trúc thư mục chính
+## Tech Stack
+
+| Category | Technologies |
+|----------|-------------|
+| **Framework** | React 18, TypeScript, Vite 6 |
+| **AI Backend** | [Puter.js SDK](https://docs.puter.com) (`@heyputer/puter.js`) |
+| **Markdown** | react-markdown, remark-gfm, rehype-highlight |
+| **Math** | remark-math, rehype-katex, KaTeX |
+| **Styling** | CSS3 with Studygram aesthetic |
+
+---
+
+## Project Structure
+
 ```
 src/
-├── App.jsx              # Component chính, bố trí header, tab, panel chat/image
-├── main.jsx             # Entry point, khởi tạo React app
-├── components/           # Các thành phần UI
-│   ├── ChatPanel.jsx    # Panel chat với AI
-│   ├── ImagePanel.jsx   # Panel tạo hình ảnh
-│   ├── ModelSelector.jsx # Dropdown chọn model AI
-│   ├── Message.jsx      # Component hiển thị tin nhắn
+├── App.tsx              # Main app with tab navigation
+├── main.tsx             # React entry point
+├── components/
+│   ├── ChatPanel.tsx    # Chat interface with file upload
+│   ├── ImagePanel.tsx   # Image generation panel
+│   ├── VideoPanel.tsx   # Video generation panel (Alpha)
+│   ├── Header.tsx       # Header with help/changelog modals
+│   ├── ModelSelector.tsx# AI model dropdown
+│   ├── Message.tsx      # Message rendering component
 │   └── ...
-├── hooks/               # Custom React hooks
-│   ├── useChat.js       # Hook quản lý chat với Puter AI
-│   └── useImageGeneration.js # Hook tạo hình ảnh
-├── utils/               # Utilities
-│   ├── constants.js    # Constants (MAX_CHAT_HISTORY, default models...)
-│   ├── markdown.js     # Cấu hình react-markdown plugins
-│   └── content.js      # Utilities xử lý nội dung
+├── hooks/
+│   ├── useChat.ts       # Chat logic with Puter AI
+│   ├── useImageGeneration.ts
+│   └── useVideoGeneration.ts
+├── utils/
+│   ├── constants.ts     # App constants & configs
+│   ├── markdown.ts      # Markdown plugins config
+│   └── fileValidator.ts # File upload validation
+├── types/               # TypeScript definitions
 └── styles/
-    └── index.css       # CSS định dạng Studygram
+    └── index.css        # Studygram CSS design
 ```
 
-## Tùy chỉnh nhanh
-- **Chỉnh danh sách model**: Sửa `CHAT_MODELS` và `IMAGE_MODELS` trong `src/components/ModelSelector.jsx`
-- **Điều chỉnh giới hạn lịch sử chat**: Thay đổi `MAX_CHAT_HISTORY` trong `src/utils/constants.js` (mặc định: 40 tin nhắn)
-- **Thay đổi model mặc định**: Sửa `DEFAULT_CHAT_MODEL` và `DEFAULT_IMAGE_MODEL` trong `src/utils/constants.js`
-- **Thay đổi giao diện**: Cập nhật biến màu/phông trong `src/styles/index.css`
+---
 
-## Dependencies chính
-- **React 18.3.1** - UI framework
-- **Vite 6.4.1** - Build tool và dev server
-- **react-markdown 9.1.0** - Render Markdown
-- **remark-gfm** - GitHub Flavored Markdown support
-- **remark-math** + **rehype-katex** - LaTeX math rendering
-- **rehype-highlight** + **highlight.js** - Syntax highlighting
-- **Puter.js SDK** - Load từ CDN (`https://js.puter.com/v2/`)
+## API Rate Limits
 
-## Ghi chú bảo mật
-- Ứng dụng dựa trên Puter.js CDN (`https://js.puter.com/v2/`). Khi triển khai cần phục vụ qua **HTTPS** để Puter hoạt động ổn định.
-- Tất cả API calls được xử lý qua Puter.js SDK, không cần API keys riêng.
+PaperChat uses Puter.js which is **free** but has rate limits per account. If you hit the limit:
+
+1. Clear cookies for PaperChat site
+2. Clear cookies for [puter.com](https://puter.com)
+3. Return to PaperChat and send any message
+4. A new account is auto-created ✨
+
+---
+
+## Security Notes
+
+- All API calls are handled via Puter.js SDK — **no API keys required**
+- For production deployment, serve over **HTTPS** for stable Puter.js operation
+- User authentication is managed by Puter.js automatically
+
+---
+
+## Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs or issues
+- Suggest new features
+- Submit pull requests
+
+---
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Made with 💖 by <a href="https://github.com/eiyuumiru">eiyuumiru</a>
+</p>
