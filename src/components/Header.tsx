@@ -310,6 +310,17 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v3.0.1</span>
+                                    <span className="version-date">15/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Bug tạo video từ Puter.js đã được fix' : 'Video generation bug from Puter.js has been fixed'} <a href="https://github.com/HeyPuter/puter/issues/2175" target="_blank" rel="noopener noreferrer">(issue #2175)</a></li>
+                                    <li><span className="change-type beta">🧪 Beta</span> {language === 'vi' ? 'Chuyển tính năng tạo video từ Alpha sang Beta' : 'Moved video generation from Alpha to Beta'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag major">v3.0.0</span>
                                     <span className="version-date">14/12/2024</span>
                                 </div>

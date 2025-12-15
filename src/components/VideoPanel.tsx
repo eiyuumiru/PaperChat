@@ -106,18 +106,10 @@ function VideoPanel(): React.ReactElement {
 
     return (
         <div className="tab-panel active">
-            <div className="alpha-warning">
-                <span className="alpha-warning-icon">⚠️</span>
-                <span className="alpha-warning-text">
-                    <strong>{t('videoFeaturePaused')}</strong> {t('videoNotWorking')}{' '}
-                    <a
-                        href="https://github.com/HeyPuter/puter/issues/2175"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {t('puterBug')}
-                    </a>
-                    . {t('pleaseWait')}
+            <div className="beta-warning">
+                <span className="beta-warning-icon">🧪</span>
+                <span className="beta-warning-text">
+                    <strong>Beta:</strong> {t('betaVideoWarning')}
                 </span>
             </div>
             <div className="image-panel">

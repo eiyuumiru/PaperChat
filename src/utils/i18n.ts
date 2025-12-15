@@ -83,7 +83,7 @@ const translations = {
         tipStartupPrompt: 'Cho tôi 5 ý tưởng startup công nghệ',
 
         // Image Panel
-        imageWarning: 'Tạo ảnh có thể không ổn định, tốn nhiều credits và có tỷ lệ lỗi cao với một số model.',
+        imageWarning: 'Tạo ảnh có thể không ổn định và tốn nhiều credits.',
         note: 'Lưu ý:',
         describeEdit: 'Mô tả chỉnh sửa:',
         describeImage: 'Mô tả hình ảnh:',
@@ -102,6 +102,7 @@ const translations = {
         imagePlaceholderHint: 'Nhập prompt và nhấn "Tạo hình ảnh"',
 
         // Video Panel
+        betaVideoWarning: 'Tính năng này đang trong giai đoạn Beta, có thể không hoạt động và tốn RẤT NHIỀU credits.',
         videoFeaturePaused: 'Tính năng tạm ngừng:',
         videoNotWorking: 'Tạo video hiện không hoạt động do',
         puterBug: 'lỗi từ Puter.js (issue #2175)',
@@ -222,7 +223,7 @@ const translations = {
         tipStartupPrompt: 'Give me 5 tech startup ideas',
 
         // Image Panel
-        imageWarning: 'Image generation may be unstable, consume many credits, and have high error rates with some models.',
+        imageWarning: 'Image generation may be unstable and consume many credits.',
         note: 'Note:',
         describeEdit: 'Describe edit:',
         describeImage: 'Describe image:',
@@ -241,6 +242,7 @@ const translations = {
         imagePlaceholderHint: 'Enter a prompt and click "Generate Image"',
 
         // Video Panel
+        betaVideoWarning: 'This feature is in Beta, may not work and uses A LOT of credits.',
         videoFeaturePaused: 'Feature paused:',
         videoNotWorking: 'Video generation is not working due to',
         puterBug: 'Puter.js bug (issue #2175)',
