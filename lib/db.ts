@@ -1,10 +1,20 @@
-import { createClient } from '@libsql/client';
+import { createClient, Client } from '@libsql/client';
 
-// Turso database client
-const db = createClient({
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Lazy database client initialization
+let db: Client | null = null;
+
+function getDb(): Client {
+    if (!db) {
+        if (!process.env.TURSO_DATABASE_URL) {
+            throw new Error('TURSO_DATABASE_URL environment variable is not set');
+        }
+        db = createClient({
+            url: process.env.TURSO_DATABASE_URL,
+            authToken: process.env.TURSO_AUTH_TOKEN,
+        });
+    }
+    return db;
+}
 
 export interface Account {
     id: number;
@@ -18,7 +28,7 @@ export interface Account {
 
 // Initialize database schema
 export async function initDatabase(): Promise<void> {
-    await db.execute(`
+    await getDb().execute(`
         CREATE TABLE IF NOT EXISTS accounts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT NOT NULL,
@@ -33,7 +43,7 @@ export async function initDatabase(): Promise<void> {
 
 // Get all active accounts
 export async function getActiveAccounts(): Promise<Account[]> {
-    const result = await db.execute(
+    const result = await getDb().execute(
         `SELECT * FROM accounts WHERE status = 'active' ORDER BY credits_remaining DESC`
     );
     return result.rows as unknown as Account[];
@@ -44,7 +54,7 @@ export async function getAccountByTier(
     minCredits: number,
     maxCredits: number
 ): Promise<Account | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
         sql: `SELECT * FROM accounts 
               WHERE status = 'active' 
               AND credits_remaining >= ? 
@@ -60,7 +70,7 @@ export async function getAccountByTier(
 export async function getAccountWithMinCredits(
     minCredits: number
 ): Promise<Account | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
         sql: `SELECT * FROM accounts 
               WHERE status = 'active' 
               AND credits_remaining >= ?
@@ -73,7 +83,7 @@ export async function getAccountWithMinCredits(
 
 // Get any active account (fallback)
 export async function getAnyActiveAccount(): Promise<Account | null> {
-    const result = await db.execute(
+    const result = await getDb().execute(
         `SELECT * FROM accounts 
          WHERE status = 'active' 
          ORDER BY credits_remaining DESC 
@@ -87,7 +97,7 @@ export async function updateAccountCredits(
     accountId: number,
     credits: number
 ): Promise<void> {
-    await db.execute({
+    await getDb().execute({
         sql: `UPDATE accounts 
               SET credits_remaining = ?, last_used = CURRENT_TIMESTAMP 
               WHERE id = ?`,
@@ -97,7 +107,7 @@ export async function updateAccountCredits(
 
 // Mark account as exhausted
 export async function markAccountExhausted(accountId: number): Promise<void> {
-    await db.execute({
+    await getDb().execute({
         sql: `UPDATE accounts SET status = 'exhausted' WHERE id = ?`,
         args: [accountId],
     });
@@ -108,10 +118,10 @@ export async function markAccountError(
     accountId: number,
     errorMessage: string
 ): Promise<void> {
-    await db.execute({
+    await getDb().execute({
         sql: `UPDATE accounts SET status = 'error' WHERE id = ?`,
         args: [accountId],
     });
 }
 
-export default db;
+export { getDb };
