@@ -167,14 +167,31 @@ export async function generateVideo(
     authToken: string,
     options: VideoOptions
 ): Promise<{ videoUrl: string }> {
+    const model = options.model || 'sora-2';
+
+    // Detect driver based on model name
+    let driver = 'openai-video-generation'; // default for sora
+    const modelLower = model.toLowerCase();
+
+    if (modelLower.includes('sora')) {
+        driver = 'openai-video-generation';
+    } else if (modelLower.includes('veo') || modelLower.includes('google')) {
+        // Veo and other models use together driver
+        driver = 'together-video-generation';
+    } else if (modelLower.includes('wan') || modelLower.includes('seedance') || modelLower.includes('bytedance')) {
+        driver = 'together-video-generation';
+    }
+
+    console.log('[Video API] Using driver:', driver, 'for model:', model);
+
     const result = await driverCall(
         authToken,
         'puter-video-generation',
-        'openai-video-generation',
+        driver,
         'generate',
         {
             prompt: options.prompt,
-            model: options.model || 'sora-2',
+            model: model,
             seconds: options.seconds || 4,
             size: options.size || '1280x720',
         },
