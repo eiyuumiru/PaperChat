@@ -4,8 +4,8 @@ import {
     refreshAccountCredits,
     getPoolExhaustedError,
     isInsufficientCreditsError,
-} from '../lib/accountPool';
-import { chat, getMonthlyUsage } from '../lib/puterClient';
+} from './_lib/accountPool';
+import { chat, getMonthlyUsage } from './_lib/puterClient';
 
 const MAX_RETRIES = 3;
 
