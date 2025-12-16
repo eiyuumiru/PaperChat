@@ -1,5 +1,7 @@
-// Puter.js wrapper for server-side usage
-// Note: This uses dynamic import since Puter.js may need special handling in Node.js
+// Puter REST API client for server-side usage
+// Uses direct HTTP calls instead of Puter.js SDK (which requires browser environment)
+
+const PUTER_API_ORIGIN = 'https://api.puter.com';
 
 export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
@@ -24,13 +26,68 @@ export interface VideoOptions {
     testMode?: boolean;
 }
 
+interface DriverCallRequest {
+    interface: string;
+    driver: string;
+    method: string;
+    args: Record<string, unknown>;
+    auth_token: string;
+    test_mode?: boolean;
+}
+
+interface DriverCallResponse {
+    success?: boolean;
+    result?: unknown;
+    error?: {
+        code?: string;
+        message?: string;
+    };
+    message?: {
+        content?: string;
+    };
+}
+
 /**
- * Initialize Puter client with auth token
+ * Make a driver call to Puter API
  */
-async function initPuter(authToken: string) {
-    // Dynamic import for server-side
-    const init = require('@heyputer/puter.js/src/init.cjs');
-    return init({ authToken });
+async function driverCall(
+    authToken: string,
+    driverInterface: string,
+    driverName: string,
+    driverMethod: string,
+    args: Record<string, unknown>,
+    testMode: boolean = false
+): Promise<unknown> {
+    const requestBody: DriverCallRequest = {
+        interface: driverInterface,
+        driver: driverName,
+        method: driverMethod,
+        args,
+        auth_token: authToken,
+        test_mode: testMode,
+    };
+
+    const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Puter API error: ${response.status} - ${errorText}`);
+    }
+
+    const data: DriverCallResponse = await response.json();
+
+    if (data.success === false) {
+        throw new Error(data.error?.message || 'Puter driver call failed');
+    }
+
+    return data.result !== undefined ? data.result : data;
 }
 
 /**
@@ -40,13 +97,20 @@ export async function chat(
     authToken: string,
     options: ChatOptions
 ): Promise<{ response: string; usage?: unknown }> {
-    const puter = await initPuter(authToken);
-
-    const response = await puter.ai.chat(options.model, options.messages);
+    const result = await driverCall(
+        authToken,
+        'puter-chat-completion',
+        'ai-chat',
+        'complete',
+        {
+            messages: options.messages,
+            model: options.model,
+        }
+    ) as { message?: { content?: string }; usage?: unknown };
 
     return {
-        response: typeof response === 'string' ? response : response?.message?.content || '',
-        usage: response?.usage,
+        response: result?.message?.content || '',
+        usage: result?.usage,
     };
 }
 
@@ -57,11 +121,28 @@ export async function generateImage(
     authToken: string,
     options: ImageOptions
 ): Promise<{ imageUrl: string }> {
-    const puter = await initPuter(authToken);
+    const result = await driverCall(
+        authToken,
+        'puter-image-generation',
+        'ai-image',
+        'generate',
+        {
+            prompt: options.prompt,
+            model: options.model,
+        }
+    );
 
-    const result = await puter.ai.txt2img(options.prompt, options.model);
+    // Result could be a URL string or base64 data
+    let imageUrl: string;
+    if (typeof result === 'string') {
+        imageUrl = result;
+    } else if (result && typeof result === 'object' && 'src' in result) {
+        imageUrl = (result as { src: string }).src;
+    } else {
+        throw new Error('Unexpected image response format');
+    }
 
-    return { imageUrl: result };
+    return { imageUrl };
 }
 
 /**
@@ -71,16 +152,31 @@ export async function generateVideo(
     authToken: string,
     options: VideoOptions
 ): Promise<{ videoUrl: string }> {
-    const puter = await initPuter(authToken);
+    const result = await driverCall(
+        authToken,
+        'puter-video-generation',
+        'openai-video-generation',
+        'generate',
+        {
+            prompt: options.prompt,
+            model: options.model || 'sora-2',
+            seconds: options.seconds || 4,
+            size: options.size || '1280x720',
+        },
+        options.testMode || false
+    );
 
-    const result = await puter.ai.txt2vid(options.prompt, {
-        model: options.model,
-        seconds: options.seconds || 4,
-        size: options.size || '1280x720',
-        testMode: options.testMode || false,
-    });
+    // Result could be a URL string or video element data
+    let videoUrl: string;
+    if (typeof result === 'string') {
+        videoUrl = result;
+    } else if (result && typeof result === 'object' && 'src' in result) {
+        videoUrl = (result as { src: string }).src;
+    } else {
+        throw new Error('Unexpected video response format');
+    }
 
-    return { videoUrl: result };
+    return { videoUrl };
 }
 
 /**
@@ -89,13 +185,28 @@ export async function generateVideo(
 export async function getMonthlyUsage(
     authToken: string
 ): Promise<{ creditsRemaining: number; usage: Record<string, unknown> }> {
-    const puter = await initPuter(authToken);
+    // For usage, we need to call the auth API directly
+    const response = await fetch(`${PUTER_API_ORIGIN}/auth/get-user-app-token-info`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({}),
+    });
 
-    const usageData = await puter.auth.getMonthlyUsage();
+    if (!response.ok) {
+        throw new Error(`Failed to get usage: ${response.status}`);
+    }
 
-    // credits_remaining is in microcents
+    const data = await response.json();
+
+    // Calculate remaining credits
+    const creditForPeriod = data.monthly_spending_limit || 0;
+    const totalCost = data.monthly_spending || 0;
+
     return {
-        creditsRemaining: usageData.credit_for_period - usageData.total_cost,
-        usage: usageData.usage,
+        creditsRemaining: creditForPeriod - totalCost,
+        usage: data.usage || {},
     };
 }
