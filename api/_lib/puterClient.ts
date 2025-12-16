@@ -72,6 +72,9 @@ async function driverCall(
         headers: {
             'Content-Type': 'text/plain;charset=UTF-8',
             'Authorization': `Bearer ${authToken}`,
+            'Origin': 'https://puter.com',
+            'Referer': 'https://puter.com/',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
         body: JSON.stringify(requestBody),
     });
