@@ -367,6 +367,12 @@
     font-weight: 600;
 }
 
+/* Email highlight for failed refresh */
+.accounts-table .email-refresh-failed {
+    color: var(--accent-rose, #BE123C);
+    font-weight: 600;
+}
+
 /* Add Account Form - Studygram Style */
 .add-account-form {
     display: flex;

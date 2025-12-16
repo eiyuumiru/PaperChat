@@ -32,6 +32,7 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [failedIds, setFailedIds] = useState<Set<number>>(new Set());
 
     // Add account form
     const [newEmail, setNewEmail] = useState('');
@@ -62,6 +63,7 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const handleRefreshAll = async () => {
         setRefreshing(true);
         setMessage(null);
+        setFailedIds(new Set());
 
         try {
             const res = await fetch('/api/admin-refresh', {
@@ -73,6 +75,17 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
 
             const data = await res.json();
             setMessage({ type: 'success', text: data.message });
+
+            // Track failed account IDs
+            if (data.results) {
+                const failed = new Set<number>();
+                for (const r of data.results) {
+                    if (!r.success) {
+                        failed.add(r.id);
+                    }
+                }
+                setFailedIds(failed);
+            }
 
             // Reload accounts
             await fetchAccounts();
@@ -150,14 +163,10 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                             disabled={refreshing}
                             title="Refresh All Credits"
                         >
-                            {refreshing ? (
-                                <span className="loading-spinner" />
-                            ) : (
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M23 4v6h-6M1 20v-6h6" />
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                                </svg>
-                            )}
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
                         </button>
                     </div>
 
@@ -178,7 +187,7 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                                 {accounts.map((acc) => (
                                     <tr key={acc.id}>
                                         <td>{acc.id}</td>
-                                        <td>{acc.email}</td>
+                                        <td className={failedIds.has(acc.id) ? 'email-refresh-failed' : ''}>{acc.email}</td>
                                         <td>${creditsToDollars(acc.credits_remaining)}</td>
                                         <td className={`status-${acc.status}`}>
                                             {acc.status}
