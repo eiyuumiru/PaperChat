@@ -97,6 +97,13 @@
     opacity: 0.7;
 }
 
+/* Bolder password dots */
+.admin-password-modal input[type="password"] {
+    -webkit-text-security: disc;
+    font-size: 1.3rem;
+    letter-spacing: 0.15em;
+}
+
 .admin-password-modal .btn-row {
     display: flex;
     gap: 10px;
@@ -224,6 +231,26 @@
     box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.5);
 }
 
+/* Admin Panel Scrollbar - Studygram Style */
+.admin-panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.admin-panel::-webkit-scrollbar-track {
+    background: rgba(215, 194, 168, 0.2);
+    border-radius: 10px;
+}
+
+.admin-panel::-webkit-scrollbar-thumb {
+    background-color: var(--dot-grid-tint, #D7C2A8);
+    border-radius: 10px;
+    border: 2px solid var(--paper-cream, #FFF7EA);
+}
+
+.admin-panel::-webkit-scrollbar-thumb:hover {
+    background-color: #c4a98a;
+}
+
 /* Admin Sections - Soft Paper Style */
 .admin-section {
     background-color: var(--paper-white, #FFFAF3);
@@ -232,6 +259,55 @@
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 3px 3px 10px rgba(215, 194, 168, 0.3), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Section Header with Icon Button */
+.admin-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.admin-section-header h2 {
+    font-family: "Mali", cursive;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--accent-rose, #BE123C);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Refresh Icon Button - Minimal Black/White */
+.btn-refresh-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--paper-white, #FFFAF3);
+    border: 2px solid var(--ink-primary, #1F2937);
+    border-radius: 8px;
+    color: var(--ink-primary, #1F2937);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-refresh-icon:hover:not(:disabled) {
+    background-color: var(--ink-primary, #1F2937);
+    color: var(--paper-white, #FFFAF3);
+}
+
+.btn-refresh-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-refresh-icon.loading svg {
+    animation: spin 0.8s linear infinite;
 }
 
 .admin-section h2 {

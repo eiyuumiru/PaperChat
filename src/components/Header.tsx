@@ -524,6 +524,7 @@ function Header(): React.ReactElement {
                                 </div>
                                 <ul className="version-changes">
                                     <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Ẩn hướng dẫn API limit khi bật Account Pool' : 'Hide API limit guide when Account Pool enabled'}</li>
+                                    <li><span className="change-type improve">🎨 {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Scrollbar theo phong cách Studygram' : 'Studygram-styled scrollbar'}</li>
                                 </ul>
                             </div>
 
