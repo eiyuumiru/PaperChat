@@ -98,11 +98,11 @@ export function getPoolExhaustedError(language: 'vi' | 'en' = 'vi') {
         code: 'POOL_EXHAUSTED',
         message:
             language === 'vi'
-                ? 'Hệ thống tạm thời hết credits. Vui lòng liên hệ admin qua Discord/Email để được hỗ trợ.'
-                : 'System temporarily out of credits. Please contact admin via Discord/Email for support.',
+                ? 'Hệ thống tạm thời hết credits. Vui lòng liên hệ admin qua Discord/Facebook để được hỗ trợ.'
+                : 'System temporarily out of credits. Please contact admin via Discord/Facebook for support.',
         contact: {
-            discord: 'https://discord.gg/your-server',
-            email: 'admin@example.com',
+            discord: 'yukinee_.',
+            facebook: 'https://www.facebook.com/yukinee283/',
         },
     };
 }
