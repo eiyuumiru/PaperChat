@@ -72,7 +72,7 @@ async function driverCall(
     const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'text/plain;charset=UTF-8',
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
             'Origin': 'https://puter.com',
             'Referer': 'https://puter.com/',
