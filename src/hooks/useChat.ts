@@ -71,13 +71,12 @@ class ChatService {
         history: ChatMessage[],
         enableWebSearch: boolean
     ): Promise<string> {
-        // Check if using pool mode
-        const usePool = (import.meta as unknown as { env: Record<string, string> }).env.VITE_USE_ACCOUNT_POOL === 'true';
+        // Check if using pool mode from localStorage
+        const { getUseAccountPool, chatViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
 
         if (usePool) {
             // Use backend pool API
-            const { chatViaPool } = await import('../utils/api');
-
             interface APIMessage {
                 role: string;
                 content: string;

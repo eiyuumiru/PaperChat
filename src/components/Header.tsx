@@ -233,15 +233,7 @@ function Header(): React.ReactElement {
                         </button>
 
                         {/* Account Pool Toggle */}
-                        <button
-                            className="settings-item"
-                            onClick={() => {
-                                const newValue = !accountPoolEnabled;
-                                setAccountPoolEnabled(newValue);
-                                setUseAccountPool(newValue);
-                                window.location.reload();
-                            }}
-                        >
+                        <div className="settings-toggle-item">
                             <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                                 <circle cx="9" cy="7" r="4" />
@@ -249,10 +241,20 @@ function Header(): React.ReactElement {
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                             <span className="settings-item-label">{t('accountPool')}</span>
-                            <span className={`settings-item-badge ${accountPoolEnabled ? 'on' : 'off'}`}>
-                                {accountPoolEnabled ? t('accountPoolOn') : t('accountPoolOff')}
-                            </span>
-                        </button>
+                            <label className="toggle-switch">
+                                <input
+                                    type="checkbox"
+                                    checked={accountPoolEnabled}
+                                    onChange={() => {
+                                        const newValue = !accountPoolEnabled;
+                                        setAccountPoolEnabled(newValue);
+                                        setUseAccountPool(newValue);
+                                        window.location.reload();
+                                    }}
+                                />
+                                <span className="toggle-slider"></span>
+                            </label>
+                        </div>
 
                         {/* Divider */}
                         <div className="settings-divider" />

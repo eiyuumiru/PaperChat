@@ -50,11 +50,11 @@ class ImageGenerationService {
      * Generates an image from a text prompt
      */
     static async generate(prompt: string, model: string): Promise<string> {
-        // Check if using pool mode
-        const usePool = (import.meta as unknown as { env: Record<string, string> }).env.VITE_USE_ACCOUNT_POOL === 'true';
+        // Check if using pool mode from localStorage
+        const { getUseAccountPool, generateImageViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
 
         if (usePool) {
-            const { generateImageViaPool } = await import('../utils/api');
             return await generateImageViaPool({ prompt, model });
         }
 
