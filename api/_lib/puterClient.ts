@@ -70,7 +70,7 @@ async function driverCall(
     const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain;charset=UTF-8',
             'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify(requestBody),
@@ -78,6 +78,7 @@ async function driverCall(
 
     if (!response.ok) {
         const errorText = await response.text();
+        console.error('[Puter API] Error response:', response.status, errorText);
         throw new Error(`Puter API error: ${response.status} - ${errorText}`);
     }
 
