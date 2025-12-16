@@ -42,6 +42,7 @@ A beautiful **Studygram-styled** web application for AI Chat, Image Generation, 
 - Responsive and mobile-friendly
 
 ### Settings & Account
+- **Account Pool**: Use for free without login - auto-rotate accounts when credits run out
 - **Credits/Usage**: View detailed API usage with popup modal
 - **Auto-load**: Credits automatically refresh on page load
 - **Account management**: Sign in/out with Puter account
@@ -103,10 +104,11 @@ src/
 ├── App.tsx              # Main app with tab navigation
 ├── main.tsx             # React entry point
 ├── components/
+│   ├── AdminPanel.tsx   # Hidden admin panel (Ctrl+Alt+Shift+P)
 │   ├── ChatPanel.tsx    # Chat interface with file upload
 │   ├── ImagePanel.tsx   # Image generation panel
-│   ├── VideoPanel.tsx   # Video generation panel (Alpha)
-│   ├── Header.tsx       # Header with help/changelog modals
+│   ├── VideoPanel.tsx   # Video generation panel (Beta)
+│   ├── Header.tsx       # Header with settings/changelog
 │   ├── ModelSelector.tsx# AI model dropdown
 │   ├── Message.tsx      # Message rendering component
 │   └── ...
@@ -115,12 +117,25 @@ src/
 │   ├── useImageGeneration.ts
 │   └── useVideoGeneration.ts
 ├── utils/
+│   ├── api.ts           # API helpers & Account Pool client
 │   ├── constants.ts     # App constants & configs
-│   ├── markdown.ts      # Markdown plugins config
+│   ├── i18n.ts          # Multi-language support (EN/VI)
 │   └── fileValidator.ts # File upload validation
 ├── types/               # TypeScript definitions
 └── styles/
-    └── index.css        # Studygram CSS design
+    ├── index.css        # Studygram CSS design
+    └── admin.css        # Admin panel styles
+
+api/                     # Vercel serverless functions
+├── _lib/
+│   ├── accountPool.ts   # Account rotation logic
+│   ├── db.ts            # Turso database client
+│   └── puterClient.ts   # Puter API wrapper
+├── chat.ts              # Chat API endpoint
+├── image.ts             # Image generation endpoint
+├── video.ts             # Video generation endpoint
+├── admin-accounts.ts    # Admin: list/add accounts
+└── admin-refresh.ts     # Admin: refresh all credits
 ```
 
 ---

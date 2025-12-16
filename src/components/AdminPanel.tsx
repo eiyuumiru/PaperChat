@@ -129,8 +129,8 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
             <div className="admin-panel">
                 <div className="admin-header">
                     <h1>🔐 Admin Panel</h1>
-                    <button className="btn-close" onClick={onClose}>
-                        ✕ Đóng
+                    <button className="btn-close" onClick={onClose} title="Đóng">
+                        ×
                     </button>
                 </div>
 

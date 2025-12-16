@@ -371,35 +371,45 @@ function Header(): React.ReactElement {
                             </p>
                         </div>
 
-                        <div className="help-section">
-                            <h3 className="help-section-title">{t('helpLimitTitle')}</h3>
-                            <p>
-                                {language === 'vi' ? 'Mặc dù' : 'Although'} <span className="hl-pink">{language === 'vi' ? 'miễn phí hoàn toàn' : 'completely free'}</span>,
-                                {language === 'vi'
-                                    ? ' Puter.js vẫn có giới hạn về số lượng request API cho mỗi tài khoản. Khi bạn gặp lỗi "API limit exceeded" hoặc chatbot không phản hồi, hãy làm theo hướng dẫn bên dưới.'
-                                    : ' Puter.js has request limits per account. When you encounter "API limit exceeded" errors or the chatbot stops responding, follow the instructions below.'
-                                }
-                            </p>
-                        </div>
+                        {!accountPoolEnabled && (
+                            <>
+                                <div className="help-section">
+                                    <h3 className="help-section-title">{t('helpLimitTitle')}</h3>
+                                    <p>
+                                        {language === 'vi' ? 'Mặc dù' : 'Although'} <span className="hl-pink">{language === 'vi' ? 'miễn phí hoàn toàn' : 'completely free'}</span>,
+                                        {language === 'vi'
+                                            ? ' Puter.js vẫn có giới hạn về số lượng request API cho mỗi tài khoản. Khi bạn gặp lỗi "API limit exceeded" hoặc chatbot không phản hồi, hãy làm theo hướng dẫn bên dưới.'
+                                            : ' Puter.js has request limits per account. When you encounter "API limit exceeded" errors or the chatbot stops responding, follow the instructions below.'
+                                        }
+                                    </p>
+                                </div>
 
-                        <div className="help-section">
-                            <h3 className="help-section-title">{t('helpFixTitle')}</h3>
-                            <div className="help-steps">
-                                <div className="help-step">
-                                    <strong>{language === 'vi' ? 'Bước 1:' : 'Step 1:'}</strong> {t('helpStep1')}
-                                    <span className="help-note"> (PaperChat)</span>
+                                <div className="help-section">
+                                    <h3 className="help-section-title">{t('helpFixTitle')}</h3>
+                                    <div className="help-steps">
+                                        <div className="help-step">
+                                            <strong>{language === 'vi' ? 'Cách 1:' : 'Option 1:'}</strong> {language === 'vi' ? 'Bật Account Pool trong Settings' : 'Enable Account Pool in Settings'}
+                                            <span className="help-note"> ({language === 'vi' ? 'khuyên dùng' : 'recommended'})</span>
+                                        </div>
+                                        <div className="help-step">
+                                            <strong>{language === 'vi' ? 'Cách 2:' : 'Option 2:'}</strong> {language === 'vi' ? 'Reset tài khoản Puter' : 'Reset Puter account'}
+                                        </div>
+                                        <div className="help-step" style={{ paddingLeft: '20px' }}>
+                                            • {t('helpStep1')} <span className="help-note">(PaperChat)</span>
+                                        </div>
+                                        <div className="help-step" style={{ paddingLeft: '20px' }}>
+                                            • {t('helpStep2')}
+                                        </div>
+                                        <div className="help-step" style={{ paddingLeft: '20px' }}>
+                                            • {t('helpStep3')}
+                                        </div>
+                                        <div className="help-step" style={{ paddingLeft: '20px' }}>
+                                            • {t('helpStep4')}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="help-step">
-                                    <strong>{language === 'vi' ? 'Bước 2:' : 'Step 2:'}</strong> {t('helpStep2')}
-                                </div>
-                                <div className="help-step">
-                                    <strong>{language === 'vi' ? 'Bước 3:' : 'Step 3:'}</strong> {t('helpStep3')}
-                                </div>
-                                <div className="help-step">
-                                    <strong>{language === 'vi' ? 'Bước 4:' : 'Step 4:'}</strong> {t('helpStep4')}
-                                </div>
-                            </div>
-                        </div>
+                            </>
+                        )}
 
                         <div className="help-footer">
                             <p>
@@ -507,6 +517,16 @@ function Header(): React.ReactElement {
                         <h2 className="help-modal-title">{t('changelogTitle')}</h2>
 
                         <div className="changelog-content">
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <span className="version-tag">v4.0.1</span>
+                                    <span className="version-date">16/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Ẩn hướng dẫn API limit khi bật Account Pool' : 'Hide API limit guide when Account Pool enabled'}</li>
+                                </ul>
+                            </div>
+
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <span className="version-tag major">v4.0.0</span>

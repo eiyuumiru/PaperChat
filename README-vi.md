@@ -42,6 +42,7 @@
 - Responsive và thân thiện mobile
 
 ### Cài đặt & Tài khoản
+- **Account Pool**: Sử dụng miễn phí không cần đăng nhập - tự động xoay vòng tài khoản khi hết credits
 - **Credits/Usage**: Xem chi tiết sử dụng API với popup modal
 - **Tự động load**: Credits tự động refresh khi vào trang
 - **Quản lý tài khoản**: Đăng nhập/xuất với tài khoản Puter
@@ -103,10 +104,11 @@ src/
 ├── App.tsx              # App chính với tab navigation
 ├── main.tsx             # React entry point
 ├── components/
+│   ├── AdminPanel.tsx   # Admin panel ẩn (Ctrl+Alt+Shift+P)
 │   ├── ChatPanel.tsx    # Giao diện chat với upload file
 │   ├── ImagePanel.tsx   # Panel tạo hình ảnh
-│   ├── VideoPanel.tsx   # Panel tạo video (Alpha)
-│   ├── Header.tsx       # Header với modal help/changelog
+│   ├── VideoPanel.tsx   # Panel tạo video (Beta)
+│   ├── Header.tsx       # Header với settings/changelog
 │   ├── ModelSelector.tsx# Dropdown chọn model AI
 │   ├── Message.tsx      # Component hiển thị tin nhắn
 │   └── ...
@@ -115,12 +117,25 @@ src/
 │   ├── useImageGeneration.ts
 │   └── useVideoGeneration.ts
 ├── utils/
+│   ├── api.ts           # API helpers & Account Pool client
 │   ├── constants.ts     # Constants & cấu hình
-│   ├── markdown.ts      # Cấu hình Markdown plugins
+│   ├── i18n.ts          # Hỗ trợ đa ngôn ngữ (EN/VI)
 │   └── fileValidator.ts # Validation upload file
 ├── types/               # TypeScript definitions
 └── styles/
-    └── index.css        # CSS thiết kế Studygram
+    ├── index.css        # CSS thiết kế Studygram
+    └── admin.css        # CSS admin panel
+
+api/                     # Vercel serverless functions
+├── _lib/
+│   ├── accountPool.ts   # Logic xoay vòng account
+│   ├── db.ts            # Turso database client
+│   └── puterClient.ts   # Puter API wrapper
+├── chat.ts              # API endpoint chat
+├── image.ts             # API tạo hình ảnh
+├── video.ts             # API tạo video
+├── admin-accounts.ts    # Admin: danh sách/thêm account
+└── admin-refresh.ts     # Admin: refresh tất cả credits
 ```
 
 ---
