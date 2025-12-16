@@ -5,7 +5,8 @@
     "outputDirectory": "dist",
     "functions": {
         "api/*.ts": {
-            "runtime": "@vercel/node@5.5.15"
+            "runtime": "@vercel/node@3.2.0",
+            "includeFiles": "lib/**"
         }
     },
     "rewrites": [

@@ -185,14 +185,12 @@ export async function generateVideo(
 export async function getMonthlyUsage(
     authToken: string
 ): Promise<{ creditsRemaining: number; usage: Record<string, unknown> }> {
-    // For usage, we need to call the auth API directly
-    const response = await fetch(`${PUTER_API_ORIGIN}/auth/get-user-app-token-info`, {
-        method: 'POST',
+    // Use metering/usage endpoint
+    const response = await fetch(`${PUTER_API_ORIGIN}/metering/usage`, {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
         },
-        body: JSON.stringify({}),
     });
 
     if (!response.ok) {
@@ -201,12 +199,9 @@ export async function getMonthlyUsage(
 
     const data = await response.json();
 
-    // Calculate remaining credits
-    const creditForPeriod = data.monthly_spending_limit || 0;
-    const totalCost = data.monthly_spending || 0;
-
+    // Use allowanceInfo.remaining for credits (in tokens)
     return {
-        creditsRemaining: creditForPeriod - totalCost,
+        creditsRemaining: data.allowanceInfo?.remaining || 0,
         usage: data.usage || {},
     };
 }
