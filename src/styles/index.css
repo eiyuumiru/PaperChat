@@ -327,6 +327,14 @@ body {
   color: white;
 }
 
+.settings-item-badge.on {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.settings-item-badge.off {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
 /* Settings Divider */
 .settings-divider {
   height: 2px;

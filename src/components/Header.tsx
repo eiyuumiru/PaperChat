@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react';
 import { useLanguage } from '../utils/i18n';
+import { getUseAccountPool, setUseAccountPool } from '../utils/api';
 
 interface PuterUser {
     username?: string;
@@ -34,6 +35,7 @@ function Header(): React.ReactElement {
     const [usageLoading, setUsageLoading] = useState(false);
     const [usageError, setUsageError] = useState(false);
     const [showUsageDetails, setShowUsageDetails] = useState(false);
+    const [accountPoolEnabled, setAccountPoolEnabled] = useState(getUseAccountPool);
     const settingsRef = useRef<HTMLDivElement>(null);
 
     // Check auth status on mount and fetch usage
@@ -230,87 +232,113 @@ function Header(): React.ReactElement {
                             <span className="settings-item-badge">{language.toUpperCase()}</span>
                         </button>
 
+                        {/* Account Pool Toggle */}
+                        <button
+                            className="settings-item"
+                            onClick={() => {
+                                const newValue = !accountPoolEnabled;
+                                setAccountPoolEnabled(newValue);
+                                setUseAccountPool(newValue);
+                                window.location.reload();
+                            }}
+                        >
+                            <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            <span className="settings-item-label">{t('accountPool')}</span>
+                            <span className={`settings-item-badge ${accountPoolEnabled ? 'on' : 'off'}`}>
+                                {accountPoolEnabled ? t('accountPoolOn') : t('accountPoolOff')}
+                            </span>
+                        </button>
+
                         {/* Divider */}
                         <div className="settings-divider" />
 
-                        {/* Account Section */}
-                        <div className="settings-account">
-                            <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                            <div className="settings-account-info">
-                                <span className="settings-account-name">
-                                    {isSignedIn ? (user?.username || user?.email || 'User') : t('guest')}
-                                </span>
-                                {isSignedIn ? (
-                                    <button className="settings-auth-btn signout" onClick={handleSignOut}>
-                                        {t('signOut')}
-                                    </button>
-                                ) : (
-                                    <button className="settings-auth-btn signin" onClick={handleSignIn}>
-                                        {t('signIn')}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Credits/Usage Section */}
-                        <div className="settings-usage">
-                            <div className="settings-usage-header">
-                                <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                </svg>
-                                <span className="settings-usage-label">{t('credits')}</span>
-                                <button
-                                    className="settings-usage-refresh"
-                                    onClick={fetchUsage}
-                                    disabled={usageLoading}
-                                    title={t('refreshUsage')}
-                                >
-                                    <svg className={`settings-refresh-icon ${usageLoading ? 'spinning' : ''}`} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M23 4v6h-6M1 20v-6h6" />
-                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                        {/* Account Section - Hidden when Account Pool is enabled */}
+                        {!accountPoolEnabled && (
+                            <>
+                                <div className="settings-account">
+                                    <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
                                     </svg>
-                                </button>
-                            </div>
-                            <div className="settings-usage-content">
-                                {usageLoading && (
-                                    <span className="settings-usage-loading">{t('loadingUsage')}</span>
-                                )}
-                                {usageError && (
-                                    <span className="settings-usage-error">{t('errorLoadingUsage')}</span>
-                                )}
-                                {usageData && !usageLoading && (
-                                    <div className="settings-usage-data">
-                                        {usageData.allowanceInfo && (
-                                            <>
-                                                <span className="settings-usage-total">
-                                                    {t('usageThisMonth')}: <strong>${((usageData.allowanceInfo.monthUsageAllowance - usageData.allowanceInfo.remaining) / 100000000).toFixed(2)}</strong>
-                                                </span>
-                                                <span className="settings-usage-remaining">
-                                                    {language === 'vi' ? 'Còn lại' : 'Remaining'}: ${(usageData.allowanceInfo.remaining / 100000000).toFixed(2)}
-                                                </span>
-                                            </>
-                                        )}
-                                        {usageData.usage && Object.keys(usageData.usage).length > 0 && (
-                                            <button
-                                                className="settings-usage-details-btn"
-                                                onClick={() => setShowUsageDetails(true)}
-                                            >
-                                                {language === 'vi' ? 'Xem chi tiết' : 'View details'}
-                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
-                                                </svg>
+                                    <div className="settings-account-info">
+                                        <span className="settings-account-name">
+                                            {isSignedIn ? (user?.username || user?.email || 'User') : t('guest')}
+                                        </span>
+                                        {isSignedIn ? (
+                                            <button className="settings-auth-btn signout" onClick={handleSignOut}>
+                                                {t('signOut')}
+                                            </button>
+                                        ) : (
+                                            <button className="settings-auth-btn signin" onClick={handleSignIn}>
+                                                {t('signIn')}
                                             </button>
                                         )}
                                     </div>
-                                )}
-                                {!usageData && !usageLoading && !usageError && (
-                                    <span className="settings-usage-hint">{t('refreshUsage')}</span>
-                                )}
-                            </div>
-                        </div>
+                                </div>
+
+                                {/* Credits/Usage Section */}
+                                <div className="settings-usage">
+                                    <div className="settings-usage-header">
+                                        <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                        <span className="settings-usage-label">{t('credits')}</span>
+                                        <button
+                                            className="settings-usage-refresh"
+                                            onClick={fetchUsage}
+                                            disabled={usageLoading}
+                                            title={t('refreshUsage')}
+                                        >
+                                            <svg className={`settings-refresh-icon ${usageLoading ? 'spinning' : ''}`} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div className="settings-usage-content">
+                                        {usageLoading && (
+                                            <span className="settings-usage-loading">{t('loadingUsage')}</span>
+                                        )}
+                                        {usageError && (
+                                            <span className="settings-usage-error">{t('errorLoadingUsage')}</span>
+                                        )}
+                                        {usageData && !usageLoading && (
+                                            <div className="settings-usage-data">
+                                                {usageData.allowanceInfo && (
+                                                    <>
+                                                        <span className="settings-usage-total">
+                                                            {t('usageThisMonth')}: <strong>${((usageData.allowanceInfo.monthUsageAllowance - usageData.allowanceInfo.remaining) / 100000000).toFixed(2)}</strong>
+                                                        </span>
+                                                        <span className="settings-usage-remaining">
+                                                            {language === 'vi' ? 'Còn lại' : 'Remaining'}: ${(usageData.allowanceInfo.remaining / 100000000).toFixed(2)}
+                                                        </span>
+                                                    </>
+                                                )}
+                                                {usageData.usage && Object.keys(usageData.usage).length > 0 && (
+                                                    <button
+                                                        className="settings-usage-details-btn"
+                                                        onClick={() => setShowUsageDetails(true)}
+                                                    >
+                                                        {language === 'vi' ? 'Xem chi tiết' : 'View details'}
+                                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                        {!usageData && !usageLoading && !usageError && (
+                                            <span className="settings-usage-hint">{t('refreshUsage')}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
@@ -484,6 +512,7 @@ function Header(): React.ReactElement {
                                 </div>
                                 <ul className="version-changes">
                                     <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? 'Account Pool System - Hỗ trợ backend với nhiều tài khoản' : 'Account Pool System - Backend support with multiple accounts'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Toggle bật/tắt Account Pool trong Settings' : 'Account Pool on/off toggle in Settings'}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Vercel Serverless Functions cho API endpoints' : 'Vercel Serverless Functions for API endpoints'}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Turso SQLite database để quản lý accounts' : 'Turso SQLite database for account management'}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Tiered selection: phân bổ account theo loại dịch vụ' : 'Tiered selection: allocate accounts by service type'}</li>

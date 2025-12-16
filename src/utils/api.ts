@@ -3,8 +3,21 @@
  * This provides an alternative to direct Puter.js calls
  */
 
-// Check if we should use the account pool backend
-export const USE_ACCOUNT_POOL = (import.meta as unknown as { env: Record<string, string> }).env.VITE_USE_ACCOUNT_POOL === 'true';
+// Storage key for account pool setting
+const ACCOUNT_POOL_KEY = 'useAccountPool';
+
+// Get account pool setting from localStorage (default: false)
+export function getUseAccountPool(): boolean {
+    return localStorage.getItem(ACCOUNT_POOL_KEY) === 'true';
+}
+
+// Set account pool setting
+export function setUseAccountPool(value: boolean): void {
+    localStorage.setItem(ACCOUNT_POOL_KEY, value.toString());
+}
+
+// For backward compatibility
+export const USE_ACCOUNT_POOL = getUseAccountPool();
 
 interface ApiResponse<T> {
     success?: boolean;

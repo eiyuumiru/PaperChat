@@ -31,6 +31,9 @@ const translations = {
         loadingUsage: 'Đang tải...',
         errorLoadingUsage: 'Không thể tải dữ liệu',
         refreshUsage: 'Làm mới',
+        accountPool: 'Account Pool',
+        accountPoolOn: 'Đang bật',
+        accountPoolOff: 'Đang tắt',
 
         // Help Modal
         helpTitle: '📚 Hướng dẫn sử dụng',
@@ -177,6 +180,9 @@ const translations = {
         loadingUsage: 'Loading...',
         errorLoadingUsage: 'Failed to load',
         refreshUsage: 'Refresh',
+        accountPool: 'Account Pool',
+        accountPoolOn: 'On',
+        accountPoolOff: 'Off',
 
         // Help Modal
         helpTitle: '📚 User Guide',
