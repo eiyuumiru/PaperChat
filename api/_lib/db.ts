@@ -49,40 +49,19 @@ export async function getActiveAccounts(): Promise<Account[]> {
     return result.rows as unknown as Account[];
 }
 
-// Get account by tier
-export async function getAccountByTier(
-    minCredits: number,
-    maxCredits: number
-): Promise<Account | null> {
-    const result = await getDb().execute({
-        sql: `SELECT * FROM accounts 
-              WHERE status = 'active' 
-              AND credits_remaining >= ? 
-              AND credits_remaining < ?
-              ORDER BY credits_remaining DESC 
-              LIMIT 1`,
-        args: [minCredits, maxCredits],
-    });
+// Get account with LEAST credits (for chat - cheapest operations)
+export async function getAccountWithLeastCredits(): Promise<Account | null> {
+    const result = await getDb().execute(
+        `SELECT * FROM accounts 
+         WHERE status = 'active' 
+         ORDER BY credits_remaining ASC 
+         LIMIT 1`
+    );
     return (result.rows[0] as unknown as Account) || null;
 }
 
-// Get account with minimum credits
-export async function getAccountWithMinCredits(
-    minCredits: number
-): Promise<Account | null> {
-    const result = await getDb().execute({
-        sql: `SELECT * FROM accounts 
-              WHERE status = 'active' 
-              AND credits_remaining >= ?
-              ORDER BY credits_remaining DESC 
-              LIMIT 1`,
-        args: [minCredits],
-    });
-    return (result.rows[0] as unknown as Account) || null;
-}
-
-// Get any active account (fallback)
-export async function getAnyActiveAccount(): Promise<Account | null> {
+// Get account with MOST credits (for video - most expensive operations)
+export async function getAccountWithMostCredits(): Promise<Account | null> {
     const result = await getDb().execute(
         `SELECT * FROM accounts 
          WHERE status = 'active' 
@@ -90,6 +69,23 @@ export async function getAnyActiveAccount(): Promise<Account | null> {
          LIMIT 1`
     );
     return (result.rows[0] as unknown as Account) || null;
+}
+
+// Get account with MIDDLE credits (for image - medium operations)
+export async function getAccountWithMiddleCredits(): Promise<Account | null> {
+    // Get all active accounts sorted by credits
+    const result = await getDb().execute(
+        `SELECT * FROM accounts 
+         WHERE status = 'active' 
+         ORDER BY credits_remaining ASC`
+    );
+
+    const accounts = result.rows as unknown as Account[];
+    if (accounts.length === 0) return null;
+
+    // Return the middle account
+    const middleIndex = Math.floor(accounts.length / 2);
+    return accounts[middleIndex];
 }
 
 // Update account credits

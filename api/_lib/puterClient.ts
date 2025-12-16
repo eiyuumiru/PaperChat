@@ -67,7 +67,6 @@ async function driverCall(
         test_mode: testMode,
     };
 
-    console.log('[Puter API] Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
         method: 'POST',

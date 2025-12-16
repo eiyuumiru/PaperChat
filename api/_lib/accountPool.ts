@@ -1,17 +1,14 @@
 import {
-    getAccountByTier,
-    getAccountWithMinCredits,
-    getAnyActiveAccount,
+    getAccountWithLeastCredits,
+    getAccountWithMostCredits,
+    getAccountWithMiddleCredits,
     updateAccountCredits,
     markAccountExhausted,
     type Account,
 } from './db.js';
 
-// Credit thresholds in microcents (1 USD = 100,000,000 microcents)
-const MICROCENTS_PER_DOLLAR = 100_000_000;
-const LOW_TIER_MAX = 0.1 * MICROCENTS_PER_DOLLAR; // < $0.10
-const MEDIUM_TIER_MAX = 0.4 * MICROCENTS_PER_DOLLAR; // $0.10 - $0.40
-// HIGH_TIER = > $0.40
+// Minimum credits threshold (1M tokens = still usable)
+const MIN_CREDITS_THRESHOLD = 1_000_000;
 
 export type ServiceType = 'chat' | 'image' | 'video';
 
@@ -22,52 +19,31 @@ interface AccountResult {
 
 /**
  * Get an account suitable for the given service type
- * Tier selection:
- * - chat: Low tier (< $0.10)
- * - image: Medium tier ($0.10 - $0.40)
- * - video: High tier (> $0.40)
- * With fallback to other tiers if no suitable account found
+ * Selection logic:
+ * - chat: use account with LEAST credits (chat is cheap)
+ * - image: use account with MIDDLE credits (medium cost)
+ * - video: use account with MOST credits (most expensive)
  */
 export async function getAccountForService(
     serviceType: ServiceType
 ): Promise<AccountResult> {
-    let account: Account | null = null;
-
     try {
+        let account: Account | null = null;
+
         switch (serviceType) {
             case 'chat':
-                // Try low tier first (< $0.10)
-                account = await getAccountByTier(0, LOW_TIER_MAX);
-                // Fallback: any active account
-                if (!account) {
-                    account = await getAnyActiveAccount();
-                }
+                // Chat is cheap - use account with least credits
+                account = await getAccountWithLeastCredits();
                 break;
 
             case 'image':
-                // Try medium tier first ($0.10 - $0.40)
-                account = await getAccountByTier(LOW_TIER_MAX, MEDIUM_TIER_MAX);
-                // Fallback: low tier
-                if (!account) {
-                    account = await getAccountByTier(0, LOW_TIER_MAX);
-                }
-                // Fallback: high tier
-                if (!account) {
-                    account = await getAccountWithMinCredits(MEDIUM_TIER_MAX);
-                }
+                // Image is medium - use account in the middle
+                account = await getAccountWithMiddleCredits();
                 break;
 
             case 'video':
-                // Try high tier first (> $0.40)
-                account = await getAccountWithMinCredits(MEDIUM_TIER_MAX);
-                // Fallback: medium tier
-                if (!account) {
-                    account = await getAccountByTier(LOW_TIER_MAX, MEDIUM_TIER_MAX);
-                }
-                // Fallback: low tier
-                if (!account) {
-                    account = await getAccountByTier(0, LOW_TIER_MAX);
-                }
+                // Video is expensive - use account with most credits
+                account = await getAccountWithMostCredits();
                 break;
         }
 
@@ -98,29 +74,20 @@ export async function refreshAccountCredits(
 ): Promise<void> {
     await updateAccountCredits(accountId, creditsRemaining);
 
-    // Check if account is effectively exhausted (< $0.001)
-    // This means no more API calls are possible
-    const EXHAUSTED_THRESHOLD = 0.001 * MICROCENTS_PER_DOLLAR; // $0.001
-    if (creditsRemaining < EXHAUSTED_THRESHOLD) {
+    // Check if account is effectively exhausted (< 1M tokens)
+    if (creditsRemaining < MIN_CREDITS_THRESHOLD) {
         await markAccountExhausted(accountId);
     }
 }
 
 /**
  * Check if error is due to insufficient credits
- * Returns true if should skip this account for current service
  */
 export function isInsufficientCreditsError(errorMessage: string): boolean {
     const keywords = ['insufficient', 'quota', 'exceeded', 'limit'];
     const lowercased = errorMessage.toLowerCase();
     return keywords.some(k => lowercased.includes(k));
 }
-
-/**
- * NOTE: We do NOT mark account as exhausted on rate limit or insufficient credits
- * for a specific service. The account may still have enough for cheaper services.
- * We only mark exhausted when credits_remaining < threshold (in refreshAccountCredits).
- */
 
 /**
  * Generate pool exhausted error response
