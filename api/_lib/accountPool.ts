@@ -5,7 +5,7 @@ import {
     updateAccountCredits,
     markAccountExhausted,
     type Account,
-} from './db';
+} from './db.js';
 
 // Credit thresholds in microcents (1 USD = 100,000,000 microcents)
 const MICROCENTS_PER_DOLLAR = 100_000_000;

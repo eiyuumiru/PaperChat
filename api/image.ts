@@ -4,8 +4,8 @@ import {
     refreshAccountCredits,
     getPoolExhaustedError,
     isInsufficientCreditsError,
-} from './_lib/accountPool';
-import { generateImage, getMonthlyUsage } from './_lib/puterClient';
+} from './_lib/accountPool.js';
+import { generateImage, getMonthlyUsage } from './_lib/puterClient.js';
 
 const MAX_RETRIES = 3;
 
