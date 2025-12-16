@@ -86,6 +86,16 @@ async function driverCall(
         throw new Error(`Puter API error: ${response.status} - ${errorText}`);
     }
 
+    // Check if response is binary (image or video)
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
+        // Return media as base64 data URL
+        const buffer = await response.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString('base64');
+        const mimeType = contentType.split(';')[0];
+        return { src: `data:${mimeType};base64,${base64}` };
+    }
+
     const data: DriverCallResponse = await response.json();
 
     if (data.success === false) {
