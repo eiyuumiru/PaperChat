@@ -9,6 +9,9 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@heyputer/puter.js": "^2.2.2",
     "@libsql/client": "^0.15.15",
