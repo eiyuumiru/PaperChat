@@ -48,6 +48,21 @@ class VideoGenerationService {
         prompt: string,
         options: VideoGenerationOptions
     ): Promise<string> {
+        // Check if using pool mode from localStorage
+        const { getUseAccountPool, generateVideoViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
+
+        if (usePool) {
+            return await generateVideoViaPool({
+                prompt,
+                model: options.model,
+                seconds: options.seconds,
+                size: options.size,
+                testMode: options.testMode,
+            });
+        }
+
+        // Direct Puter.js mode
         VideoGenerationService.ensurePuterAvailable();
 
         const { model, seconds, size, testMode } = options;

@@ -50,6 +50,15 @@ class ImageGenerationService {
      * Generates an image from a text prompt
      */
     static async generate(prompt: string, model: string): Promise<string> {
+        // Check if using pool mode from localStorage
+        const { getUseAccountPool, generateImageViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
+
+        if (usePool) {
+            return await generateImageViaPool({ prompt, model });
+        }
+
+        // Direct Puter.js mode
         ImageGenerationService.ensurePuterAvailable();
 
         const isTogetherModel = model.includes('/');

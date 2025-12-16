@@ -71,6 +71,29 @@ class ChatService {
         history: ChatMessage[],
         enableWebSearch: boolean
     ): Promise<string> {
+        // Check if using pool mode from localStorage
+        const { getUseAccountPool, chatViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
+
+        if (usePool) {
+            // Use backend pool API
+            interface APIMessage {
+                role: string;
+                content: string;
+            }
+
+            const messagesForAPI: APIMessage[] = history.map((msg) => ({
+                role: msg.role,
+                content: msg.content,
+            }));
+
+            return await chatViaPool({
+                model,
+                messages: messagesForAPI,
+            });
+        }
+
+        // Direct Puter.js mode (original logic)
         ChatService.ensurePuterAvailable();
 
         let systemContext: string | null = null;
