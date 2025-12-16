@@ -344,7 +344,8 @@ body {
   gap: 12px;
   padding: 10px 12px;
   border-radius: 10px;
-  background-color: var(--paper-white);
+  background-color: rgba(255, 218, 185, 0.5);
+  border: 1.5px solid rgba(210, 180, 140, 0.4);
 }
 
 .settings-account-info {
@@ -406,11 +407,287 @@ body {
 
 [data-theme="dark"] .settings-account {
   background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(100, 100, 130, 0.3);
 }
 
 [data-theme="dark"] .settings-auth-btn.signin,
 [data-theme="dark"] .settings-auth-btn.signout {
   background-color: transparent;
+}
+
+/* Settings Usage/Credits Section */
+.settings-usage {
+  position: relative;
+  z-index: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: rgba(200, 230, 201, 0.35);
+  border: 1.5px solid rgba(76, 175, 80, 0.3);
+  margin-top: 8px;
+}
+
+.settings-usage-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.settings-usage-label {
+  font-family: "Mali", cursive;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-primary);
+  flex: 1;
+}
+
+.settings-usage-refresh {
+  font-size: 0.85rem;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-usage-refresh:hover:not(:disabled) {
+  background-color: rgba(76, 175, 80, 0.2);
+  transform: scale(1.1);
+}
+
+.settings-usage-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settings-refresh-icon {
+  transition: transform 0.2s ease;
+}
+
+.settings-refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.settings-usage-content {
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.95rem;
+  color: var(--ink-secondary);
+}
+
+.settings-usage-data {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-usage-total {
+  color: var(--ink-primary);
+}
+
+.settings-usage-total strong {
+  color: #2e7d32;
+  font-family: "Mali", cursive;
+}
+
+.settings-usage-remaining {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+}
+
+.settings-usage-loading,
+.settings-usage-hint {
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.settings-usage-error {
+  color: var(--accent-rose);
+  font-size: 0.85rem;
+}
+
+/* Usage Details Button */
+.settings-usage-details-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: "Mali", cursive;
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  margin: 6px auto 0 auto;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-usage-details-btn:hover {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: var(--ink-primary);
+}
+
+.settings-usage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.85rem;
+}
+
+.settings-usage-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #ffe4c9;
+}
+
+.settings-usage-table th {
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  border-bottom: 1.5px solid rgba(215, 194, 168, 0.5);
+}
+
+.settings-usage-table th:first-child {
+  text-align: left;
+}
+
+.settings-usage-table th:nth-child(2),
+.settings-usage-table th:nth-child(3) {
+  text-align: center;
+}
+
+.settings-usage-table td {
+  padding: 10px 16px;
+  color: var(--ink-secondary);
+  border-bottom: 1px solid rgba(215, 194, 168, 0.3);
+}
+
+.settings-usage-table td:first-child {
+  text-align: left;
+}
+
+.settings-usage-table td:nth-child(2) {
+  text-align: center;
+}
+
+.settings-usage-table td:last-child {
+  text-align: center;
+  font-family: "Mali", cursive;
+  color: #2e7d32;
+}
+
+.settings-usage-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.settings-usage-table tbody tr:hover {
+  background-color: rgba(215, 194, 168, 0.15);
+}
+
+/* Dark mode usage section */
+[data-theme="dark"] .settings-usage {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.25);
+}
+
+[data-theme="dark"] .settings-usage-total strong {
+  color: #81c784;
+}
+
+[data-theme="dark"] .settings-usage-table-wrapper {
+  background-color: rgba(30, 30, 40, 0.8);
+  border-color: rgba(100, 100, 130, 0.4);
+}
+
+[data-theme="dark"] .settings-usage-table thead {
+  background-color: #2a3a2a;
+}
+
+[data-theme="dark"] .settings-usage-table th {
+  border-color: rgba(100, 100, 130, 0.4);
+}
+
+[data-theme="dark"] .settings-usage-table td {
+  border-color: rgba(100, 100, 130, 0.2);
+}
+
+[data-theme="dark"] .settings-usage-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .settings-usage-table td:last-child {
+  color: #81c784;
+}
+
+/* Usage Modal Styles */
+.usage-modal {
+  width: min(95vw, 850px) !important;
+  max-width: none !important;
+  min-width: 500px;
+}
+
+.usage-modal-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  background-color: #ffe4c9;
+  border-radius: 12px;
+  font-family: "Patrick Hand", cursive;
+  font-size: 1rem;
+}
+
+.usage-modal-summary strong {
+  color: #2e7d32;
+  font-family: "Mali", cursive;
+}
+
+.usage-modal-table-wrapper {
+  max-height: 350px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1.5px solid rgba(215, 194, 168, 0.5);
+  background-color: var(--paper-white);
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.usage-modal-table-wrapper::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari/Opera */
+}
+
+[data-theme="dark"] .usage-modal-summary {
+  background-color: #2a3a2a;
+}
+
+[data-theme="dark"] .usage-modal-summary strong {
+  color: #81c784;
+}
+
+[data-theme="dark"] .usage-modal-table-wrapper {
+  background-color: rgba(30, 30, 40, 0.8);
+  border-color: rgba(100, 100, 130, 0.4);
 }
 
 .theme-toggle-btn,
@@ -1297,20 +1574,25 @@ body {
   flex: 1;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 8px;
 }
 
-/* Action buttons (image upload, web search) */
-.image-upload-btn,
+/* Container for action buttons (file upload, web search) - keeps them aligned */
+.input-action-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-self: center;
+}
+
+/* Action buttons (file upload, web search) */
+.file-upload-btn,
 .web-search-btn {
-  font-size: 1.3rem;
-  width: 48px;
-  /* Fixed width */
-  height: 48px;
-  /* Fixed height */
+  font-size: 1.5rem;
+  width: 56px;
+  height: 56px;
   padding: 0;
-  /* Remove padding to force size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1320,16 +1602,16 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  align-self: center;
+  position: relative;
 }
 
-.image-upload-btn:hover:not(:disabled),
+.file-upload-btn:hover:not(:disabled),
 .web-search-btn:hover:not(:disabled) {
   background-color: var(--paper-white);
   transform: scale(1.05);
 }
 
-.image-upload-btn:disabled,
+.file-upload-btn:disabled,
 .web-search-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -2034,40 +2316,8 @@ body {
   transition: all 0.2s ease;
 }
 
-.input-wrapper {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-/* Image Upload Button */
-.image-upload-btn,
-.web-search-btn {
-  font-size: 1.5rem;
-  width: 56px;
-  height: 56px;
-  padding: 0;
-  border-radius: 14px;
-  line-height: 1;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.image-upload-btn:hover:not(:disabled) {
-  background-color: var(--sticky-blue);
-  transform: scale(1.05);
-  box-shadow: 2px 2px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.image-upload-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.image-upload-btn.has-images {
+/* File Upload Button States */
+.file-upload-btn.has-files {
   background-color: var(--sticky-green);
 }
 
@@ -2180,35 +2430,7 @@ body {
    FILE UPLOAD STYLES (Images + Documents)
    ============================================ */
 
-/* File Upload Button */
-.file-upload-btn {
-  font-size: 1.5rem;
-  width: 56px;
-  height: 56px;
-  padding: 0;
-  border: 2px solid rgba(215, 194, 168, 0.6);
-  border-radius: 14px;
-  background-color: var(--paper-cream);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.file-upload-btn:hover:not(:disabled) {
-  background-color: var(--sticky-blue);
-  transform: scale(1.05);
-  box-shadow: 2px 2px 8px rgba(215, 194, 168, 0.4), 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.file-upload-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+/* File Upload Button States */
 .file-upload-btn.has-files {
   background-color: var(--sticky-green);
 }
@@ -2569,7 +2791,7 @@ body {
     align-items: stretch;
   }
 
-  .image-upload-btn {
+  .file-upload-btn {
     width: 100%;
     text-align: center;
   }

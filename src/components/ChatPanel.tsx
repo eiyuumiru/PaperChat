@@ -325,40 +325,42 @@ function ChatPanel(): React.ReactElement {
                             style={{ display: 'none' }}
                         />
 
-                        <button
-                            type="button"
-                            className={`file-upload-btn ${attachedFiles.length > 0 ? 'has-files' : ''}`}
-                            onClick={() => fileInputRef.current?.click()}
-                            title={
-                                isFileUploadDisabled
-                                    ? t('modelNoFileUpload')
-                                    : `${t('attachFile')} (${attachedFiles.length}/${MAX_FILES})`
-                            }
-                            disabled={isLoading || attachedFiles.length >= MAX_FILES || isFileUploadDisabled}
-                        >
-                            📎
-                            {attachedFiles.length > 0 && (
-                                <span className="file-count-badge">{attachedFiles.length}</span>
-                            )}
-                        </button>
+                        <div className="input-action-buttons">
+                            <button
+                                type="button"
+                                className={`file-upload-btn ${attachedFiles.length > 0 ? 'has-files' : ''}`}
+                                onClick={() => fileInputRef.current?.click()}
+                                title={
+                                    isFileUploadDisabled
+                                        ? t('modelNoFileUpload')
+                                        : `${t('attachFile')} (${attachedFiles.length}/${MAX_FILES})`
+                                }
+                                disabled={isLoading || attachedFiles.length >= MAX_FILES || isFileUploadDisabled}
+                            >
+                                📎
+                                {attachedFiles.length > 0 && (
+                                    <span className="file-count-badge">{attachedFiles.length}</span>
+                                )}
+                            </button>
 
-                        <button
-                            type="button"
-                            className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
-                            onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                            title={
-                                model === WEB_SEARCH_MODEL
-                                    ? t('webSearchBuiltIn')
-                                    : webSearchEnabled
-                                        ? t('webSearchOff')
-                                        : t('webSearchOn')
-                            }
-                            disabled={
-                                isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
-                            }
-                        >
-                            🔍
-                        </button>
+                            <button
+                                type="button"
+                                className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
+                                onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                                title={
+                                    model === WEB_SEARCH_MODEL
+                                        ? t('webSearchBuiltIn')
+                                        : webSearchEnabled
+                                            ? t('webSearchOff')
+                                            : t('webSearchOn')
+                                }
+                                disabled={
+                                    isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
+                                }
+                            >
+                                🔍
+                            </button>
+                        </div>
 
                         <textarea
                             ref={textareaRef}

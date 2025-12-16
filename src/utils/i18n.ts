@@ -25,6 +25,12 @@ const translations = {
         signIn: 'Đăng nhập',
         signOut: 'Đăng xuất',
         guest: 'Khách',
+        credits: 'Credits',
+        totalUsage: 'Tổng sử dụng',
+        usageThisMonth: 'Tháng này',
+        loadingUsage: 'Đang tải...',
+        errorLoadingUsage: 'Không thể tải dữ liệu',
+        refreshUsage: 'Làm mới',
 
         // Help Modal
         helpTitle: '📚 Hướng dẫn sử dụng',
@@ -165,6 +171,12 @@ const translations = {
         signIn: 'Sign In',
         signOut: 'Sign Out',
         guest: 'Guest',
+        credits: 'Credits',
+        totalUsage: 'Total Usage',
+        usageThisMonth: 'This Month',
+        loadingUsage: 'Loading...',
+        errorLoadingUsage: 'Failed to load',
+        refreshUsage: 'Refresh',
 
         // Help Modal
         helpTitle: '📚 User Guide',

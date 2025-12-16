@@ -19,7 +19,7 @@ A beautiful **Studygram-styled** web application for AI Chat, Image Generation, 
 
 ## Features
 
-### 💬 AI Chat
+### AI Chat
 - **Multi-model support**: GPT-5.2, Claude Opus 4.5, Gemini 3 Pro, DeepSeek, o3 Reasoning, and more
 - **Multi-modal input**: Upload up to 10 images/files (max 20MB each) for AI analysis
 - **Rich content display**: Markdown (GFM), LaTeX math rendering, syntax-highlighted code blocks
@@ -31,16 +31,20 @@ A beautiful **Studygram-styled** web application for AI Chat, Image Generation, 
 - **Polaroid-style display**: Generated images appear in a beautiful polaroid frame
 - **Error handling**: Friendly loading states and error messages
 
-### Video Generation *(Alpha)*
+### Video Generation *(Beta)*
 - **Cutting-edge models**: Sora 2, Veo 3.0, Kling 2.1, Seedance, and more
 - **Customizable**: Duration (4-12s) and resolution options
 - **Test Mode**: Try without consuming credits
-- **Note**: Currently experiencing issues due to [Puter.js bug #2175](https://github.com/HeyPuter/puter/issues/2175)
 
 ### Studygram Design
 - Handwritten fonts, lined paper background, pastel colors
 - Light/Dark mode toggle
 - Responsive and mobile-friendly
+
+### Settings & Account
+- **Credits/Usage**: View detailed API usage with popup modal
+- **Auto-load**: Credits automatically refresh on page load
+- **Account management**: Sign in/out with Puter account
 
 ---
 

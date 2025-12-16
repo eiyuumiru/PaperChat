@@ -11,6 +11,15 @@ interface PuterUser {
     email?: string;
 }
 
+interface UsageData {
+    allowanceInfo?: {
+        monthUsageAllowance: number;
+        remaining: number;
+    };
+    usage?: Record<string, { cost: number; count: number; units: string }>;
+    appTotals?: Record<string, { count: number; total: number }>;
+}
+
 function Header(): React.ReactElement {
     const { language, toggleLanguage, t } = useLanguage();
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -21,9 +30,13 @@ function Header(): React.ReactElement {
     const [showSettings, setShowSettings] = useState(false);
     const [user, setUser] = useState<PuterUser | null>(null);
     const [isSignedIn, setIsSignedIn] = useState(false);
+    const [usageData, setUsageData] = useState<UsageData | null>(null);
+    const [usageLoading, setUsageLoading] = useState(false);
+    const [usageError, setUsageError] = useState(false);
+    const [showUsageDetails, setShowUsageDetails] = useState(false);
     const settingsRef = useRef<HTMLDivElement>(null);
 
-    // Check auth status on mount
+    // Check auth status on mount and fetch usage
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -31,6 +44,13 @@ function Header(): React.ReactElement {
                     const userData = await window.puter.auth.getUser();
                     setUser(userData);
                     setIsSignedIn(true);
+                    // Auto-fetch usage on page load
+                    try {
+                        const usage = await window.puter.auth.getMonthlyUsage();
+                        setUsageData(usage);
+                    } catch (e) {
+                        console.error('Failed to fetch usage on load:', e);
+                    }
                 }
             } catch {
                 setIsSignedIn(false);
@@ -76,8 +96,24 @@ function Header(): React.ReactElement {
             await window.puter.auth.signOut();
             setUser(null);
             setIsSignedIn(false);
+            setUsageData(null);
         } catch (error) {
             console.error('Sign out failed:', error);
+        }
+    };
+
+    const fetchUsage = async () => {
+        if (usageLoading) return;
+        setUsageLoading(true);
+        setUsageError(false);
+        try {
+            const data = await window.puter.auth.getMonthlyUsage();
+            setUsageData(data);
+        } catch (error) {
+            console.error('Failed to fetch usage:', error);
+            setUsageError(true);
+        } finally {
+            setUsageLoading(false);
         }
     };
 
@@ -218,6 +254,63 @@ function Header(): React.ReactElement {
                                 )}
                             </div>
                         </div>
+
+                        {/* Credits/Usage Section */}
+                        <div className="settings-usage">
+                            <div className="settings-usage-header">
+                                <svg className="settings-item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                </svg>
+                                <span className="settings-usage-label">{t('credits')}</span>
+                                <button
+                                    className="settings-usage-refresh"
+                                    onClick={fetchUsage}
+                                    disabled={usageLoading}
+                                    title={t('refreshUsage')}
+                                >
+                                    <svg className={`settings-refresh-icon ${usageLoading ? 'spinning' : ''}`} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M23 4v6h-6M1 20v-6h6" />
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div className="settings-usage-content">
+                                {usageLoading && (
+                                    <span className="settings-usage-loading">{t('loadingUsage')}</span>
+                                )}
+                                {usageError && (
+                                    <span className="settings-usage-error">{t('errorLoadingUsage')}</span>
+                                )}
+                                {usageData && !usageLoading && (
+                                    <div className="settings-usage-data">
+                                        {usageData.allowanceInfo && (
+                                            <>
+                                                <span className="settings-usage-total">
+                                                    {t('usageThisMonth')}: <strong>${((usageData.allowanceInfo.monthUsageAllowance - usageData.allowanceInfo.remaining) / 100000000).toFixed(2)}</strong>
+                                                </span>
+                                                <span className="settings-usage-remaining">
+                                                    {language === 'vi' ? 'Còn lại' : 'Remaining'}: ${(usageData.allowanceInfo.remaining / 100000000).toFixed(2)}
+                                                </span>
+                                            </>
+                                        )}
+                                        {usageData.usage && Object.keys(usageData.usage).length > 0 && (
+                                            <button
+                                                className="settings-usage-details-btn"
+                                                onClick={() => setShowUsageDetails(true)}
+                                            >
+                                                {language === 'vi' ? 'Xem chi tiết' : 'View details'}
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {!usageData && !usageLoading && !usageError && (
+                                    <span className="settings-usage-hint">{t('refreshUsage')}</span>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -295,6 +388,82 @@ function Header(): React.ReactElement {
                 </div>
             )}
 
+            {/* Usage Details Modal */}
+            {showUsageDetails && usageData?.usage && (
+                <div className="help-modal-overlay" onClick={() => setShowUsageDetails(false)}>
+                    <div className="help-modal usage-modal" onClick={stopPropagation}>
+                        <button
+                            className="help-modal-close"
+                            onClick={() => setShowUsageDetails(false)}
+                        >
+                            ✕
+                        </button>
+
+                        <h2 className="help-modal-title">💰 {language === 'vi' ? 'Chi tiết sử dụng' : 'Usage Details'}</h2>
+
+                        {usageData.allowanceInfo && (
+                            <div className="usage-modal-summary">
+                                <span>{language === 'vi' ? 'Đã dùng' : 'Used'}: <strong>${((usageData.allowanceInfo.monthUsageAllowance - usageData.allowanceInfo.remaining) / 100000000).toFixed(2)}</strong></span>
+                                <span>{language === 'vi' ? 'Còn lại' : 'Remaining'}: <strong>${(usageData.allowanceInfo.remaining / 100000000).toFixed(2)}</strong></span>
+                            </div>
+                        )}
+
+                        <div className="usage-modal-table-wrapper">
+                            <table className="settings-usage-table">
+                                <thead>
+                                    <tr>
+                                        <th>{language === 'vi' ? 'Dịch vụ' : 'Service'}</th>
+                                        <th>{language === 'vi' ? 'Số lần' : 'Count'}</th>
+                                        <th>{language === 'vi' ? 'Chi phí' : 'Cost'}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(() => {
+                                        // Filter AI model entries
+                                        const aiPrefixes = [
+                                            'gpt', 'openai', 'claude', 'gemini', 'deepseek', 'o3',
+                                            'dall-e', 'flux', 'stable', 'black-forest',
+                                            'sora', 'veo', 'google/veo', 'kling', 'seedance', 'bytedance',
+                                            'minimax', 'hailuo', 'pixverse', 'wan', 'vidu'
+                                        ];
+
+                                        const filteredEntries = Object.entries(usageData.usage)
+                                            .filter(([apiName]) => {
+                                                const lowercaseName = apiName.toLowerCase();
+                                                return aiPrefixes.some(prefix => lowercaseName.includes(prefix));
+                                            });
+
+                                        // Group by model name (remove :prompt_tokens, :completion_tokens, :prompt, :completion suffixes)
+                                        const grouped: Record<string, { count: number; cost: number }> = {};
+                                        filteredEntries.forEach(([apiName, details]) => {
+                                            const modelName = apiName
+                                                .replace(/:prompt_tokens$/, '')
+                                                .replace(/:completion_tokens$/, '')
+                                                .replace(/:prompt$/, '')
+                                                .replace(/:completion$/, '');
+
+                                            if (!grouped[modelName]) {
+                                                grouped[modelName] = { count: 0, cost: 0 };
+                                            }
+                                            grouped[modelName].count += details.count;
+                                            grouped[modelName].cost += details.cost;
+                                        });
+
+                                        return Object.entries(grouped).map(([modelName, data]) => (
+                                            <tr key={modelName}>
+                                                <td>{modelName}</td>
+                                                <td>{data.count}</td>
+                                                <td>${(data.cost / 100000000).toFixed(4)}</td>
+                                            </tr>
+                                        ));
+                                    })()}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showChangelog && (
                 <div className="help-modal-overlay" onClick={() => setShowChangelog(false)}>
                     <div className="help-modal changelog-modal" onClick={stopPropagation}>
@@ -308,6 +477,19 @@ function Header(): React.ReactElement {
                         <h2 className="help-modal-title">{t('changelogTitle')}</h2>
 
                         <div className="changelog-content">
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <span className="version-tag">v3.1.0</span>
+                                    <span className="version-date">16/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Xem chi tiết credits/usage với popup modal' : 'Detailed credits/usage view with popup modal'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Tự động load credits khi vào trang' : 'Auto-load credits on page load'}</li>
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Căn chỉnh kích thước nút files/search với input' : 'Align files/search buttons size with input'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Dọn dẹp và tối ưu CSS' : 'CSS cleanup and optimization'}</li>
+                                </ul>
+                            </div>
+
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <span className="version-tag">v3.0.1</span>

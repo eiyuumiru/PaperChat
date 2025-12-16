@@ -31,16 +31,20 @@
 - **Hiển thị polaroid**: Hình ảnh tạo ra hiển thị trong khung polaroid đẹp mắt
 - **Xử lý lỗi**: Trạng thái loading và thông báo lỗi thân thiện
 
-### Tạo video *(Alpha)*
+### Tạo video *(Beta)*
 - **Model tiên tiến**: Sora 2, Veo 3.0, Kling 2.1, Seedance và nhiều hơn nữa
 - **Tuỳ chỉnh**: Thời lượng (4-12s) và độ phân giải
 - **Test Mode**: Thử nghiệm mà không tốn credits
-- **Lưu ý**: Hiện đang gặp vấn đề do [lỗi Puter.js #2175](https://github.com/HeyPuter/puter/issues/2175)
 
 ### Thiết kế Studygram
 - Font chữ viết tay, nền giấy kẻ, màu pastel
 - Chuyển đổi Light/Dark mode
 - Responsive và thân thiện mobile
+
+### Cài đặt & Tài khoản
+- **Credits/Usage**: Xem chi tiết sử dụng API với popup modal
+- **Tự động load**: Credits tự động refresh khi vào trang
+- **Quản lý tài khoản**: Đăng nhập/xuất với tài khoản Puter
 
 ---
 

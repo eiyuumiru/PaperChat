@@ -67,11 +67,27 @@ interface PuterUser {
     email?: string;
 }
 
+interface ApiUsageDetails {
+    cost: number;
+    count: number;
+    units: string;
+}
+
+interface UsageData {
+    allowanceInfo?: {
+        monthUsageAllowance: number;
+        remaining: number;
+    };
+    usage?: Record<string, ApiUsageDetails>;
+    appTotals?: Record<string, { count: number; total: number }>;
+}
+
 interface PuterAuth {
     isSignedIn(): boolean;
     getUser(): Promise<PuterUser>;
     signIn(): Promise<void>;
     signOut(): Promise<void>;
+    getMonthlyUsage(): Promise<UsageData>;
 }
 
 interface Puter {
