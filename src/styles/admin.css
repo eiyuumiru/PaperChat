@@ -1,39 +1,90 @@
-/* Admin Panel Styles */
+/* Admin Panel Styles - Studygram Edition */
 
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Overlay */
 .admin-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(31, 41, 55, 0.6);
+    /* Ink Primary 60% */
+    backdrop-filter: blur(4px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.2s ease;
+    animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Password Modal */
+/* Common Text Styles */
+.admin-panel,
 .admin-password-modal {
-    background: linear-gradient(145deg, #1a1a2e, #16213e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
-    min-width: 320px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    font-family: "Patrick Hand", "Mali", system-ui, sans-serif;
+    color: #1F2937;
+    /* Ink Primary */
+    letter-spacing: 0.01em;
+}
+
+h1,
+h2 {
+    color: #1F2937;
+}
+
+h1 {
+    font-family: "Pacifico", cursive;
+    font-weight: 400;
+}
+
+h2 {
+    font-family: "Mali", cursive;
+    font-weight: 600;
+}
+
+/* Password Modal - Hand Card Style */
+.admin-password-modal {
+    position: relative;
+    background-color: #FFFAF3;
+    /* Paper White */
+    border: 3px solid #1F2937;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    /* Hand drawn border */
+    padding: 2.5rem;
+    min-width: 340px;
+    box-shadow: 6px 6px 0px #1F2937;
+    /* Legacy shadow */
+    animation: slideUp 0.3s ease;
+    transform: rotate(-1deg);
 }
 
 .admin-password-modal h2 {
-    color: #fff;
+    font-size: 1.5rem;
     margin: 0 0 1.5rem;
-    font-size: 1.25rem;
+    color: #BE123C;
+    /* Accent Rose */
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -41,272 +92,313 @@
 
 .admin-password-modal input {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    font-size: 1rem;
-    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    border: 2px solid #1F2937;
+    /* Thicker border */
+    border-radius: 255px 25px 225px 25px / 25px 225px 25px 255px;
+    background: #FFF;
+    color: #1F2937;
+    font-family: "Patrick Hand", monospace;
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
     box-sizing: border-box;
+    transition: transform 0.2s;
 }
 
 .admin-password-modal input:focus {
     outline: none;
-    border-color: #667eea;
+    transform: scale(1.02);
+    border-color: #BE123C;
+}
+
+.admin-password-modal .error-msg {
+    color: #BE123C;
+    background-color: #FFE4E6;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    border: 1px dashed #BE123C;
 }
 
 .admin-password-modal .btn-row {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
-.admin-password-modal button {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
+/* Buttons - Studygram Style */
+button {
+    font-family: "Mali", cursive;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #1F2937;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
     cursor: pointer;
-    transition: all 0.2s;
-}
-
-.admin-password-modal .btn-cancel {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
-.admin-password-modal .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.admin-password-modal .btn-submit {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-}
-
-.admin-password-modal .btn-submit:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.admin-password-modal .error-msg {
-    color: #ff6b6b;
-    font-size: 0.85rem;
-    margin-bottom: 0.75rem;
-}
-
-/* Admin Panel Container */
-.admin-panel {
-    background: linear-gradient(145deg, #0f0f1a, #1a1a2e);
-    min-height: 100vh;
-    padding: 2rem;
-    color: #fff;
-    overflow-y: auto;
-}
-
-.admin-panel h1 {
-    font-size: 1.5rem;
-    margin: 0 0 1.5rem;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    box-shadow: 2px 2px 0px #1F2937;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 4px 4px 0px #1F2937;
+}
+
+button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px #1F2937;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #E5E7EB;
+}
+
+.btn-submit {
+    background-color: #FFDEEB;
+    /* Rose Pastel variant */
+    color: #BE123C;
+}
+
+.btn-cancel {
+    background-color: #FFF;
+    color: #4B5563;
+}
+
+.btn-close {
+    padding: 0.5rem 1rem;
+    background: #FFF;
+    color: #BE123C;
+    font-size: 0.9rem;
+}
+
+.btn-refresh {
+    background-color: #E0F2FE;
+    /* Blue pastel */
+    color: #0369A1;
+    width: auto;
+}
+
+/* Admin Panel - Notebook Style */
+.admin-panel {
+    background-color: #FFF7EA;
+    /* Paper Cream */
+    /* Dot Grid Texture */
+    background-image: radial-gradient(#D7C2A8 0.9px, transparent 0.9px);
+    background-size: 18px 18px;
+
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    padding: 2rem 3rem;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    /* Paper lines left margin effect (optional) */
+    /* border-left: 4px double #F87171; */
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    align-items: flex-start;
+    /* Title might be large */
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed #D7C2A8;
 }
 
-.admin-header .btn-close {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
+.admin-header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #BE123C;
+    /* Accent Rose */
+    text-shadow: 2px 2px 0px rgba(190, 18, 60, 0.1);
+    transform: rotate(-2deg);
 }
 
-.admin-header .btn-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Accounts Table */
+/* Sections as Sticky Notes or Cards */
 .admin-section {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    background-color: #FFFAF3;
+    /* Card White */
+    border: 2px solid #1F2937;
+    border-radius: 4px;
+    /* Slightly sharper for cards, or use messy radius */
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Tape effect for sections */
+.admin-section::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-1.5deg);
+    width: 120px;
+    height: 35px;
+    background-color: rgba(255, 100, 100, 0.2);
+    /* Red Tape */
+    border-radius: 2px;
+    /* Zigzag edges via mask not easy in pure css without complex gradient, using simple tape */
+    opacity: 0.8;
 }
 
 .admin-section h2 {
-    font-size: 1.1rem;
-    margin: 0 0 1rem;
-    color: #a5b4fc;
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem;
+    display: inline-block;
+    /* Scribble underline effect */
+    background-image: url("data:image/svg+xml,%3Csvg width='300' height='12' viewBox='0 0 214 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 10C41 4 79 4 118 6c39 2 58-3 94-4' fill='none' stroke='%23BE123C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 0.8em;
+    padding-bottom: 0.5rem;
+    color: #1F2937;
 }
 
+/* Table Styles - Handdrawn Grid */
 .accounts-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-.accounts-table th,
-.accounts-table td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: "Patrick Hand", system-ui;
+    font-size: 1.1rem;
 }
 
 .accounts-table th {
-    color: #a5b4fc;
-    font-weight: 500;
-    background: rgba(0, 0, 0, 0.2);
+    font-family: "Mali", cursive;
+    font-weight: 700;
+    color: #0369A1;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid #1F2937;
 }
 
-.accounts-table tr:hover {
-    background: rgba(255, 255, 255, 0.03);
+.accounts-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px dashed #D7C2A8;
+    color: #4B5563;
 }
 
-.accounts-table .status-active {
-    color: #4ade80;
+.accounts-table tr:last-child td {
+    border-bottom: none;
 }
 
-.accounts-table .status-exhausted {
-    color: #fbbf24;
+.accounts-table tr:hover td {
+    background-color: rgba(255, 247, 234, 0.5);
+    /* Slight highlight */
 }
 
-.accounts-table .status-error {
-    color: #f87171;
+/* Status Badges - Highlighter Effect */
+.status-active {
+    background: linear-gradient(to top, rgba(167, 243, 208, 0.6) 55%, transparent 55%);
+    /* Green pastel */
+    padding: 0.1em 0.5em;
+    border-radius: 4px;
+    color: #065F46;
+    font-weight: bold;
 }
 
-/* Add Account Form */
+.status-exhausted {
+    background: linear-gradient(to top, rgba(253, 230, 138, 0.6) 55%, transparent 55%);
+    /* Yellow pastel */
+    padding: 0.1em 0.5em;
+    border-radius: 4px;
+    color: #92400E;
+    font-weight: bold;
+}
+
+.status-error {
+    background: linear-gradient(to top, rgba(254, 202, 202, 0.6) 55%, transparent 55%);
+    /* Red pastel */
+    padding: 0.1em 0.5em;
+    border-radius: 4px;
+    color: #991B1B;
+    font-weight: bold;
+}
+
+/* Form inputs in Panel */
 .add-account-form {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    align-items: flex-end;
 }
 
 .add-account-form input {
     flex: 1;
-    min-width: 200px;
-    padding: 0.75rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    font-size: 0.9rem;
+    min-width: 250px;
+    padding: 0.8rem 1rem;
+    border: 2px solid #1F2937;
+    border-radius: 255px 25px 225px 25px / 25px 225px 25px 255px;
+    background: #FFF;
+    font-family: "Patrick Hand", cursive;
+    font-size: 1.1rem;
+    color: #1F2937;
 }
 
 .add-account-form input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #0369A1;
+    transform: scale(1.01) rotate(0.5deg);
 }
 
-.add-account-form button {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.add-account-form button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.add-account-form button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* Action Buttons */
-.admin-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.btn-refresh {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-refresh:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-}
-
-.btn-refresh:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-refresh.loading {
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* Loading Spinner */
+/* Loading Spinner - Custom */
 .loading-spinner {
     display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #BE123C;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Success/Error Messages */
+/* Messages as Sticky Notes specific */
 .admin-message {
-    padding: 0.75rem 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+    font-family: "Mali", cursive;
+    font-weight: 500;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transform: rotate(-1deg);
 }
 
 .admin-message.success {
-    background: rgba(74, 222, 128, 0.15);
-    border: 1px solid rgba(74, 222, 128, 0.3);
-    color: #4ade80;
+    background-color: #D1FAE5;
+    /* Green 100 */
+    border: 1px solid #34D399;
+    color: #065F46;
 }
 
 .admin-message.error {
-    background: rgba(248, 113, 113, 0.15);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    color: #f87171;
+    background-color: #FFE4E6;
+    /* Rose 100 */
+    border: 1px solid #FB7185;
+    color: #9F1239;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .admin-panel {
-        padding: 1rem;
+        padding: 1.5rem;
+        width: 95%;
+        height: 90vh;
     }
 
     .accounts-table {
@@ -316,9 +408,10 @@
 
     .add-account-form {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .add-account-form input {
-        min-width: 100%;
+    .add-account-form button {
+        width: 100%;
     }
 }
