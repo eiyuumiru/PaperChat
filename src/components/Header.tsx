@@ -479,6 +479,20 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag major">v4.0.0</span>
+                                    <span className="version-date">16/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? 'Account Pool System - Hỗ trợ backend với nhiều tài khoản' : 'Account Pool System - Backend support with multiple accounts'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Vercel Serverless Functions cho API endpoints' : 'Vercel Serverless Functions for API endpoints'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Turso SQLite database để quản lý accounts' : 'Turso SQLite database for account management'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Tiered selection: phân bổ account theo loại dịch vụ' : 'Tiered selection: allocate accounts by service type'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Auto-rotate khi account hết credits' : 'Auto-rotate when account runs out of credits'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v3.1.0</span>
                                     <span className="version-date">16/12/2024</span>
                                 </div>

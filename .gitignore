@@ -81,3 +81,5 @@ coverage/
 .vercel/
 .netlify/
 .firebase/
+.vercel
+.env*.local
