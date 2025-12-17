@@ -175,10 +175,21 @@ export async function generateVideo(
 
     if (modelLower.includes('sora')) {
         driver = 'openai-video-generation';
-    } else if (modelLower.includes('veo') || modelLower.includes('google')) {
-        // Veo and other models use together driver
-        driver = 'together-video-generation';
-    } else if (modelLower.includes('wan') || modelLower.includes('seedance') || modelLower.includes('bytedance')) {
+    } else if (
+        modelLower.includes('veo') ||
+        modelLower.includes('google') ||
+        modelLower.includes('kling') ||
+        modelLower.includes('kwaivgi') ||
+        modelLower.includes('minimax') ||
+        modelLower.includes('hailuo') ||
+        modelLower.includes('video-01') ||
+        modelLower.includes('wan') ||
+        modelLower.includes('seedance') ||
+        modelLower.includes('bytedance') ||
+        modelLower.includes('pixverse') ||
+        modelLower.includes('vidu') ||
+        model.includes('/')  // Any model with / is likely from Together
+    ) {
         driver = 'together-video-generation';
     }
 
