@@ -99,7 +99,8 @@ async function driverCall(
     const data: DriverCallResponse = await response.json();
 
     if (data.success === false) {
-        throw new Error(data.error?.message || 'Puter driver call failed');
+        console.error('[Puter API] Driver call failed:', JSON.stringify(data, null, 2));
+        throw new Error(data.error?.message || data.error?.code || JSON.stringify(data.error) || 'Puter driver call failed');
     }
 
     return data.result !== undefined ? data.result : data;
