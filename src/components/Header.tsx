@@ -524,6 +524,7 @@ function Header(): React.ReactElement {
                                 </div>
                                 <ul className="version-changes">
                                     <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'GPT-5.2 Thinking là model mặc định' : 'GPT-5.2 Thinking is now the default model'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Đổi tên GPT-5.2 thành GPT-5.2 Instant' : 'Renamed GPT-5.2 to GPT-5.2 Instant'}</li>
                                 </ul>
                             </div>
 
