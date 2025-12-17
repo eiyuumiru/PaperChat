@@ -23,10 +23,10 @@ class LaTeXNormalizer {
         t = t.replace(/\\right\$/g, '\\right)');
 
         // Block math: \[ ... \] -> $$ ... $$
-        t = t.replace(/\\\[([\\s\\S]*?)\\\]/g, (_, inner: string) => `$$${inner}$$`);
+        t = t.replace(/\\\[([\s\S]*?)\\\]/g, (_, inner: string) => `$$${inner}$$`);
 
         // Inline math: \( ... \) -> $ ... $
-        t = t.replace(/\\\(([\\s\\S]*?)\\\)/g, (_, inner: string) => `$${inner}$`);
+        t = t.replace(/\\\(([\s\S]*?)\\\)/g, (_, inner: string) => `$${inner}$`);
 
         return t;
     }

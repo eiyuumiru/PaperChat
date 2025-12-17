@@ -519,6 +519,16 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v4.1.2</span>
+                                    <span className="version-date">17/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Hotfix lỗi LaTeX không render do regex sai' : 'Hotfix LaTeX not rendering due to incorrect regex'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v4.1.1</span>
                                     <span className="version-date">17/12/2024</span>
                                 </div>
