@@ -281,8 +281,6 @@ function VideoPanel(): React.ReactElement {
                             <div className="image-placeholder-icon"></div>
                             <p className="image-placeholder-text error">
                                 {error}
-                                <br />
-                                <span className="hl-yellow">{t('pleaseTryAgain')}</span>
                             </p>
                         </div>
                     ) : videoUrl ? (

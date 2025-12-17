@@ -519,6 +519,16 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v4.1.1</span>
+                                    <span className="version-date">17/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Error logging display' : 'Error logging display'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v4.1.0</span>
                                     <span className="version-date">17/12/2024</span>
                                 </div>

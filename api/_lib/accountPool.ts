@@ -7,8 +7,8 @@ import {
     type Account,
 } from './db.js';
 
-// Minimum credits threshold (1M tokens = still usable)
-const MIN_CREDITS_THRESHOLD = 1_000_000;
+// Minimum credits threshold (100K tokens ≈ $0.001)
+const MIN_CREDITS_THRESHOLD = 100_000;
 
 export type ServiceType = 'chat' | 'image' | 'video';
 
@@ -104,5 +104,19 @@ export function getPoolExhaustedError(language: 'vi' | 'en' = 'vi') {
             discord: 'yukinee_.',
             facebook: 'https://www.facebook.com/yukinee283/',
         },
+    };
+}
+
+/**
+ * Generate video insufficient credits error (no contact info - video is expensive)
+ */
+export function getVideoInsufficientCreditsError(language: 'vi' | 'en' = 'vi') {
+    return {
+        error: true,
+        code: 'VIDEO_INSUFFICIENT_CREDITS',
+        message:
+            language === 'vi'
+                ? 'Không đủ credits để tạo video. Video tốn rất nhiều credits (~$0.50/video).'
+                : 'Insufficient credits for video generation. Video is very expensive (~$0.50/video).',
     };
 }

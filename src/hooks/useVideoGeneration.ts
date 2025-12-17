@@ -16,7 +16,7 @@ class VideoGenerationService {
      */
     static ensurePuterAvailable(): void {
         if (!window.puter?.ai) {
-            throw new Error('Puter.js chưa sẵn sàng. Vui lòng đợi vài giây và thử lại.');
+            throw new Error('Puter.js chưa sẵn sàng.');
         }
         if (typeof window.puter.ai.txt2vid !== 'function') {
             throw new Error('Tính năng tạo video chưa được hỗ trợ trong phiên bản Puter.js này.');
@@ -122,7 +122,7 @@ class VideoGenerationService {
             return 'Hết credits API. Vui lòng nạp thêm tại puter.com để tiếp tục sử dụng.';
         }
         if (errorCode === 'rate_limit_exceeded' || errorStatus === 429) {
-            return 'Quá nhiều yêu cầu. Vui lòng đợi một chút.';
+            return 'Quá nhiều yêu cầu.';
         }
         if (errorStatus === 451) {
             return `Model "${model}" bị chặn. Thử model khác.`;
@@ -133,7 +133,7 @@ class VideoGenerationService {
         if (errorMessage) {
             // Check for specific Puter error
             if (errorMessage.includes('No implementation available')) {
-                return 'Tính năng tạo video chưa được kích hoạt. Vui lòng thử lại sau hoặc liên hệ Puter.com.';
+                return 'Tính năng tạo video chưa được kích hoạt.';
             }
             return errorMessage;
         }

@@ -35,15 +35,11 @@ export function ImageLoading(): React.ReactElement {
 }
 
 export function ImageError({ message }: ImageErrorProps): React.ReactElement {
-    const { t } = useLanguage();
-
     return (
         <div className="image-placeholder">
             <div className="image-placeholder-icon"></div>
             <p className="image-placeholder-text error">
                 {message}
-                <br />
-                <span className="hl-yellow">{t('pleaseTryAgain')}</span>
             </p>
         </div>
     );

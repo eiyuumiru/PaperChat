@@ -69,8 +69,9 @@ export default async function handler(
                 const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
                 console.error('[Image API] Puter API error:', errorMessage);
 
-                // Check if insufficient credits for this service
+                // Check if insufficient credits - retry with another account (don't mark exhausted)
                 if (isInsufficientCreditsError(errorMessage)) {
+                    console.log(`[Image API] Account ${account.id} has insufficient credits, trying next account`);
                     lastError = apiError instanceof Error ? apiError : new Error(errorMessage);
                     continue;
                 }
@@ -80,13 +81,9 @@ export default async function handler(
             }
         }
 
-        // All retries failed
-        console.log('[Image API] All retries failed');
-        return res.status(503).json({
-            error: true,
-            code: 'MAX_RETRIES_EXCEEDED',
-            message: lastError?.message || 'All accounts exhausted',
-        });
+        // All retries failed - all accounts don't have enough credits
+        console.log('[Image API] All retries failed - pool exhausted');
+        return res.status(503).json(getPoolExhaustedError(language));
     } catch (error) {
         console.error('[Image API] Fatal error:', error);
         return res.status(500).json({

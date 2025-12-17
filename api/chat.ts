@@ -6,6 +6,7 @@ import {
     isInsufficientCreditsError,
 } from './_lib/accountPool.js';
 import { chat, getMonthlyUsage } from './_lib/puterClient.js';
+import { markAccountExhausted } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
 
@@ -72,6 +73,9 @@ export default async function handler(
 
                 // Check if insufficient credits for this service
                 if (isInsufficientCreditsError(errorMessage)) {
+                    console.log(`[Chat API] Account ${account.id} has insufficient credits, marking as exhausted`);
+                    // Mark this account as exhausted so next retry picks a different account
+                    await markAccountExhausted(account.id);
                     lastError = apiError instanceof Error ? apiError : new Error(errorMessage);
                     continue; // Retry with another account
                 }
@@ -81,13 +85,9 @@ export default async function handler(
             }
         }
 
-        // All retries failed
-        console.log('[Chat API] All retries failed');
-        return res.status(503).json({
-            error: true,
-            code: 'MAX_RETRIES_EXCEEDED',
-            message: lastError?.message || 'All accounts exhausted',
-        });
+        // All retries failed - all accounts exhausted
+        console.log('[Chat API] All retries failed - pool exhausted');
+        return res.status(503).json(getPoolExhaustedError(language));
     } catch (error) {
         console.error('[Chat API] Fatal error:', error);
         return res.status(500).json({
