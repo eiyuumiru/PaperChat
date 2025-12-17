@@ -69,16 +69,84 @@ function VideoPanel(): React.ReactElement {
 
     useAutoDismiss(error, setError);
 
+    // Get size options based on model
+    const getSizeOptions = (modelId: string) => {
+        const modelLower = modelId.toLowerCase();
+
+        // Sora 2 Pro - higher resolutions
+        if (modelLower === 'sora-2-pro') {
+            return [
+                { value: '1792x1024', label: `1792x1024 (${t('horizontal')})` },
+                { value: '1024x1792', label: `1024x1792 (${t('vertical')})` },
+            ];
+        }
+
+        // Standard Sora 2
+        if (modelLower.includes('sora')) {
+            return [
+                { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
+                { value: '720x1280', label: `720x1280 (${t('vertical')})` },
+            ];
+        }
+
+        // Google Veo - uses resolution string
+        if (modelLower.includes('veo') || modelLower.includes('google')) {
+            return [
+                { value: '720p', label: `720p (${t('horizontal')})` },
+                { value: '1080p', label: `1080p (${t('horizontal')})` },
+            ];
+        }
+
+        // ByteDance Seedance - uses aspect ratio
+        if (modelLower.includes('seedance') || modelLower.includes('bytedance')) {
+            return [
+                { value: '16:9', label: `16:9 (${t('horizontal')})` },
+                { value: '9:16', label: `9:16 (${t('vertical')})` },
+                { value: '1:1', label: '1:1 (Square)' },
+            ];
+        }
+
+        // Kling - supports 1080p
+        if (modelLower.includes('kling') || modelLower.includes('kwaivgi')) {
+            return [
+                { value: '1920x1080', label: `1920x1080 (${t('horizontal')})` },
+                { value: '1080x1920', label: `1080x1920 (${t('vertical')})` },
+                { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
+                { value: '720x1280', label: `720x1280 (${t('vertical')})` },
+            ];
+        }
+
+        // MiniMax - fixed 720p only
+        if (modelLower.includes('minimax') || modelLower.includes('hailuo') || modelLower.includes('video-01')) {
+            return [
+                { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
+            ];
+        }
+
+        // Default for other models
+        return [
+            { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
+            { value: '720x1280', label: `720x1280 (${t('vertical')})` },
+        ];
+    };
+
+    // Handle model change - reset size to first valid option
+    const handleModelChange = (newModel: string) => {
+        setModel(newModel);
+        const newSizeOptions = getSizeOptions(newModel);
+        // Reset to first valid size for new model
+        if (!newSizeOptions.find(opt => opt.value === size)) {
+            setSize(newSizeOptions[0].value);
+        }
+    };
+
+    const SIZE_OPTIONS = getSizeOptions(model);
+
     // Localized options
     const DURATION_OPTIONS = [
         { value: 4, label: `4 ${t('seconds')}` },
         { value: 8, label: `8 ${t('seconds')}` },
         { value: 12, label: `12 ${t('seconds')}` },
-    ];
-
-    const SIZE_OPTIONS = [
-        { value: '1280x720', label: `1280x720 (${t('horizontal')})` },
-        { value: '720x1280', label: `720x1280 (${t('vertical')})` },
     ];
 
     // Localized model groups
@@ -106,10 +174,10 @@ function VideoPanel(): React.ReactElement {
 
     return (
         <div className="tab-panel active">
-            <div className="beta-warning">
-                <span className="beta-warning-icon">🧪</span>
-                <span className="beta-warning-text">
-                    <strong>Beta:</strong> {t('betaVideoWarning')}
+            <div className="unstable-warning">
+                <span className="unstable-warning-icon">⚡</span>
+                <span className="unstable-warning-text">
+                    <strong>{t('unstable')}:</strong> {t('unstableVideoWarning')}
                 </span>
             </div>
             <div className="image-panel">
@@ -119,7 +187,7 @@ function VideoPanel(): React.ReactElement {
                         <select
                             className="model-select"
                             value={model}
-                            onChange={(e) => setModel(e.target.value)}
+                            onChange={(e) => handleModelChange(e.target.value)}
                             title={language === 'vi' ? 'Chọn model AI' : 'Select AI model'}
                         >
                             {localizedModels.map((group) => (

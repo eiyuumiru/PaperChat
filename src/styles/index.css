@@ -1275,6 +1275,21 @@ body {
   color: #1e40af;
 }
 
+.change-type.beta {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.change-type.alpha {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.change-type.unstable {
+  background-color: #fce7f3;
+  color: #9d174d;
+}
+
 /* Dark mode changelog */
 [data-theme="dark"] .changelog-version {
   border-color: rgba(100, 100, 130, 0.3);
@@ -1989,6 +2004,9 @@ body {
   border: 2px solid rgba(215, 194, 168, 0.4);
   box-shadow: 8px 8px 20px rgba(215, 194, 168, 0.5), 0 4px 10px rgba(0, 0, 0, 0.08);
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .generated-image {
@@ -3016,8 +3034,8 @@ body {
   gap: 10px;
   padding: 10px 14px;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--pastel-blue) 0%, rgba(199, 210, 254, 0.8) 100%);
-  border: 1px dashed #6366f1;
+  background: linear-gradient(135deg, #fce7f3 0%, rgba(251, 207, 232, 0.8) 100%);
+  border: 1px dashed #ec4899;
   border-radius: 10px;
   font-family: "Mali", cursive;
   font-size: 0.9rem;
@@ -3028,70 +3046,27 @@ body {
 }
 
 .unstable-warning-text {
-  color: #3730a3;
+  color: #9d174d;
   line-height: 1.4;
 }
 
 .unstable-warning-text strong {
-  color: #312e81;
+  color: #831843;
 }
 
 [data-theme="dark"] .unstable-warning {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
-  border-color: rgba(99, 102, 241, 0.5);
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.15) 100%);
+  border-color: rgba(236, 72, 153, 0.5);
 }
 
 [data-theme="dark"] .unstable-warning-text {
-  color: #a5b4fc;
+  color: #f9a8d4;
 }
 
 [data-theme="dark"] .unstable-warning-text strong {
-  color: #c7d2fe;
+  color: #fbcfe8;
 }
 
-/* ============================================
-   BETA WARNING BANNER
-   ============================================ */
-
-.beta-warning {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
-  border: 1px dashed #f59e0b;
-  border-radius: 10px;
-  font-family: "Mali", cursive;
-  font-size: 0.9rem;
-}
-
-.beta-warning-icon {
-  font-size: 1.2rem;
-}
-
-.beta-warning-text {
-  color: #92400e;
-  line-height: 1.4;
-}
-
-.beta-warning-text strong {
-  color: #78350f;
-}
-
-/* Dark mode beta warning */
-[data-theme="dark"] .beta-warning {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border-color: rgba(251, 191, 36, 0.5);
-}
-
-[data-theme="dark"] .beta-warning-text {
-  color: #fcd34d;
-}
-
-[data-theme="dark"] .beta-warning-text strong {
-  color: #fef08a;
-}
 
 /* ============================================
    BETA MODAL

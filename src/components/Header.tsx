@@ -519,6 +519,19 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v4.1.0</span>
+                                    <span className="version-date">17/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type unstable">🚧 Unstable</span> {language === 'vi' ? 'Video chuyển từ Beta sang Unstable mode' : 'Video moved from Beta to Unstable mode'}</li>
+                                    <li><span className="change-type unstable">🚧 Unstable</span> {language === 'vi' ? 'Size video thay đổi động theo từng model' : 'Dynamic video size options per model'}</li>
+                                    <li><span className="change-type improve">🎨 {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Căn giữa ảnh/video trong khung polaroid' : 'Center image/video in polaroid frame'}</li>
+                                    <li><span className="change-type improve">🎨 {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Ẩn lưu ý khi tạo ảnh' : 'Hide note when generating images'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v4.0.1</span>
                                     <span className="version-date">16/12/2024</span>
                                 </div>

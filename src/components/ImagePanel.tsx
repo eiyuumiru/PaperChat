@@ -127,12 +127,6 @@ function ImagePanel(): React.ReactElement {
 
     return (
         <div className="tab-panel active">
-            <div className="unstable-warning">
-                <span className="unstable-warning-icon">⚡</span>
-                <span className="unstable-warning-text">
-                    <strong>{t('note')}</strong> {t('imageWarning')}
-                </span>
-            </div>
             <div className="image-panel">
                 <div className="image-controls">
                     <ModelSelector
