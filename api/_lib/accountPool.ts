@@ -66,18 +66,13 @@ export async function getAccountForService(
 
 /**
  * Refresh account credits after API call
- * Also checks if account should be marked as exhausted
+ * Note: Does NOT auto-mark as exhausted - only chat API should do that
  */
 export async function refreshAccountCredits(
     accountId: number,
     creditsRemaining: number
 ): Promise<void> {
     await updateAccountCredits(accountId, creditsRemaining);
-
-    // Check if account is effectively exhausted (< 1M tokens)
-    if (creditsRemaining < MIN_CREDITS_THRESHOLD) {
-        await markAccountExhausted(accountId);
-    }
 }
 
 /**

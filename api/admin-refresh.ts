@@ -50,6 +50,9 @@ async function getCredits(authToken: string): Promise<number> {
     return data.allowanceInfo?.remaining ?? 0;
 }
 
+// Threshold to reactivate exhausted accounts: $0.1 = 10M tokens
+const REACTIVATE_THRESHOLD = 10_000_000;
+
 interface RefreshResult {
     id: number;
     email: string;
@@ -81,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const db = getDb();
 
     try {
-        const result = await db.execute('SELECT id, email, auth_token FROM accounts');
+        const result = await db.execute('SELECT id, email, auth_token, status FROM accounts');
 
         if (result.rows.length === 0) {
             await db.close();
@@ -97,21 +100,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const id = row.id as number;
             const email = row.email as string;
             const authToken = row.auth_token as string;
+            const currentStatus = row.status as string;
 
             try {
                 const credits = await getCredits(authToken);
-                const status = credits > 1000000 ? 'active' : 'exhausted';
+
+                // Only change status in one case: exhausted → active when credits > $0.1 (10M tokens)
+                // Never mark active accounts as exhausted during refresh (only chat API should do that)
+                let newStatus = currentStatus;
+                if (currentStatus === 'exhausted' && credits > REACTIVATE_THRESHOLD) {
+                    newStatus = 'active';
+                }
 
                 await db.execute({
                     sql: 'UPDATE accounts SET credits_remaining = ?, status = ?, last_used = CURRENT_TIMESTAMP WHERE id = ?',
-                    args: [credits, status, id],
+                    args: [credits, newStatus, id],
                 });
 
                 results.push({
                     id,
                     email,
                     credits,
-                    status,
+                    status: newStatus,
                     success: true,
                 });
             } catch (err) {
