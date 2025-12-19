@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react';
+import SantaHat from '../assets/santa-hat.svg';
 import { useLanguage } from '../utils/i18n';
 import { getUseAccountPool, setUseAccountPool } from '../utils/api';
 
@@ -345,9 +346,12 @@ function Header(): React.ReactElement {
                 )}
             </div>
 
-            <h1 className="app-title">
-                <span className="title-emoji">🎉</span> PaperChat
-            </h1>
+            <div className="title-wrapper">
+                <h1 className="app-title">
+                    <span className="title-emoji">🎄</span> PaperChat
+                </h1>
+                <img src={SantaHat} alt="" className="santa-hat santa-hat-title" />
+            </div>
             <p className="app-subtitle">{t('appSubtitle')}</p>
 
             {showHelp && (
@@ -517,6 +521,19 @@ function Header(): React.ReactElement {
                         <h2 className="help-modal-title">{t('changelogTitle')}</h2>
 
                         <div className="changelog-content">
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <div className="version-tag-wrapper">
+                                        <span className="version-tag">v4.2.0</span>
+                                        <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
+                                    </div>
+                                    <span className="version-date">20/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type santa">🎅 Santa</span> {language === 'vi' ? 'Giáng Sinh đến rồi! 🎄' : 'Christmas is coming! 🎄'}</li>
+                                </ul>
+                            </div>
+
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <span className="version-tag">v4.1.4</span>

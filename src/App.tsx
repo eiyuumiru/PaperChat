@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import Snowfall from 'react-snowfall';
 import Header from './components/Header';
 import TabNavigation from './components/TabNavigation';
 import ChatPanel from './components/ChatPanel';
@@ -77,6 +78,19 @@ function App(): React.ReactElement {
 
     return (
         <>
+            {/* Snowfall Effect */}
+            <Snowfall
+                color="#82c3d9"
+                snowflakeCount={100}
+                style={{
+                    position: 'fixed',
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 1,
+                    pointerEvents: 'none',
+                }}
+            />
+
             {/* Password Modal */}
             {showPasswordModal && (
                 <div className="admin-overlay" onClick={() => setShowPasswordModal(false)}>

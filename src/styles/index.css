@@ -149,6 +149,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2;
 }
 
 .main-content {
@@ -177,6 +179,9 @@ body {
   color: transparent;
   text-shadow: 2px 2px 4px rgba(37, 99, 235, 0.18);
   margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+  padding: 0 12px 0 0;
 }
 
 .title-emoji {
@@ -191,6 +196,66 @@ body {
   font-size: 1.1rem;
   color: var(--ink-secondary);
   font-weight: 500;
+}
+
+/* ============================================
+   SANTA HAT - CHRISTMAS DECORATION
+   ============================================ */
+
+.santa-hat {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Santa hat on title */
+.title-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.santa-hat-title {
+  width: 45px;
+  height: auto;
+  top: -10px;
+  right: -25px;
+  transform: rotate(25deg);
+  z-index: 1;
+}
+
+/* Santa hat on message role labels */
+.message-role {
+  position: relative;
+  display: inline-block;
+}
+
+.santa-hat-role {
+  width: 22px;
+  height: auto;
+  top: -12px;
+  right: -13px;
+  transform: rotate(20deg);
+}
+
+/* Santa hat on version tag (v4.2.0) */
+.version-tag-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Christmas red gradient for v4.2.0 */
+.version-tag-wrapper .version-tag {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+
+.santa-hat-version {
+  width: 28px;
+  height: auto;
+  top: -14px;
+  left: -8px;
+  transform: rotate(-30deg);
 }
 
 /* Decorative Stars */
@@ -1290,6 +1355,12 @@ body {
   color: #9d174d;
 }
 
+.change-type.santa {
+  background-color: #ffcccc;
+  color: #b91c1c;
+}
+
+
 /* Dark mode changelog */
 [data-theme="dark"] .changelog-version {
   border-color: rgba(100, 100, 130, 0.3);
@@ -1334,6 +1405,12 @@ body {
   background-color: rgba(249, 115, 22, 0.3);
   color: #fdba74;
 }
+
+[data-theme="dark"] .change-type.santa {
+  background-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+}
+
 
 /* ============================================
    TAB NAVIGATION
