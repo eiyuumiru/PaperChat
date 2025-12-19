@@ -33,7 +33,10 @@ const CHAT_MODELS: ModelGroup[] = [
     },
     {
         group: 'Gemini',
-        models: [{ value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' }],
+        models: [
+            { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' },
+            { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash' },
+        ],
     },
     {
         group: 'DeepSeek',
@@ -55,10 +58,10 @@ const IMAGE_MODELS: ModelGroup[] = [
     {
         group: 'Gemini',
         models: [
-            { value: 'gemini-3-pro-image-preview', label: 'Gemini 3 Pro Image' },
+            { value: 'gemini-3-pro-image-preview', label: 'Nano Banana Pro' },
             {
                 value: 'gemini-2.5-flash-image-preview',
-                label: 'Gemini 2.5 Flash Image',
+                label: 'Nano Banana',
             },
         ],
     },

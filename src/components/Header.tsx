@@ -519,6 +519,17 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v4.1.4</span>
+                                    <span className="version-date">19/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm Gemini 3 Flash - model nhanh và hiệu quả từ Google' : 'Added Gemini 3 Flash - fast and efficient model from Google'}</li>
+                                    <li><span className="change-type improve">🎨 {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Đổi tên Gemini Image thành Nano Banana 🍌' : 'Renamed Gemini Image to Nano Banana 🍌'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag">v4.1.3</span>
                                     <span className="version-date">17/12/2024</span>
                                 </div>
