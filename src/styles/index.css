@@ -206,6 +206,12 @@ body {
   position: absolute;
   pointer-events: none;
   z-index: 10;
+  /* Anti-aliasing for smooth rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Santa hat on title */
