@@ -524,13 +524,15 @@ function Header(): React.ReactElement {
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <div className="version-tag-wrapper">
-                                        <span className="version-tag">v4.2.1</span>
+                                        <span className="version-tag">v4.3.0</span>
                                         <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
                                     </div>
                                     <span className="version-date">20/12/2024</span>
                                 </div>
                                 <ul className="version-changes">
+                                    <li><span className="change-type beta">🧪 Beta</span> {language === 'vi' ? 'Smart Context Manager - tự động cắt bớt lịch sử chat khi vượt giới hạn token' : 'Smart Context Manager - auto-trim chat history when exceeding token limit'}</li>
                                     <li><span className="change-type beta">🧪 Beta</span> {language === 'vi' ? 'Hỗ trợ đọc file Jupyter Notebook (.ipynb)' : 'Added Jupyter Notebook (.ipynb) file support'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Account Pool bật mặc định cho người dùng mới' : 'Account Pool enabled by default for new users'}</li>
                                 </ul>
                             </div>
 

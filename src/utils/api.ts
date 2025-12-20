@@ -6,9 +6,12 @@
 // Storage key for account pool setting
 const ACCOUNT_POOL_KEY = 'useAccountPool';
 
-// Get account pool setting from localStorage (default: false)
+// Get account pool setting from localStorage (default: true - enabled by default)
 export function getUseAccountPool(): boolean {
-    return localStorage.getItem(ACCOUNT_POOL_KEY) === 'true';
+    const stored = localStorage.getItem(ACCOUNT_POOL_KEY);
+    // If not set, default to true (enabled)
+    if (stored === null) return true;
+    return stored === 'true';
 }
 
 // Set account pool setting
