@@ -6,6 +6,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { ContentNormalizer } from '../utils/content';
 import { FileValidator } from '../utils/fileValidator';
+import { IPYNBParser } from '../utils/ipynbParser';
 import { MAX_CHAT_HISTORY, WEB_SEARCH_MODEL } from '../utils/constants';
 import type { ChatMessage, UseChatReturn, ChatAttachment } from '../types';
 
@@ -137,6 +138,7 @@ class ChatService {
 
     /**
      * Sends a message with file attachments (images and documents)
+     * Handles .ipynb files specially by parsing them to text
      */
     static async sendMultimodalMessage(
         content: string,
@@ -146,12 +148,31 @@ class ChatService {
         ChatService.ensurePuterAvailable();
 
         const uploadedPaths: string[] = [];
+        const ipynbContents: string[] = [];
+        const regularFiles: File[] = [];
 
-        console.log('[DEBUG] Starting file upload, files:', files.length);
+        console.log('[DEBUG] Starting file processing, files:', files.length);
 
-        // Upload all files to Puter FS
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
+        // Separate IPYNB files from regular files
+        for (const file of files) {
+            if (IPYNBParser.hasIPYNBExtension(file.name)) {
+                console.log('[DEBUG] Parsing IPYNB file:', file.name);
+                try {
+                    const parsedContent = await IPYNBParser.parseFile(file);
+                    ipynbContents.push(`\n--- File: ${file.name} ---\n${parsedContent}`);
+                    console.log('[DEBUG] Successfully parsed IPYNB:', file.name);
+                } catch (error) {
+                    console.error('[DEBUG] Failed to parse IPYNB:', file.name, error);
+                    throw new Error(`Không thể đọc file ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+            } else {
+                regularFiles.push(file);
+            }
+        }
+
+        // Upload regular files to Puter FS
+        for (let i = 0; i < regularFiles.length; i++) {
+            const file = regularFiles[i];
             const fileName = `chat_file_${Date.now()}_${i}.${file.name.split('.').pop()}`;
             console.log('[DEBUG] Uploading file:', fileName, file.type, file.size);
             const puterFile = await window.puter.fs.write(fileName, file);
@@ -166,9 +187,15 @@ class ChatService {
             text?: string;
         }
 
+        // Combine user message with IPYNB contents
+        let textContent = content || 'Hãy phân tích các files này';
+        if (ipynbContents.length > 0) {
+            textContent = `${textContent}\n\n[Nội dung Jupyter Notebook]\n${ipynbContents.join('\n\n')}`;
+        }
+
         const contentArray: ContentItem[] = [
             ...uploadedPaths.map((path) => ({ type: 'file', puter_path: path })),
-            { type: 'text', text: content || 'Hãy mô tả các files này' },
+            { type: 'text', text: textContent },
         ];
 
         const multimodalMessage = {

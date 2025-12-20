@@ -524,6 +524,19 @@ function Header(): React.ReactElement {
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <div className="version-tag-wrapper">
+                                        <span className="version-tag">v4.2.1</span>
+                                        <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
+                                    </div>
+                                    <span className="version-date">20/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type beta">🧪 Beta</span> {language === 'vi' ? 'Hỗ trợ đọc file Jupyter Notebook (.ipynb)' : 'Added Jupyter Notebook (.ipynb) file support'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <div className="version-tag-wrapper">
                                         <span className="version-tag">v4.2.0</span>
                                         <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
                                     </div>
