@@ -83,3 +83,5 @@ coverage/
 .firebase/
 .vercel
 .env*.local
+
+.account-tools
