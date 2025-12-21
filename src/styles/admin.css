@@ -280,8 +280,18 @@
     gap: 8px;
 }
 
-/* Refresh Icon Button - Minimal Black/White */
-.btn-refresh-icon {
+/* Action Group for Buttons */
+.admin-action-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    height: 32px;
+    /* Fixed height to match buttons and prevent leaking */
+}
+
+/* Base Icon Button Style - Minimal Black/White */
+.btn-refresh-icon,
+.btn-clear-storage-icon {
     width: 32px;
     height: 32px;
     padding: 0;
@@ -294,20 +304,32 @@
     color: var(--ink-primary, #1F2937);
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    /* Prevent resizing */
+    box-sizing: border-box;
 }
 
-.btn-refresh-icon:hover:not(:disabled) {
+.btn-refresh-icon:hover:not(:disabled),
+.btn-clear-storage-icon:hover:not(:disabled) {
     background-color: var(--ink-primary, #1F2937);
     color: var(--paper-white, #FFFAF3);
 }
 
-.btn-refresh-icon:disabled {
+.btn-refresh-icon:disabled,
+.btn-clear-storage-icon:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.btn-refresh-icon.loading svg {
+.btn-refresh-icon.loading svg,
+.btn-clear-storage-icon.loading svg {
     animation: spin 0.8s linear infinite;
+}
+
+/* Ensure SVG icons are centered */
+.btn-refresh-icon svg,
+.btn-clear-storage-icon svg {
+    display: block;
 }
 
 .admin-section h2 {

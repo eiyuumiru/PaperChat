@@ -3,7 +3,7 @@
  * Refactored with TypeScript and OOP patterns
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { UseVideoGenerationReturn, VideoGenerationOptions } from '../types';
 
 /**
@@ -178,7 +178,17 @@ export function useVideoGeneration(): UseVideoGenerationReturn {
         setLastPrompt('');
     }, []);
 
+    // Cleanup blob URLs to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (videoUrl && videoUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(videoUrl);
+            }
+        };
+    }, [videoUrl]);
+
     return {
+
         videoUrl,
         isLoading,
         error,
