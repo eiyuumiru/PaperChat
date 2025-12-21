@@ -133,12 +133,12 @@ function Header(): React.ReactElement {
         }
     };
 
-    // Fetch pool stats when settings is opened and pool is enabled
+    // Fetch pool stats on mount and when pool is enabled
     useEffect(() => {
-        if (showSettings && accountPoolEnabled) {
+        if (accountPoolEnabled) {
             fetchPoolStats();
         }
-    }, [showSettings, accountPoolEnabled]);
+    }, [accountPoolEnabled]);
 
     const stopPropagation = (e: MouseEvent): void => {
         e.stopPropagation();
