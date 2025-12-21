@@ -11,10 +11,7 @@ export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview' as con
 // UI Constants
 export const TEXTAREA_MIN_HEIGHT = 56 as const;
 export const TEXTAREA_MAX_HEIGHT = 150 as const;
-
-// Token budget for context management (200k tokens, Puter limit is 272k)
-// Note: MAX_CHAT_HISTORY is now deprecated, using token-based limiting instead
-export const TOKEN_BUDGET = 200000 as const;
+export const MAX_CHAT_HISTORY = 40 as const;
 
 // File Upload Constants
 export const MAX_FILES = 10;

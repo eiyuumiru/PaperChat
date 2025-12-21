@@ -7,8 +7,7 @@ import { useState, useCallback, useRef } from 'react';
 import { ContentNormalizer } from '../utils/content';
 import { FileValidator } from '../utils/fileValidator';
 import { IPYNBParser } from '../utils/ipynbParser';
-import { WEB_SEARCH_MODEL } from '../utils/constants';
-import { trimToTokenBudget } from '../utils/contextManager';
+import { MAX_CHAT_HISTORY, WEB_SEARCH_MODEL } from '../utils/constants';
 import type { ChatMessage, UseChatReturn, ChatAttachment } from '../types';
 
 /**
@@ -78,56 +77,24 @@ class ChatService {
         const usePool = getUseAccountPool();
 
         if (usePool) {
-            // Use backend pool API with retry on token limit errors
+            // Use backend pool API
             interface APIMessage {
                 role: string;
                 content: string;
             }
 
-            let currentHistory = history;
-            const MAX_RETRIES = 5;
+            const messagesForAPI: APIMessage[] = history.map((msg) => ({
+                role: msg.role,
+                content: msg.content,
+            }));
 
-            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-                const messagesForAPI: APIMessage[] = currentHistory.map((msg) => ({
-                    role: msg.role,
-                    content: msg.content,
-                }));
-
-                try {
-                    return await chatViaPool({
-                        model,
-                        messages: messagesForAPI,
-                    });
-                } catch (error) {
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-
-                    // Check if it's a token limit error
-                    const isTokenLimitError =
-                        errorMessage.includes('Input tokens exceed') ||
-                        errorMessage.includes('token') && errorMessage.includes('limit') ||
-                        errorMessage.includes('context length');
-
-                    if (isTokenLimitError && currentHistory.length > 2) {
-                        // Remove oldest 25% of messages (keep 75%, at least 2)
-                        const keepCount = Math.max(2, Math.floor(currentHistory.length * 0.75));
-                        currentHistory = currentHistory.slice(-keepCount);
-                        console.log(
-                            `[ChatService] Token limit hit, retrying with ${currentHistory.length} messages ` +
-                            `(attempt ${attempt + 1}/${MAX_RETRIES})`
-                        );
-                        continue;
-                    }
-
-                    // Not a token limit error or can't trim more, rethrow
-                    throw error;
-                }
-            }
-
-            // All retries exhausted
-            throw new Error('Không thể gửi tin nhắn: context quá dài, vui lòng tạo cuộc hội thoại mới');
+            return await chatViaPool({
+                model,
+                messages: messagesForAPI,
+            });
         }
 
-        // Direct Puter.js mode with retry on token limit errors
+        // Direct Puter.js mode (original logic)
         ChatService.ensurePuterAvailable();
 
         let systemContext: string | null = null;
@@ -147,58 +114,26 @@ class ChatService {
             content: string;
         }
 
-        let currentHistory = history;
-        const MAX_RETRIES = 5;
+        const messagesForAPI: APIMessage[] = [];
 
-        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            const messagesForAPI: APIMessage[] = [];
-
-            if (systemContext) {
-                messagesForAPI.push({ role: 'system', content: systemContext });
-            }
-
-            messagesForAPI.push(
-                ...currentHistory.map((msg) => ({
-                    role: msg.role,
-                    content: msg.content,
-                }))
-            );
-
-            try {
-                const config = parseModelConfig(model);
-                const response = await window.puter.ai.chat(messagesForAPI, {
-                    model: config.model,
-                    ...(config.driver && { driver: config.driver }),
-                });
-
-                return ContentNormalizer.normalize(response);
-            } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-
-                // Check if it's a token limit error
-                const isTokenLimitError =
-                    errorMessage.includes('Input tokens exceed') ||
-                    (errorMessage.includes('token') && errorMessage.includes('limit')) ||
-                    errorMessage.includes('context length');
-
-                if (isTokenLimitError && currentHistory.length > 2) {
-                    // Remove oldest 25% of messages (keep 75%, at least 2)
-                    const keepCount = Math.max(2, Math.floor(currentHistory.length * 0.75));
-                    currentHistory = currentHistory.slice(-keepCount);
-                    console.log(
-                        `[ChatService] Token limit hit, retrying with ${currentHistory.length} messages ` +
-                        `(attempt ${attempt + 1}/${MAX_RETRIES})`
-                    );
-                    continue;
-                }
-
-                // Not a token limit error or can't trim more, rethrow
-                throw error;
-            }
+        if (systemContext) {
+            messagesForAPI.push({ role: 'system', content: systemContext });
         }
 
-        // All retries exhausted
-        throw new Error('Không thể gửi tin nhắn: context quá dài, vui lòng tạo cuộc hội thoại mới');
+        messagesForAPI.push(
+            ...history.map((msg) => ({
+                role: msg.role,
+                content: msg.content,
+            }))
+        );
+
+        const config = parseModelConfig(model);
+        const response = await window.puter.ai.chat(messagesForAPI, {
+            model: config.model,
+            ...(config.driver && { driver: config.driver }),
+        });
+
+        return ContentNormalizer.normalize(response);
     }
 
     /**
@@ -332,8 +267,7 @@ export function useChat(): UseChatReturn {
             }
 
             try {
-                // Use smart token budget trimming instead of fixed message count
-                const history = trimToTokenBudget(messagesWithUser);
+                const history = messagesWithUser.slice(-MAX_CHAT_HISTORY);
                 const responseText = await ChatService.sendTextMessage(
                     content.trim(),
                     model,
