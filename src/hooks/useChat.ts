@@ -83,10 +83,27 @@ class ChatService {
                 content: string;
             }
 
-            const messagesForAPI: APIMessage[] = history.map((msg) => ({
-                role: msg.role,
-                content: msg.content,
-            }));
+            const messagesForAPI: APIMessage[] = [];
+
+            // Web Search Chain for Pool mode: search first, then use results as context
+            if (enableWebSearch && model !== WEB_SEARCH_MODEL) {
+                try {
+                    const searchResults = await ChatService.performWebSearch(content);
+                    messagesForAPI.push({
+                        role: 'system',
+                        content: `[Kết quả tìm kiếm web]\n${searchResults}\n\n[Hướng dẫn]\nDựa trên thông tin tìm kiếm ở trên, hãy trả lời câu hỏi của người dùng một cách chính xác và đầy đủ.`,
+                    });
+                } catch {
+                    // Ignore search errors, continue without context
+                }
+            }
+
+            messagesForAPI.push(
+                ...history.map((msg) => ({
+                    role: msg.role,
+                    content: msg.content,
+                }))
+            );
 
             return await chatViaPool({
                 model,

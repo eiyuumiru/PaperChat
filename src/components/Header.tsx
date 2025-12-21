@@ -567,6 +567,7 @@ function Header(): React.ReactElement {
                                 </div>
                                 <ul className="version-changes">
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Hiển thị số lượng tài khoản Hoạt động/Hết hạn trong Account Pool' : 'Display Active/Exhausted account counts in Account Pool settings'}</li>
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi Web Search khi bật Account Pool' : 'Fixed Web Search when Account Pool enabled'}</li>
                                 </ul>
                             </div>
 
