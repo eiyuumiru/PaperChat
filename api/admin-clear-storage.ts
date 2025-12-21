@@ -28,9 +28,6 @@ async function listFiles(authToken: string): Promise<string[]> {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
-            'Origin': 'https://puter.com',
-            'Referer': 'https://puter.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
         body: JSON.stringify({ path: '.' }),
     });
@@ -50,9 +47,6 @@ async function deleteFile(authToken: string, path: string): Promise<void> {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
-            'Origin': 'https://puter.com',
-            'Referer': 'https://puter.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
         body: JSON.stringify({ path }),
     });
