@@ -3,7 +3,7 @@
  * Refactored with TypeScript and OOP patterns
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { ImageValidator } from '../utils/fileValidator';
 import type { UseImageGenerationReturn } from '../types';
 
@@ -257,17 +257,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
         setLastPrompt('');
     }, []);
 
-    // Cleanup blob URLs to prevent memory leaks
-    useEffect(() => {
-        return () => {
-            if (imageUrl && imageUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(imageUrl);
-            }
-        };
-    }, [imageUrl]);
-
     return {
-
         imageUrl,
         isLoading,
         error,

@@ -31,7 +31,6 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [clearingStorage, setClearingStorage] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [failedIds, setFailedIds] = useState<Set<number>>(new Set());
 
@@ -97,31 +96,6 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
         }
     };
 
-    const handleClearStorage = async () => {
-        if (!window.confirm('Bạn có chắc chắn muốn xoá toàn bộ Storage của tất cả tài khoản?')) {
-            return;
-        }
-
-        setClearingStorage(true);
-        setMessage(null);
-
-        try {
-            const res = await fetch('/api/admin-clear-storage', {
-                method: 'POST',
-                headers: { 'X-Admin-Key': adminKey },
-            });
-
-            if (!res.ok) throw new Error('Failed to clear storage');
-
-            const data = await res.json();
-            setMessage({ type: 'success', text: data.message });
-        } catch (err) {
-            setMessage({ type: 'error', text: 'Xoá storage thất bại' });
-        } finally {
-            setClearingStorage(false);
-        }
-    };
-
     const handleAddAccount = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newEmail || !newAuthToken) return;
@@ -183,32 +157,17 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                 <div className="admin-section">
                     <div className="admin-section-header">
                         <h2>📋 Danh sách Accounts</h2>
-                        <div className="admin-action-group">
-                            <button
-                                className={`btn-refresh-icon ${refreshing ? 'loading' : ''}`}
-                                onClick={handleRefreshAll}
-                                disabled={refreshing || clearingStorage}
-                                title="Refresh All Credits"
-                            >
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M23 4v6h-6M1 20v-6h6" />
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                                </svg>
-                            </button>
-                            <button
-                                className={`btn-clear-storage-icon ${clearingStorage ? 'loading' : ''}`}
-                                onClick={handleClearStorage}
-                                disabled={refreshing || clearingStorage}
-                                title="Clear All Storage"
-                            >
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                            </button>
-                        </div>
+                        <button
+                            className={`btn-refresh-icon ${refreshing ? 'loading' : ''}`}
+                            onClick={handleRefreshAll}
+                            disabled={refreshing}
+                            title="Refresh All Credits"
+                        >
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                        </button>
                     </div>
 
                     {loading ? (
