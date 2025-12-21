@@ -492,15 +492,15 @@ body {
 .pool-stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-family: "Patrick Hand", cursive;
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   color: var(--ink-secondary);
 }
 
 .pool-stat-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
 }
 

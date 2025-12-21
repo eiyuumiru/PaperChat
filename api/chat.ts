@@ -30,7 +30,6 @@ export default async function handler(
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
-        let lastError: Error | null = null;
 
         // Retry loop
         for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -76,7 +75,6 @@ export default async function handler(
                     console.log(`[Chat API] Account ${account.id} has insufficient credits, marking as exhausted`);
                     // Mark this account as exhausted so next retry picks a different account
                     await markAccountExhausted(account.id);
-                    lastError = apiError instanceof Error ? apiError : new Error(errorMessage);
                     continue; // Retry with another account
                 }
 

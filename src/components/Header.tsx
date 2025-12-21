@@ -293,8 +293,8 @@ function Header(): React.ReactElement {
                             </div>
                         )}
 
-                        {/* Divider */}
-                        <div className="settings-divider" />
+                        {/* Divider - Hidden when Account Pool is enabled since it's the last item */}
+                        {!accountPoolEnabled && <div className="settings-divider" />}
 
                         {/* Account Section - Hidden when Account Pool is enabled */}
                         {!accountPoolEnabled && (
@@ -557,6 +557,19 @@ function Header(): React.ReactElement {
                         <h2 className="help-modal-title">{t('changelogTitle')}</h2>
 
                         <div className="changelog-content">
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <div className="version-tag-wrapper">
+                                        <span className="version-tag">v4.2.2</span>
+                                        <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
+                                    </div>
+                                    <span className="version-date">21/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Hiển thị số lượng tài khoản Hoạt động/Hết hạn trong Account Pool' : 'Display Active/Exhausted account counts in Account Pool settings'}</li>
+                                </ul>
+                            </div>
+
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <div className="version-tag-wrapper">

@@ -3,12 +3,9 @@ import {
     getAccountWithMostCredits,
     getAccountWithMiddleCredits,
     updateAccountCredits,
-    markAccountExhausted,
     type Account,
 } from './db.js';
 
-// Minimum credits threshold (100K tokens ≈ $0.001)
-const MIN_CREDITS_THRESHOLD = 100_000;
 
 export type ServiceType = 'chat' | 'image' | 'video';
 

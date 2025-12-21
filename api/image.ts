@@ -29,7 +29,6 @@ export default async function handler(
             return res.status(400).json({ error: 'Prompt is required' });
         }
 
-        let lastError: Error | null = null;
 
         // Retry loop
         for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -72,7 +71,6 @@ export default async function handler(
                 // Check if insufficient credits - retry with another account (don't mark exhausted)
                 if (isInsufficientCreditsError(errorMessage)) {
                     console.log(`[Image API] Account ${account.id} has insufficient credits, trying next account`);
-                    lastError = apiError instanceof Error ? apiError : new Error(errorMessage);
                     continue;
                 }
 
