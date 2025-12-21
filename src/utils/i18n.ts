@@ -34,6 +34,8 @@ const translations = {
         accountPool: 'Account Pool',
         accountPoolOn: 'Đang bật',
         accountPoolOff: 'Đang tắt',
+        active: 'Hoạt động',
+        exhausted: 'Hết hạn',
 
         // Help Modal
         helpTitle: '📚 Hướng dẫn sử dụng',
@@ -182,6 +184,8 @@ const translations = {
         accountPool: 'Account Pool',
         accountPoolOn: 'On',
         accountPoolOff: 'Off',
+        active: 'Active',
+        exhausted: 'Exhausted',
 
         // Help Modal
         helpTitle: '📚 User Guide',

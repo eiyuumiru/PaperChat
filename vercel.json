@@ -14,7 +14,7 @@
             "destination": "/api/:path*"
         },
         {
-            "source": "/((?!api/).*)",
+            "source": "/((?!api/|_next/|@vite/|@fs/|@id/|src/|node_modules/|.*\\..*).*)",
             "destination": "/index.html"
         }
     ]

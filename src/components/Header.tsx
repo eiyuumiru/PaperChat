@@ -37,6 +37,7 @@ function Header(): React.ReactElement {
     const [usageError, setUsageError] = useState(false);
     const [showUsageDetails, setShowUsageDetails] = useState(false);
     const [accountPoolEnabled, setAccountPoolEnabled] = useState(getUseAccountPool);
+    const [poolStats, setPoolStats] = useState<{ active: number; exhausted: number } | null>(null);
     const settingsRef = useRef<HTMLDivElement>(null);
 
     // Check auth status on mount and fetch usage
@@ -119,6 +120,25 @@ function Header(): React.ReactElement {
             setUsageLoading(false);
         }
     };
+
+    const fetchPoolStats = async () => {
+        try {
+            const response = await fetch('/api/pool-status');
+            if (response.ok) {
+                const data = await response.json();
+                setPoolStats(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch pool stats:', error);
+        }
+    };
+
+    // Fetch pool stats when settings is opened and pool is enabled
+    useEffect(() => {
+        if (showSettings && accountPoolEnabled) {
+            fetchPoolStats();
+        }
+    }, [showSettings, accountPoolEnabled]);
 
     const stopPropagation = (e: MouseEvent): void => {
         e.stopPropagation();
@@ -256,6 +276,22 @@ function Header(): React.ReactElement {
                                 <span className="toggle-slider"></span>
                             </label>
                         </div>
+
+                        {/* Pool Stats Display */}
+                        {accountPoolEnabled && poolStats && (
+                            <div className="pool-stats-display">
+                                <div className="pool-stat-item">
+                                    <span className="pool-stat-dot active"></span>
+                                    <span className="pool-stat-label">{t('active')}:</span>
+                                    <span className="pool-stat-value">{poolStats.active}</span>
+                                </div>
+                                <div className="pool-stat-item">
+                                    <span className="pool-stat-dot exhausted"></span>
+                                    <span className="pool-stat-label">{t('exhausted')}:</span>
+                                    <span className="pool-stat-value">{poolStats.exhausted}</span>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Divider */}
                         <div className="settings-divider" />

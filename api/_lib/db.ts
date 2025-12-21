@@ -120,4 +120,19 @@ export async function markAccountError(
     });
 }
 
+// Get account statistics
+export async function getAccountStats(): Promise<{ active: number; exhausted: number }> {
+    const result = await getDb().execute(
+        `SELECT 
+            COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+            COUNT(CASE WHEN status = 'exhausted' THEN 1 END) as exhausted
+         FROM accounts`
+    );
+    const row = result.rows[0];
+    return {
+        active: Number(row?.active || 0),
+        exhausted: Number(row?.exhausted || 0),
+    };
+}
+
 export { getDb };

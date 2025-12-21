@@ -480,6 +480,50 @@ body {
   font-weight: 500;
 }
 
+/* Pool Stats Display */
+.pool-stats-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 12px 10px 42px;
+  margin-top: -6px;
+}
+
+.pool-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Patrick Hand", cursive;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+}
+
+.pool-stat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.pool-stat-dot.active {
+  background-color: #22c55e;
+  box-shadow: 0 0 4px rgba(34, 197, 94, 0.4);
+}
+
+.pool-stat-dot.exhausted {
+  background-color: var(--accent-rose);
+  box-shadow: 0 0 4px rgba(190, 18, 60, 0.4);
+}
+
+.pool-stat-label {
+  flex: 0 0 auto;
+}
+
+.pool-stat-value {
+  font-family: "Mali", cursive;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
 /* Toggle Switch */
 .toggle-switch {
   position: relative;
