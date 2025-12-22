@@ -261,93 +261,25 @@ export async function uploadFile(
     fileName: string
 ): Promise<string> {
     const filePath = fileName.startsWith('/') ? fileName : `/${fileName}`;
-    const nameOnly = fileName.split('/').pop() || fileName;
 
-    console.log(`[Puter Upload] Uploading to /batch: ${parentPath} + ${nameOnly}`);
+    console.log(`[Puter Upload] Attempting write via driverCall: ${filePath}`);
 
-    const binaryContent = Buffer.from(base64Content, 'base64');
-    const mimeType = (function (name) {
-        const ext = name.split('.').pop()?.toLowerCase();
-        if (ext === 'png') return 'image/png';
-        if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
-        if (ext === 'pdf') return 'application/pdf';
-        if (ext === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        if (ext === 'ipynb') return 'application/x-ipynb+json';
-        return 'application/octet-stream';
-    })(nameOnly);
-
-    const operationId = randomUUID();
-
-    // Modern FormData for Node.js
-    const formData = new FormData();
-
-    const socketId = randomUUID();
-
-    // Standard Puter Batch format (v2 SDK):
-    // 1. operation_id, socket_id, original_client_socket_id at top level
-    // 2. Multiple fields with the SAME names: 'operation', 'fileinfo', 'file'
-    // 3. 'item_upload_id' inside the operation JSON is the index (0, 1, 2...)
-
-    formData.append('operation_id', operationId);
-    formData.append('socket_id', socketId);
-    formData.append('original_client_socket_id', socketId);
-
-    // Multi-part logic: Puter expects 'fileinfo' then 'operation' then 'file' for each file
-    // although the SDK sometimes appends them in groups. We'll follow the SDK group pattern.
-
-    // 1. File Info
-    formData.append('fileinfo', JSON.stringify({
-        name: nameOnly,
-        type: mimeType,
-        size: binaryContent.length
-    }));
-
-    // 2. Operation
-    formData.append('operation', JSON.stringify({
-        op: 'write',
-        dedupe_name: false,
+    // Use the reliable driverCall mechanism used by chat and other services.
+    // The 'puter-fs' driver handles file operations.
+    // Signature: driverCall(token, interface, driver, method, args)
+    const writeResult = await driverCall(authToken, 'puter-fs', 'local-fs', 'write', {
+        path: filePath,
+        data: base64Content,
         overwrite: true,
-        create_missing_ancestors: true,
-        operation_id: operationId,
-        path: parentPath,
-        name: nameOnly,
-        item_upload_id: 0
-    }));
+        create_missing_parents: true
+    }) as any;
 
-    // 3. File data
-    const blob = new Blob([binaryContent], { type: mimeType });
-    formData.append('file', blob, nameOnly);
-
-    const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'X-Puter-Origin': 'https://puter.com',
-            'Origin': 'https://puter.com',
-            'Referer': 'https://puter.com/'
-        },
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Puter Upload] Error:', response.status, errorText);
-        throw new Error(`Puter upload failed: ${response.status} - ${errorText}`);
+    if (!writeResult || writeResult.error || writeResult['$']?.includes('Error')) {
+        const errorMsg = writeResult?.error?.message || writeResult?.status || writeResult?.message || 'Driver write failed';
+        console.error('[Puter Upload] Driver call failed:', JSON.stringify(writeResult));
+        throw new Error(`Puter upload failed: ${errorMsg}`);
     }
 
-    const result = await response.json() as any;
-    console.log('[Puter Upload] Success:', JSON.stringify(result));
-
-    // Puter returns results in an array for batch calls, usually in a 'results' property
-    const results = result.results || (Array.isArray(result) ? result : [result]);
-    const writeResult = results[0];
-
-    // Check for APIError structure which uses '$' and 'status'
-    if (!writeResult || writeResult.error || writeResult['$']?.includes('APIError') || writeResult.status === 'batch_too_many_files') {
-        const errorMsg = writeResult?.error?.message || writeResult?.status || writeResult?.message || 'Unknown batch error';
-        console.error('[Puter Upload] Operation failed:', JSON.stringify(writeResult));
-        throw new Error(`Puter upload operation failed: ${errorMsg}`);
-    }
-
-    return writeResult.path || writeResult.result?.path || filePath;
+    console.log('[Puter Upload] Success via Driver:', JSON.stringify(writeResult));
+    return (writeResult.path || filePath) as string;
 }
