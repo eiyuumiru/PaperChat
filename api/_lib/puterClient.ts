@@ -260,16 +260,17 @@ export async function uploadFile(
     base64Content: string,
     fileName: string
 ): Promise<string> {
-    const filePath = fileName.startsWith('/') ? fileName : `/${fileName}`;
+    const filePath = fileName.startsWith('/') ? fileName : `/Documents/uploads/${fileName}`;
 
-    console.log(`[Puter Upload] Attempting write via driverCall: ${filePath}`);
+    console.log(`[Puter Upload] Attempting write via driverCall (interface: fs): ${filePath}`);
 
-    // Use the reliable driverCall mechanism used by chat and other services.
-    // The 'puter-fs' driver handles file operations.
-    // Signature: driverCall(token, interface, driver, method, args)
-    const writeResult = await driverCall(authToken, 'puter-fs', 'local-fs', 'write', {
+    // Use the reliable driverCall mechanism (interface 'fs' is the standard for storage)
+    // Driver 'local-fs' is the default for Puter cloud storage.
+    // We specify 'encoding: base64' to ensure binary data is handled correctly.
+    const writeResult = await driverCall(authToken, 'fs', 'local-fs', 'write', {
         path: filePath,
         data: base64Content,
+        encoding: 'base64',
         overwrite: true,
         create_missing_parents: true
     }) as any;
@@ -281,5 +282,6 @@ export async function uploadFile(
     }
 
     console.log('[Puter Upload] Success via Driver:', JSON.stringify(writeResult));
+    // The driver returns the item with a 'path' property
     return (writeResult.path || filePath) as string;
 }
