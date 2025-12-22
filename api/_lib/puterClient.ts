@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { posix as pathPosix } from 'node:path';
 // Puter REST API client for server-side usage
 // Uses direct HTTP calls instead of Puter.js SDK (which requires browser environment)
 
@@ -258,45 +259,81 @@ export async function getMonthlyUsage(
 export async function uploadFile(
     authToken: string,
     base64Content: string,
-    fileName: string
+    fileName: string,
+    mimeType: string = 'application/octet-stream'
 ): Promise<string> {
     const filePath = fileName.startsWith('/') ? fileName : `/Documents/uploads/${fileName}`;
+    const parentPath = pathPosix.dirname(filePath);
+    const finalName = pathPosix.basename(filePath);
+    const buffer = Buffer.from(base64Content, 'base64');
+    const safeMimeType = mimeType && mimeType.trim() ? mimeType : 'application/octet-stream';
 
-    // List of potential interface names to try (brute-force discovery)
-    // 'fs' and 'puter-fs' have been confirmed to return 404.
-    const interfacesToTry = ['puter-file-system', 'filesystem', 'puter-storage', 'file', 'puter-io', 'puter.fs', 'fs-driver'];
+    console.log(`[Puter Upload] Uploading via /batch for ${filePath}`);
 
-    console.log(`[Puter Upload] Attempting write via driverCall for ${filePath}`);
+    const operationId = randomUUID();
+    const socketId = randomUUID();
 
-    for (const interfaceName of interfacesToTry) {
-        try {
-            console.log(`[Puter Upload] Trying interface: ${interfaceName}`);
-            const writeResult = await driverCall(authToken, interfaceName, 'local-fs', 'write', {
-                path: filePath,
-                data: base64Content,
-                encoding: 'base64',
-                overwrite: true,
-                create_missing_parents: true
-            }) as any;
+    const form = new FormData();
+    form.append('operation_id', operationId);
+    form.append('socket_id', socketId);
+    form.append('original_client_socket_id', socketId);
+    form.append('fileinfo', JSON.stringify({
+        name: finalName,
+        type: safeMimeType,
+        size: buffer.length,
+    }));
+    form.append('operation', JSON.stringify({
+        op: 'write',
+        dedupe_name: false,
+        overwrite: true,
+        create_missing_ancestors: true,
+        operation_id: operationId,
+        path: parentPath,
+        name: finalName,
+        item_upload_id: 0,
+    }));
+    form.append('file', new Blob([buffer], { type: safeMimeType }), finalName);
 
-            if (writeResult && !writeResult.error && !writeResult['$']?.includes('Error')) {
-                console.log(`[Puter Upload] Success via interface: ${interfaceName}`, JSON.stringify(writeResult));
-                return (writeResult.path || filePath) as string;
-            }
+    const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+        },
+        body: form,
+    });
 
-            // Check if specific "Interface not found" error
-            if (writeResult?.error?.code === 'interface_not_found') {
-                console.warn(`[Puter Upload] Interface not found: ${interfaceName}`);
-                continue; // Try next
-            }
-
-            // Other error? Stop or continue?
-            console.error(`[Puter Upload] Failed with ${interfaceName}:`, JSON.stringify(writeResult));
-            // If it's a permission error (403), switching interface might not help, but let's keep trying.
-        } catch (err) {
-            console.error(`[Puter Upload] Exception with ${interfaceName}:`, err);
-        }
+    const responseText = await response.text();
+    let data: any;
+    try {
+        data = responseText ? JSON.parse(responseText) : {};
+    } catch {
+        data = responseText;
     }
 
-    throw new Error(`Puter upload failed: Could not find a working file system interface. Tried: ${interfacesToTry.join(', ')}`);
+    if (response.status === 218) {
+        const failed = Array.isArray(data?.results)
+            ? data.results.find((item: any) => item?.status && item.status !== 200)
+            : data;
+        throw new Error(`Puter upload failed (strict): ${JSON.stringify(failed)}`);
+    }
+
+    if (!response.ok) {
+        throw new Error(`Puter batch upload error: ${response.status} - ${responseText}`);
+    }
+
+    if (data?.error) {
+        throw new Error(data.error?.message || JSON.stringify(data.error));
+    }
+
+    const results = data?.results ?? data?.result ?? data;
+    const fileResult = Array.isArray(results)
+        ? results.find((item: any) => item?.path || item?.result?.path || item?.item?.path) ?? results[results.length - 1]
+        : results;
+    const puterPath = fileResult?.path || fileResult?.result?.path || fileResult?.item?.path || filePath;
+
+    if (!puterPath || typeof puterPath !== 'string') {
+        throw new Error('Puter upload failed: no path returned');
+    }
+
+    return puterPath;
 }

@@ -56,7 +56,7 @@ export default async function handler(
                                 console.log('[Chat API] Uploading file for pool account:', item.name);
                                 try {
                                     const fileName = `chat_pool_${Date.now()}_${item.name}`;
-                                    const puterPath = await uploadFile(account.auth_token, item.base64, fileName);
+                                    const puterPath = await uploadFile(account.auth_token, item.base64, fileName, item.mimeType);
                                     console.log(`[Chat API] File uploaded to: ${puterPath}`);
                                     // Puter REST API expects 'puter_path' property for AI models
                                     return {
