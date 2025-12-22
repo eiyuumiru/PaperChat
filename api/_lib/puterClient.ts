@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 // Puter REST API client for server-side usage
 // Uses direct HTTP calls instead of Puter.js SDK (which requires browser environment)
 
@@ -5,7 +6,7 @@ const PUTER_API_ORIGIN = 'https://api.puter.com';
 
 export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
-    content: string;
+    content: string | any[];
 }
 
 export interface ChatOptions {
@@ -248,4 +249,83 @@ export async function getMonthlyUsage(
         creditsRemaining: data.allowanceInfo?.remaining || 0,
         usage: data.usage || {},
     };
+}
+
+/**
+ * Upload a file to Puter FS using /batch endpoint and mandatory metadata JSONs
+ * This matches the exact wire format used by the Puter SDK (v2)
+ */
+export async function uploadFile(
+    authToken: string,
+    base64Content: string,
+    fileName: string
+): Promise<string> {
+    const filePath = fileName.startsWith('/') ? fileName : `/${fileName}`;
+    const parentPath = filePath.substring(0, filePath.lastIndexOf('/')) || '/';
+    const nameOnly = filePath.split('/').pop() || fileName;
+
+    console.log(`[Puter Upload] Uploading to /batch: ${parentPath} + ${nameOnly}`);
+
+    const binaryContent = Buffer.from(base64Content, 'base64');
+    const mimeType = (function (name) {
+        const ext = name.split('.').pop()?.toLowerCase();
+        if (ext === 'png') return 'image/png';
+        if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+        if (ext === 'pdf') return 'application/pdf';
+        if (ext === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        if (ext === 'ipynb') return 'application/x-ipynb+json';
+        return 'application/octet-stream';
+    })(nameOnly);
+
+    const operationId = randomUUID();
+
+    // Modern FormData for Node.js
+    const formData = new FormData();
+
+    // The actual file blob
+    const blob = new Blob([binaryContent], { type: mimeType });
+    formData.append('file', blob, nameOnly);
+
+    // Critical metadata fields as JSON strings
+    formData.append('fileinfo', JSON.stringify({
+        name: nameOnly,
+        type: mimeType,
+        size: binaryContent.length
+    }));
+
+    formData.append('operation', JSON.stringify({
+        op: 'write',
+        dedupe_name: false,
+        overwrite: true,
+        create_missing_ancestors: true,
+        operation_id: operationId,
+        path: parentPath,
+        name: nameOnly,
+        item_upload_id: 0
+    }));
+
+    formData.append('operation_id', operationId);
+
+    const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Origin': 'https://puter.com',
+            'Referer': 'https://puter.com/',
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Puter Upload] Error:', response.status, errorText);
+        throw new Error(`Puter upload failed: ${response.status} - ${errorText}`);
+    }
+
+    const result = await response.json() as any;
+    console.log('[Puter Upload] Success:', JSON.stringify(result));
+
+    // Puter returns result in an array for batch calls
+    const writeResult = Array.isArray(result) ? result[0] : (result?.result || result);
+    return writeResult?.path || writeResult?.result?.path || filePath;
 }

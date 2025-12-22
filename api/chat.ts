@@ -5,7 +5,7 @@ import {
     getPoolExhaustedError,
     isInsufficientCreditsError,
 } from './_lib/accountPool.js';
-import { chat, getMonthlyUsage } from './_lib/puterClient.js';
+import { chat, uploadFile, getMonthlyUsage } from './_lib/puterClient.js';
 import { markAccountExhausted } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
@@ -45,10 +45,38 @@ export default async function handler(
             }
 
             try {
-                console.log('[Chat API] Calling Puter API...');
+                console.log('[Chat API] Processing messages and calling Puter API...');
+
+                // Create a copy of messages to avoid modifying the original during retries
+                // and handle any Base64 file uploads
+                const processedMessages = await Promise.all(messages.map(async (msg: any) => {
+                    if (Array.isArray(msg.content)) {
+                        const processedContent = await Promise.all(msg.content.map(async (item: any) => {
+                            if (item.type === 'file' && item.base64) {
+                                console.log('[Chat API] Uploading file for pool account:', item.name);
+                                try {
+                                    const fileName = `chat_pool_${Date.now()}_${item.name}`;
+                                    const puterPath = await uploadFile(account.auth_token, item.base64, fileName);
+                                    console.log(`[Chat API] File uploaded to: ${puterPath}`);
+                                    // Puter REST API expects 'puter_path' property for AI models
+                                    return {
+                                        type: 'file',
+                                        puter_path: puterPath
+                                    };
+                                } catch (uploadError: any) {
+                                    console.error('[Chat API] File upload failed:', uploadError);
+                                    throw new Error(`Server-side file upload failed: ${uploadError.message || uploadError.toString()}`);
+                                }
+                            }
+                            return item;
+                        }));
+                        return { ...msg, content: processedContent };
+                    }
+                    return msg;
+                }));
 
                 // Call Puter AI
-                const result = await chat(account.auth_token, { model, messages });
+                const result = await chat(account.auth_token, { model, messages: processedMessages });
                 console.log('[Chat API] Puter response received');
 
                 // Refresh credits after successful call

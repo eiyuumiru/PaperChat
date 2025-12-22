@@ -162,7 +162,64 @@ class ChatService {
         files: File[],
         model: string
     ): Promise<{ response: string; uploadedPaths: string[] }> {
-        ChatService.ensurePuterAvailable();
+        const { getUseAccountPool, chatViaPool } = await import('../utils/api');
+        const usePool = getUseAccountPool();
+
+        if (usePool) {
+            console.log('[DEBUG] Using Account Pool for multimodal message');
+            const ipynbContents: string[] = [];
+            const regularFiles: File[] = [];
+
+            // 1. Separate IPYNB files
+            for (const file of files) {
+                if (IPYNBParser.hasIPYNBExtension(file.name)) {
+                    try {
+                        const parsedContent = await IPYNBParser.parseFile(file);
+                        ipynbContents.push(`\n--- File: ${file.name} ---\n${parsedContent}`);
+                    } catch (error) {
+                        throw new Error(`Không thể đọc file ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                    }
+                } else {
+                    regularFiles.push(file);
+                }
+            }
+
+            // 2. Convert regular files to Base64 for transit (max ~4.5MB total on Vercel)
+            const fileItems = await Promise.all(regularFiles.map(async (file) => {
+                const base64 = await FileValidator.toBase64(file);
+                return {
+                    type: 'file',
+                    name: file.name,
+                    base64: base64,
+                    mimeType: file.type
+                };
+            }));
+
+            let textContent = content || 'Hãy phân tích các files này';
+            if (ipynbContents.length > 0) {
+                textContent = `${textContent}\n\n[Nội dung Jupyter Notebook]\n${ipynbContents.join('\n\n')}`;
+            }
+
+            const messagesForAPI = [{
+                role: 'user',
+                content: [
+                    ...fileItems,
+                    { type: 'text', text: textContent }
+                ]
+            }];
+
+            const response = await chatViaPool({
+                model,
+                messages: messagesForAPI as any,
+            });
+
+            return {
+                response: ContentNormalizer.normalize(response),
+                uploadedPaths: [],
+            };
+        }
+
+        // Direct Puter.js mode (original logic)
 
         const uploadedPaths: string[] = [];
         const ipynbContents: string[] = [];

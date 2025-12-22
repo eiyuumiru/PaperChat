@@ -32,7 +32,7 @@ interface ApiResponse<T> {
 
 interface ChatRequest {
     model: string;
-    messages: Array<{ role: string; content: string }>;
+    messages: Array<{ role: string; content: string | any[] }>;
     language?: string;
 }
 
