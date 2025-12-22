@@ -560,6 +560,20 @@ function Header(): React.ReactElement {
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <div className="version-tag-wrapper">
+                                        <span className="version-tag">v4.2.3</span>
+                                        <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
+                                    </div>
+                                    <span className="version-date">22/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi upload file với Account Pool' : 'Fixed file uploads with Account Pool'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Hỗ trợ nhiều loại file hơn khi upload' : 'Support more file types on upload'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <div className="version-tag-wrapper">
                                         <span className="version-tag">v4.2.2</span>
                                         <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
                                     </div>

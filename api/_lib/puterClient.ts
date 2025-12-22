@@ -5,6 +5,78 @@ import { posix as pathPosix } from 'node:path';
 
 const PUTER_API_ORIGIN = 'https://api.puter.com';
 
+const EXTENSION_MIME_MAP: Record<string, string> = {
+    '.txt': 'text/plain',
+    '.md': 'text/markdown',
+    '.markdown': 'text/markdown',
+    '.csv': 'text/csv',
+    '.tsv': 'text/tab-separated-values',
+    '.json': 'application/json',
+    '.jsonl': 'application/x-ndjson',
+    '.yaml': 'text/yaml',
+    '.yml': 'text/yaml',
+    '.xml': 'application/xml',
+    '.html': 'text/html',
+    '.htm': 'text/html',
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+    '.mjs': 'application/javascript',
+    '.cjs': 'application/javascript',
+    '.ts': 'application/typescript',
+    '.tsx': 'application/typescript',
+    '.jsx': 'application/javascript',
+    '.pdf': 'application/pdf',
+    '.ipynb': 'application/x-ipynb+json',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xls': 'application/vnd.ms-excel',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.ppt': 'application/vnd.ms-powerpoint',
+    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '.rtf': 'application/rtf',
+    '.odt': 'application/vnd.oasis.opendocument.text',
+    '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+    '.odp': 'application/vnd.oasis.opendocument.presentation',
+    '.epub': 'application/epub+zip',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.bmp': 'image/bmp',
+    '.svg': 'image/svg+xml',
+    '.mp3': 'audio/mpeg',
+    '.wav': 'audio/wav',
+    '.flac': 'audio/flac',
+    '.m4a': 'audio/mp4',
+    '.ogg': 'audio/ogg',
+    '.mp4': 'video/mp4',
+    '.mov': 'video/quicktime',
+    '.webm': 'video/webm',
+    '.mkv': 'video/x-matroska',
+    '.avi': 'video/x-msvideo',
+    '.zip': 'application/zip',
+    '.rar': 'application/vnd.rar',
+    '.7z': 'application/x-7z-compressed',
+    '.tar': 'application/x-tar',
+    '.gz': 'application/gzip',
+    '.tgz': 'application/gzip',
+};
+
+function inferMimeType(fileName: string): string | null {
+    const ext = pathPosix.extname(fileName).toLowerCase();
+    return EXTENSION_MIME_MAP[ext] || null;
+}
+
+function normalizeMimeType(fileName: string, mimeType: string | undefined | null): string {
+    const trimmed = (mimeType || '').trim();
+    if (trimmed && trimmed !== 'application/octet-stream') {
+        return trimmed;
+    }
+
+    return inferMimeType(fileName) || 'application/octet-stream';
+}
+
 export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string | any[];
@@ -326,7 +398,7 @@ export async function uploadFile(
     const parentPath = pathPosix.dirname(filePath);
     const finalName = pathPosix.basename(filePath);
     const buffer = Buffer.from(base64Content, 'base64');
-    const safeMimeType = mimeType && mimeType.trim() ? mimeType : 'application/octet-stream';
+    const safeMimeType = normalizeMimeType(fileName, mimeType);
 
     console.log(`[Puter Upload] Uploading via /batch for ${filePath}`);
 
