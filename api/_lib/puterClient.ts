@@ -260,8 +260,8 @@ export async function uploadFile(
     base64Content: string,
     fileName: string
 ): Promise<string> {
-    const filePath = fileName.startsWith('/') ? fileName : `/${fileName}`;
-    const parentPath = filePath.substring(0, filePath.lastIndexOf('/')) || '/';
+    const filePath = fileName.startsWith('/') ? fileName : `/uploads/${fileName}`;
+    const parentPath = filePath.substring(0, filePath.lastIndexOf('/')) || '/uploads';
     const nameOnly = filePath.split('/').pop() || fileName;
 
     console.log(`[Puter Upload] Uploading to /batch: ${parentPath} + ${nameOnly}`);
