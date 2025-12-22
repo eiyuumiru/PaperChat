@@ -260,8 +260,8 @@ export async function uploadFile(
     base64Content: string,
     fileName: string
 ): Promise<string> {
-    const filePath = fileName.startsWith('/') ? fileName : `/uploads/${fileName}`;
-    const parentPath = filePath.substring(0, filePath.lastIndexOf('/')) || '/uploads';
+    const filePath = fileName.startsWith('/') ? fileName : `/Documents/${fileName}`;
+    const parentPath = filePath.substring(0, filePath.lastIndexOf('/')) || '/Documents';
     const nameOnly = filePath.split('/').pop() || fileName;
 
     console.log(`[Puter Upload] Uploading to /batch: ${parentPath} + ${nameOnly}`);
@@ -323,10 +323,11 @@ export async function uploadFile(
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${authToken}`,
+            'X-Puter-Origin': 'https://puter.com',
             'Origin': 'https://puter.com',
-            'Referer': 'https://puter.com/',
+            'Referer': 'https://puter.com/'
         },
-        body: formData,
+        body: formData
     });
 
     if (!response.ok) {
