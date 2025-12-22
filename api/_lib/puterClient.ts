@@ -298,6 +298,11 @@ export async function uploadFile(
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${authToken}`,
+            'Origin': 'https://puter.work',
+            'Referer': 'https://puter.work/',
+            'User-Agent': 'puter-js/1.0',
+            'Accept': '*/*',
+            'X-Requested-With': 'XMLHttpRequest',
         },
         body: form,
     });
