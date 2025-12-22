@@ -262,26 +262,41 @@ export async function uploadFile(
 ): Promise<string> {
     const filePath = fileName.startsWith('/') ? fileName : `/Documents/uploads/${fileName}`;
 
-    console.log(`[Puter Upload] Attempting write via driverCall (interface: fs): ${filePath}`);
+    // List of potential interface names to try (brute-force discovery)
+    // 'fs' and 'puter-fs' have been confirmed to return 404.
+    const interfacesToTry = ['puter-file-system', 'filesystem', 'puter-storage', 'file', 'puter-io', 'puter.fs', 'fs-driver'];
 
-    // Use the reliable driverCall mechanism (interface 'fs' is the standard for storage)
-    // Driver 'local-fs' is the default for Puter cloud storage.
-    // We specify 'encoding: base64' to ensure binary data is handled correctly.
-    const writeResult = await driverCall(authToken, 'fs', 'local-fs', 'write', {
-        path: filePath,
-        data: base64Content,
-        encoding: 'base64',
-        overwrite: true,
-        create_missing_parents: true
-    }) as any;
+    console.log(`[Puter Upload] Attempting write via driverCall for ${filePath}`);
 
-    if (!writeResult || writeResult.error || writeResult['$']?.includes('Error')) {
-        const errorMsg = writeResult?.error?.message || writeResult?.status || writeResult?.message || 'Driver write failed';
-        console.error('[Puter Upload] Driver call failed:', JSON.stringify(writeResult));
-        throw new Error(`Puter upload failed: ${errorMsg}`);
+    for (const interfaceName of interfacesToTry) {
+        try {
+            console.log(`[Puter Upload] Trying interface: ${interfaceName}`);
+            const writeResult = await driverCall(authToken, interfaceName, 'local-fs', 'write', {
+                path: filePath,
+                data: base64Content,
+                encoding: 'base64',
+                overwrite: true,
+                create_missing_parents: true
+            }) as any;
+
+            if (writeResult && !writeResult.error && !writeResult['$']?.includes('Error')) {
+                console.log(`[Puter Upload] Success via interface: ${interfaceName}`, JSON.stringify(writeResult));
+                return (writeResult.path || filePath) as string;
+            }
+
+            // Check if specific "Interface not found" error
+            if (writeResult?.error?.code === 'interface_not_found') {
+                console.warn(`[Puter Upload] Interface not found: ${interfaceName}`);
+                continue; // Try next
+            }
+
+            // Other error? Stop or continue?
+            console.error(`[Puter Upload] Failed with ${interfaceName}:`, JSON.stringify(writeResult));
+            // If it's a permission error (403), switching interface might not help, but let's keep trying.
+        } catch (err) {
+            console.error(`[Puter Upload] Exception with ${interfaceName}:`, err);
+        }
     }
 
-    console.log('[Puter Upload] Success via Driver:', JSON.stringify(writeResult));
-    // The driver returns the item with a 'path' property
-    return (writeResult.path || filePath) as string;
+    throw new Error(`Puter upload failed: Could not find a working file system interface. Tried: ${interfacesToTry.join(', ')}`);
 }
