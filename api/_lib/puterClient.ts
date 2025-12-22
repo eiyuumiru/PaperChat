@@ -309,8 +309,6 @@ export async function uploadFile(
         size: binaryContent.length
     }));
 
-    formData.append('operation_id', operationId);
-
     const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
         method: 'POST',
         headers: {
