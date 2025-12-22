@@ -252,6 +252,63 @@ export async function getMonthlyUsage(
     };
 }
 
+const whoamiCache = new Map<string, { appUid: string | null; fetchedAt: number }>();
+const WHOAMI_TTL_MS = 5 * 60 * 1000;
+
+function extractAppUid(payload: any): string | null {
+    if (!payload || typeof payload !== 'object') {
+        return null;
+    }
+
+    return (
+        payload.app_uid ||
+        payload.appId ||
+        payload.app_id ||
+        payload.appUID ||
+        payload.appUid ||
+        payload.app?.uid ||
+        payload.app?.id ||
+        payload.app?.app_uid ||
+        null
+    );
+}
+
+async function getAppUid(authToken: string): Promise<string | null> {
+    const envAppUid = process.env.PUTER_APP_UID?.trim();
+    if (envAppUid) {
+        return envAppUid;
+    }
+
+    const cached = whoamiCache.get(authToken);
+    const now = Date.now();
+    if (cached && now - cached.fetchedAt < WHOAMI_TTL_MS) {
+        return cached.appUid;
+    }
+
+    try {
+        const response = await fetch(`${PUTER_API_ORIGIN}/whoami`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+            },
+        });
+
+        if (!response.ok) {
+            whoamiCache.set(authToken, { appUid: null, fetchedAt: now });
+            return null;
+        }
+
+        const data = await response.json();
+        const appUid = extractAppUid(data);
+        whoamiCache.set(authToken, { appUid: appUid || null, fetchedAt: now });
+        return appUid || null;
+    } catch (error) {
+        console.warn('[Puter Upload] Failed to resolve app UID:', error);
+        whoamiCache.set(authToken, { appUid: null, fetchedAt: now });
+        return null;
+    }
+}
+
 /**
  * Upload a file to Puter FS using /batch endpoint and mandatory metadata JSONs
  * This matches the exact wire format used by the Puter SDK (v2)
@@ -262,7 +319,10 @@ export async function uploadFile(
     fileName: string,
     mimeType: string = 'application/octet-stream'
 ): Promise<string> {
-    const filePath = fileName.startsWith('/') ? fileName : `/Documents/uploads/${fileName}`;
+    const appUid = await getAppUid(authToken);
+    const isAbsolutePath = fileName.startsWith('/') || fileName.startsWith('~/');
+    const baseUploadPath = appUid ? `~/AppData/${appUid}/uploads` : '~/Documents/uploads';
+    const filePath = isAbsolutePath ? fileName : `${baseUploadPath}/${fileName}`;
     const parentPath = pathPosix.dirname(filePath);
     const finalName = pathPosix.basename(filePath);
     const buffer = Buffer.from(base64Content, 'base64');
@@ -273,6 +333,21 @@ export async function uploadFile(
     const operationId = randomUUID();
     const socketId = randomUUID();
 
+    const operation: Record<string, unknown> = {
+        op: 'write',
+        dedupe_name: false,
+        overwrite: true,
+        create_missing_ancestors: true,
+        operation_id: operationId,
+        path: parentPath,
+        name: finalName,
+        item_upload_id: 0,
+    };
+
+    if (appUid) {
+        operation.app_uid = appUid;
+    }
+
     const form = new FormData();
     form.append('operation_id', operationId);
     form.append('socket_id', socketId);
@@ -282,16 +357,7 @@ export async function uploadFile(
         type: safeMimeType,
         size: buffer.length,
     }));
-    form.append('operation', JSON.stringify({
-        op: 'write',
-        dedupe_name: false,
-        overwrite: true,
-        create_missing_ancestors: true,
-        operation_id: operationId,
-        path: parentPath,
-        name: finalName,
-        item_upload_id: 0,
-    }));
+    form.append('operation', JSON.stringify(operation));
     form.append('file', new Blob([buffer], { type: safeMimeType }), finalName);
 
     const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
