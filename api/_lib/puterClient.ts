@@ -282,18 +282,10 @@ export async function uploadFile(
     // Modern FormData for Node.js
     const formData = new FormData();
 
-    // The actual file blob
-    const blob = new Blob([binaryContent], { type: mimeType });
-    formData.append('file', blob, nameOnly);
-
-    // Critical metadata fields as JSON strings
-    formData.append('fileinfo', JSON.stringify({
-        name: nameOnly,
-        type: mimeType,
-        size: binaryContent.length
-    }));
-
-    formData.append('operation', JSON.stringify({
+    // Standard Puter Batch format: 
+    // 1. 'operations' field containing a JSON array of operations
+    // 2. 'file_N' and 'fileinfo_N' fields matching item_upload_id: N in the operations
+    const operations = [{
         op: 'write',
         dedupe_name: false,
         overwrite: true,
@@ -302,6 +294,19 @@ export async function uploadFile(
         path: parentPath,
         name: nameOnly,
         item_upload_id: 0
+    }];
+
+    formData.append('operations', JSON.stringify(operations));
+
+    // The actual file blob at index 0
+    const blob = new Blob([binaryContent], { type: mimeType });
+    formData.append('file_0', blob, nameOnly);
+
+    // Critical metadata field for index 0
+    formData.append('fileinfo_0', JSON.stringify({
+        name: nameOnly,
+        type: mimeType,
+        size: binaryContent.length
     }));
 
     formData.append('operation_id', operationId);
@@ -325,7 +330,15 @@ export async function uploadFile(
     const result = await response.json() as any;
     console.log('[Puter Upload] Success:', JSON.stringify(result));
 
-    // Puter returns result in an array for batch calls
-    const writeResult = Array.isArray(result) ? result[0] : (result?.result || result);
-    return writeResult?.path || writeResult?.result?.path || filePath;
+    // Puter returns results in an array for batch calls, usually in a 'results' property
+    const results = result.results || result;
+    const writeResult = Array.isArray(results) ? results[0] : results;
+
+    if (!writeResult || writeResult.error) {
+        const errorMsg = writeResult?.error?.message || writeResult?.status || 'Unknown batch error';
+        console.error('[Puter Upload] Operation failed:', errorMsg);
+        throw new Error(`Puter upload operation failed: ${errorMsg}`);
+    }
+
+    return writeResult.path || writeResult.result?.path || filePath;
 }
