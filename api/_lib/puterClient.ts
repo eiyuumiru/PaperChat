@@ -298,11 +298,12 @@ export async function uploadFile(
 
     formData.append('operations', JSON.stringify(operations));
 
-    // The actual file blob at index 0
+    // The actual binary data. 
+    // IMPORTANT: Puter's /batch endpoint expects the field name to be the item_upload_id (e.g., "0")
     const blob = new Blob([binaryContent], { type: mimeType });
-    formData.append('file_0', blob, nameOnly);
+    formData.append('0', blob, nameOnly);
 
-    // Critical metadata field for index 0
+    // Metadata for index 0
     formData.append('fileinfo_0', JSON.stringify({
         name: nameOnly,
         type: mimeType,
@@ -329,12 +330,13 @@ export async function uploadFile(
     console.log('[Puter Upload] Success:', JSON.stringify(result));
 
     // Puter returns results in an array for batch calls, usually in a 'results' property
-    const results = result.results || result;
-    const writeResult = Array.isArray(results) ? results[0] : results;
+    const results = result.results || (Array.isArray(result) ? result : [result]);
+    const writeResult = results[0];
 
-    if (!writeResult || writeResult.error) {
-        const errorMsg = writeResult?.error?.message || writeResult?.status || 'Unknown batch error';
-        console.error('[Puter Upload] Operation failed:', errorMsg);
+    // Check for APIError structure which uses '$' and 'status'
+    if (!writeResult || writeResult.error || writeResult['$']?.includes('APIError') || writeResult.status === 'batch_too_many_files') {
+        const errorMsg = writeResult?.error?.message || writeResult?.status || writeResult?.message || 'Unknown batch error';
+        console.error('[Puter Upload] Operation failed:', JSON.stringify(writeResult));
         throw new Error(`Puter upload operation failed: ${errorMsg}`);
     }
 
