@@ -282,10 +282,29 @@ export async function uploadFile(
     // Modern FormData for Node.js
     const formData = new FormData();
 
-    // Standard Puter Batch format: 
-    // 1. 'operations' field containing a JSON array of operations
-    // 2. 'file_N' and 'fileinfo_N' fields matching item_upload_id: N in the operations
-    const operations = [{
+    const socketId = randomUUID();
+
+    // Standard Puter Batch format (v2 SDK):
+    // 1. operation_id, socket_id, original_client_socket_id at top level
+    // 2. Multiple fields with the SAME names: 'operation', 'fileinfo', 'file'
+    // 3. 'item_upload_id' inside the operation JSON is the index (0, 1, 2...)
+
+    formData.append('operation_id', operationId);
+    formData.append('socket_id', socketId);
+    formData.append('original_client_socket_id', socketId);
+
+    // Multi-part logic: Puter expects 'fileinfo' then 'operation' then 'file' for each file
+    // although the SDK sometimes appends them in groups. We'll follow the SDK group pattern.
+
+    // 1. File Info
+    formData.append('fileinfo', JSON.stringify({
+        name: nameOnly,
+        type: mimeType,
+        size: binaryContent.length
+    }));
+
+    // 2. Operation
+    formData.append('operation', JSON.stringify({
         op: 'write',
         dedupe_name: false,
         overwrite: true,
@@ -293,14 +312,12 @@ export async function uploadFile(
         operation_id: operationId,
         path: parentPath,
         name: nameOnly,
-        item_upload_id: "file_0"
-    }];
+        item_upload_id: 0
+    }));
 
-    formData.append('operations', JSON.stringify(operations));
-
-    // Binary data with string ID matching item_upload_id
+    // 3. File data
     const blob = new Blob([binaryContent], { type: mimeType });
-    formData.append('file_0', blob, nameOnly);
+    formData.append('file', blob, nameOnly);
 
     const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
         method: 'POST',
