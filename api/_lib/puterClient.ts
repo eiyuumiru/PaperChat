@@ -293,22 +293,14 @@ export async function uploadFile(
         operation_id: operationId,
         path: parentPath,
         name: nameOnly,
-        item_upload_id: 0
+        item_upload_id: "file_0"
     }];
 
     formData.append('operations', JSON.stringify(operations));
 
-    // The actual binary data. 
-    // IMPORTANT: Puter's /batch endpoint expects the field name to be the item_upload_id (e.g., "0")
+    // Binary data with string ID matching item_upload_id
     const blob = new Blob([binaryContent], { type: mimeType });
-    formData.append('0', blob, nameOnly);
-
-    // Metadata for index 0
-    formData.append('fileinfo_0', JSON.stringify({
-        name: nameOnly,
-        type: mimeType,
-        size: binaryContent.length
-    }));
+    formData.append('file_0', blob, nameOnly);
 
     const response = await fetch(`${PUTER_API_ORIGIN}/batch`, {
         method: 'POST',
