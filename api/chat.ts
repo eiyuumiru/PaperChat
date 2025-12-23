@@ -9,6 +9,40 @@ import { chat, uploadFile, getMonthlyUsage } from './_lib/puterClient.js';
 import { markAccountExhausted } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
+const MIME_EXTENSION_MAP: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'image/bmp': 'bmp',
+    'image/svg+xml': 'svg',
+    'application/pdf': 'pdf',
+};
+
+function getExtensionFromName(name?: string): string {
+    if (!name) return '';
+    const dotIndex = name.lastIndexOf('.');
+    if (dotIndex <= 0 || dotIndex >= name.length - 1) return '';
+    const ext = name.slice(dotIndex + 1).toLowerCase();
+    return /^[a-z0-9]+$/.test(ext) ? ext : '';
+}
+
+function getExtensionFromMime(mimeType?: string): string {
+    if (!mimeType) return '';
+    return MIME_EXTENSION_MAP[mimeType.toLowerCase()] || '';
+}
+
+function buildSafeFileName(
+    prefix: string,
+    name: string | undefined,
+    mimeType: string | undefined,
+    index: number
+): string {
+    const ext = getExtensionFromName(name) || getExtensionFromMime(mimeType) || 'bin';
+    return `${prefix}_${Date.now()}_${index}.${ext}`;
+}
 
 export default async function handler(
     req: VercelRequest,
@@ -56,11 +90,11 @@ export default async function handler(
                 // and handle any Base64 file uploads
                 const processedMessages = await Promise.all(messages.map(async (msg: any) => {
                     if (Array.isArray(msg.content)) {
-                        const processedContent = await Promise.all(msg.content.map(async (item: any) => {
+                        const processedContent = await Promise.all(msg.content.map(async (item: any, itemIndex: number) => {
                             if (item.type === 'file' && item.base64) {
                                 console.log('[Chat API] Uploading file for pool account:', item.name);
                                 try {
-                                    const fileName = `chat_pool_${Date.now()}_${item.name}`;
+                                    const fileName = buildSafeFileName('chat_pool', item.name, item.mimeType, itemIndex);
                                     const puterPath = await uploadFile(account.auth_token, item.base64, fileName, item.mimeType);
                                     console.log(`[Chat API] File uploaded to: ${puterPath}`);
                                     // Puter REST API expects 'puter_path' property for AI models

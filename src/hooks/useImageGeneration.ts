@@ -105,7 +105,7 @@ class ImageGenerationService {
         }
 
         // Non-Gemini models: analyze image first, then generate
-        const fileName = `edit_image_${Date.now()}.${imageFile.name.split('.').pop() || 'png'}`;
+        const fileName = ImageValidator.buildSafeFileName('edit_image', imageFile, undefined, 'png');
         const puterFile = await window.puter.fs.write(fileName, imageFile);
 
         try {

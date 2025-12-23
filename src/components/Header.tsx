@@ -560,6 +560,20 @@ function Header(): React.ReactElement {
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <div className="version-tag-wrapper">
+                                        <span className="version-tag">v4.2.4</span>
+                                        <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
+                                    </div>
+                                    <span className="version-date">23/12/2024</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi upload ảnh chụp từ camera (tên file không hợp lệ)' : 'Fixed camera photo uploads failing due to invalid filenames'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Hỗ trợ HEIC/HEIF khi upload ảnh' : 'Added HEIC/HEIF support for image uploads'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <div className="version-tag-wrapper">
                                         <span className="version-tag">v4.2.3</span>
                                         <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />
                                     </div>

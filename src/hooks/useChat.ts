@@ -247,7 +247,7 @@ class ChatService {
         // Upload regular files to Puter FS
         for (let i = 0; i < regularFiles.length; i++) {
             const file = regularFiles[i];
-            const fileName = `chat_file_${Date.now()}_${i}.${file.name.split('.').pop()}`;
+            const fileName = FileValidator.buildSafeFileName('chat_file', file, i);
             console.log('[DEBUG] Uploading file:', fileName, file.type, file.size);
             const puterFile = await window.puter.fs.write(fileName, file);
             console.log('[DEBUG] Uploaded to:', puterFile.path);

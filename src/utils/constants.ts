@@ -28,6 +28,8 @@ export const IMAGE_TYPES = [
     'image/png',
     'image/gif',
     'image/webp',
+    'image/heic',
+    'image/heif',
 ] as const;
 
 export type ImageType = (typeof IMAGE_TYPES)[number];

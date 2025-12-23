@@ -7,6 +7,19 @@ import type { FileValidationResult } from '../types';
 import type { FileCategory } from './constants';
 import { IMAGE_TYPES, MAX_FILE_SIZE } from './constants';
 
+// Minimal mime -> extension map for safe filenames.
+const MIME_EXTENSION_MAP: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'image/bmp': 'bmp',
+    'image/svg+xml': 'svg',
+    'application/pdf': 'pdf',
+};
+
 /**
  * Static utility class for file validation
  */
@@ -57,6 +70,37 @@ export class FileValidator {
     static getExtension(file: File): string {
         const ext = file.name.split('.').pop()?.toUpperCase() || 'FILE';
         return ext;
+    }
+
+    /**
+     * Gets a safe file extension for uploads.
+     */
+    static getSafeExtension(file: File): string {
+        const name = file.name || '';
+        const dotIndex = name.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < name.length - 1) {
+            const ext = name.slice(dotIndex + 1).toLowerCase();
+            if (/^[a-z0-9]+$/.test(ext)) {
+                return ext;
+            }
+        }
+
+        const mimeExt = MIME_EXTENSION_MAP[(file.type || '').toLowerCase()];
+        return mimeExt || '';
+    }
+
+    /**
+     * Builds a safe filename for uploads.
+     */
+    static buildSafeFileName(
+        prefix: string,
+        file: File,
+        index?: number,
+        fallbackExt: string = 'bin'
+    ): string {
+        const ext = FileValidator.getSafeExtension(file) || fallbackExt;
+        const suffix = typeof index === 'number' ? `_${index}` : '';
+        return `${prefix}_${Date.now()}${suffix}.${ext}`;
     }
 
     /**
