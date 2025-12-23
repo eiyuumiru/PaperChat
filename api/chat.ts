@@ -43,6 +43,11 @@ export default async function handler(
                 console.log('[Chat API] Pool exhausted');
                 return res.status(503).json(getPoolExhaustedError(language));
             }
+            if (account.credits_remaining <= 0) {
+                console.log(`[Chat API] Account ${account.id} has no credits, marking as exhausted`);
+                await markAccountExhausted(account.id);
+                continue;
+            }
 
             try {
                 console.log('[Chat API] Processing messages and calling Puter API...');
@@ -84,6 +89,10 @@ export default async function handler(
                     const usage = await getMonthlyUsage(account.auth_token);
                     await refreshAccountCredits(account.id, usage.creditsRemaining);
                     console.log('[Chat API] Credits refreshed:', usage.creditsRemaining);
+                    if (usage.creditsRemaining <= 0) {
+                        console.log(`[Chat API] Account ${account.id} credits depleted, marking as exhausted`);
+                        await markAccountExhausted(account.id);
+                    }
                 } catch (usageError) {
                     console.error('[Chat API] Failed to refresh credits:', usageError);
                 }
