@@ -39,6 +39,11 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const [newAuthToken, setNewAuthToken] = useState('');
     const [adding, setAdding] = useState(false);
 
+    // Edit/Delete state
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editData, setEditData] = useState<Partial<Account>>({});
+    const [deleting, setDeleting] = useState<number | null>(null);
+
     const fetchAccounts = async () => {
         try {
             const res = await fetch('/api/admin-accounts', {
@@ -132,6 +137,73 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
         }
     };
 
+    const handleDeleteAccount = async (id: number) => {
+        if (!confirm('Bạn có chắc muốn xoá account này?')) return;
+
+        setDeleting(id);
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/admin-accounts', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Key': adminKey,
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            if (!res.ok) throw new Error('Failed to delete account');
+
+            const data = await res.json();
+            setMessage({ type: 'success', text: data.message });
+            await fetchAccounts();
+        } catch (err) {
+            setMessage({ type: 'error', text: 'Xoá account thất bại' });
+        } finally {
+            setDeleting(null);
+        }
+    };
+
+    const handleUpdateAccount = async (id: number) => {
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/admin-accounts', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Key': adminKey,
+                },
+                body: JSON.stringify({ id, ...editData }),
+            });
+
+            if (!res.ok) throw new Error('Failed to update account');
+
+            const data = await res.json();
+            setMessage({ type: 'success', text: data.message });
+            setEditingId(null);
+            setEditData({});
+            await fetchAccounts();
+        } catch (err) {
+            setMessage({ type: 'error', text: 'Cập nhật account thất bại' });
+        }
+    };
+
+    const startEdit = (acc: Account) => {
+        setEditingId(acc.id);
+        setEditData({
+            email: acc.email,
+            credits_remaining: acc.credits_remaining,
+            status: acc.status,
+        });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditData({});
+    };
+
     const formatDate = (dateStr: string | null) => {
         if (!dateStr) return '-';
         return new Date(dateStr).toLocaleString('vi-VN');
@@ -181,23 +253,108 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                                     <th>Credits ($)</th>
                                     <th>Status</th>
                                     <th>Last Used</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {accounts.map((acc) => (
                                     <tr key={acc.id}>
                                         <td>{acc.id}</td>
-                                        <td className={failedIds.has(acc.id) ? 'email-refresh-failed' : ''}>{acc.email}</td>
-                                        <td>${creditsToDollars(acc.credits_remaining)}</td>
-                                        <td className={`status-${acc.status}`}>
-                                            {acc.status}
-                                        </td>
-                                        <td>{formatDate(acc.last_used)}</td>
+                                        {editingId === acc.id ? (
+                                            <>
+                                                <td>
+                                                    <input
+                                                        type="email"
+                                                        className="edit-input"
+                                                        value={editData.email || ''}
+                                                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="edit-input edit-input-small"
+                                                        value={editData.credits_remaining || 0}
+                                                        onChange={(e) => setEditData({ ...editData, credits_remaining: parseFloat(e.target.value) })}
+                                                        step="1000000"
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <select
+                                                        className="edit-select"
+                                                        value={editData.status || 'active'}
+                                                        onChange={(e) => setEditData({ ...editData, status: e.target.value as Account['status'] })}
+                                                    >
+                                                        <option value="active">active</option>
+                                                        <option value="exhausted">exhausted</option>
+                                                        <option value="error">error</option>
+                                                    </select>
+                                                </td>
+                                                <td>{formatDate(acc.last_used)}</td>
+                                                <td className="actions-cell">
+                                                    <button
+                                                        className="btn-action btn-save"
+                                                        onClick={() => handleUpdateAccount(acc.id)}
+                                                        title="Lưu"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                            <polyline points="20 6 9 17 4 12" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        className="btn-action btn-cancel-edit"
+                                                        onClick={cancelEdit}
+                                                        title="Huỷ"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className={failedIds.has(acc.id) ? 'email-refresh-failed' : ''}>{acc.email}</td>
+                                                <td>${creditsToDollars(acc.credits_remaining)}</td>
+                                                <td className={`status-${acc.status}`}>
+                                                    {acc.status}
+                                                </td>
+                                                <td>{formatDate(acc.last_used)}</td>
+                                                <td className="actions-cell">
+                                                    <button
+                                                        className="btn-action btn-edit"
+                                                        onClick={() => startEdit(acc)}
+                                                        title="Sửa"
+                                                    >
+                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        className="btn-action btn-delete"
+                                                        onClick={() => handleDeleteAccount(acc.id)}
+                                                        disabled={deleting === acc.id}
+                                                        title="Xoá"
+                                                    >
+                                                        {deleting === acc.id ? (
+                                                            <span className="loading-spinner-small" />
+                                                        ) : (
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polyline points="3 6 5 6 21 6" />
+                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                </td>
+                                            </>
+                                        )}
                                     </tr>
                                 ))}
                                 {accounts.length === 0 && (
                                     <tr>
-                                        <td colSpan={5} style={{ textAlign: 'center', color: '#888' }}>
+                                        <td colSpan={6} style={{ textAlign: 'center', color: '#888' }}>
                                             Chưa có account nào
                                         </td>
                                     </tr>

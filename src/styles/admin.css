@@ -495,6 +495,16 @@
     }
 }
 
+.loading-spinner-small {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(190, 18, 60, 0.2);
+    border-top-color: var(--accent-rose, #BE123C);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
 /* Success/Error Messages */
 .admin-message {
     padding: 12px 16px;
@@ -526,6 +536,114 @@
     color: var(--ink-secondary, #4B5563);
     font-family: "Patrick Hand", cursive;
     font-size: 1.1rem;
+}
+
+/* Action Buttons - Edit/Delete */
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    background-color: var(--paper-white, #FFFAF3);
+}
+
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-edit {
+    border-color: var(--accent-blue, #2563EB);
+    color: var(--accent-blue, #2563EB);
+}
+
+.btn-edit:hover:not(:disabled) {
+    background-color: var(--accent-blue, #2563EB);
+    color: #fff;
+}
+
+.btn-delete {
+    border-color: var(--accent-rose, #BE123C);
+    color: var(--accent-rose, #BE123C);
+}
+
+.btn-delete:hover:not(:disabled) {
+    background-color: var(--accent-rose, #BE123C);
+    color: #fff;
+}
+
+.btn-save {
+    border-color: #16a34a;
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.btn-save:hover:not(:disabled) {
+    background-color: #16a34a;
+    color: #fff;
+}
+
+.btn-cancel-edit {
+    border-color: #6b7280;
+    color: #6b7280;
+    font-weight: bold;
+}
+
+.btn-cancel-edit:hover:not(:disabled) {
+    background-color: #6b7280;
+    color: #fff;
+}
+
+/* Inline Edit Inputs */
+.edit-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 2px solid var(--accent-blue, #2563EB);
+    border-radius: 8px;
+    background-color: var(--paper-cream, #FFF7EA);
+    color: var(--ink-primary, #1F2937);
+    font-family: "Patrick Hand", cursive;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.edit-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.edit-input-small {
+    max-width: 120px;
+}
+
+.edit-select {
+    padding: 6px 10px;
+    border: 2px solid var(--accent-blue, #2563EB);
+    border-radius: 8px;
+    background-color: var(--paper-cream, #FFF7EA);
+    color: var(--ink-primary, #1F2937);
+    font-family: "Patrick Hand", cursive;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.edit-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 /* ============================================
@@ -598,6 +716,17 @@
     background-color: rgba(248, 113, 113, 0.15);
     border-color: rgba(248, 113, 113, 0.4);
     color: #fca5a5;
+}
+
+[data-theme="dark"] .edit-input,
+[data-theme="dark"] .edit-select {
+    background-color: var(--paper-white);
+    border-color: var(--accent-blue);
+    color: var(--ink-primary);
+}
+
+[data-theme="dark"] .btn-action {
+    background-color: var(--paper-white);
 }
 
 /* ============================================

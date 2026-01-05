@@ -56,7 +56,7 @@ async function getCredits(authToken: string): Promise<number> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
 
     if (req.method === 'OPTIONS') {
@@ -107,6 +107,69 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 success: true,
                 message: `Account ${email} added successfully`,
                 credits
+            });
+        }
+
+        if (req.method === 'PUT') {
+            const { id, email, status, credits_remaining } = req.body;
+
+            if (!id) {
+                await db.close();
+                return res.status(400).json({ error: 'id is required' });
+            }
+
+            // Build dynamic update query based on provided fields
+            const updates: string[] = [];
+            const args: (string | number)[] = [];
+
+            if (email !== undefined) {
+                updates.push('email = ?');
+                args.push(email);
+            }
+            if (status !== undefined) {
+                updates.push('status = ?');
+                args.push(status);
+            }
+            if (credits_remaining !== undefined) {
+                updates.push('credits_remaining = ?');
+                args.push(credits_remaining);
+            }
+
+            if (updates.length === 0) {
+                await db.close();
+                return res.status(400).json({ error: 'No fields to update' });
+            }
+
+            args.push(id);
+            await db.execute({
+                sql: `UPDATE accounts SET ${updates.join(', ')} WHERE id = ?`,
+                args,
+            });
+
+            await db.close();
+            return res.status(200).json({
+                success: true,
+                message: `Account ${id} updated successfully`,
+            });
+        }
+
+        if (req.method === 'DELETE') {
+            const { id } = req.body;
+
+            if (!id) {
+                await db.close();
+                return res.status(400).json({ error: 'id is required' });
+            }
+
+            await db.execute({
+                sql: 'DELETE FROM accounts WHERE id = ?',
+                args: [id],
+            });
+
+            await db.close();
+            return res.status(200).json({
+                success: true,
+                message: `Account ${id} deleted successfully`,
             });
         }
 
