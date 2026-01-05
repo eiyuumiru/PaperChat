@@ -6,7 +6,7 @@ import {
     isInsufficientCreditsError,
 } from './_lib/accountPool.js';
 import { chat, uploadFile, getMonthlyUsage } from './_lib/puterClient.js';
-import { markAccountExhausted } from './_lib/db.js';
+import { markAccountExhausted, createAuditLog } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
 const MIME_EXTENSION_MAP: Record<string, string> = {
@@ -86,6 +86,9 @@ export default async function handler(
             try {
                 console.log('[Chat API] Processing messages and calling Puter API...');
 
+                // Store credits before for audit
+                const creditsBefore = account.credits_remaining;
+
                 // Create a copy of messages to avoid modifying the original during retries
                 // and handle any Base64 file uploads
                 const processedMessages = await Promise.all(messages.map(async (msg: any) => {
@@ -119,8 +122,10 @@ export default async function handler(
                 console.log('[Chat API] Puter response received');
 
                 // Refresh credits after successful call
+                let creditsAfter = creditsBefore;
                 try {
                     const usage = await getMonthlyUsage(account.auth_token);
+                    creditsAfter = usage.creditsRemaining;
                     await refreshAccountCredits(account.id, usage.creditsRemaining);
                     console.log('[Chat API] Credits refreshed:', usage.creditsRemaining);
                     if (usage.creditsRemaining <= 0) {
@@ -131,6 +136,17 @@ export default async function handler(
                     console.error('[Chat API] Failed to refresh credits:', usageError);
                 }
 
+                // Create success audit log
+                await createAuditLog({
+                    account_id: account.id,
+                    account_email: account.email,
+                    service: 'chat',
+                    action: 'request',
+                    credits_before: creditsBefore,
+                    credits_after: creditsAfter,
+                    account_status: account.status,
+                });
+
                 // Return response
                 return res.status(200).json({
                     success: true,
@@ -140,6 +156,17 @@ export default async function handler(
             } catch (apiError: unknown) {
                 const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
                 console.error('[Chat API] Puter API error:', errorMessage);
+
+                // Create error audit log
+                await createAuditLog({
+                    account_id: account.id,
+                    account_email: account.email,
+                    service: 'chat',
+                    action: 'error',
+                    credits_before: account.credits_remaining,
+                    account_status: account.status,
+                    error_message: errorMessage,
+                });
 
                 // Check if insufficient credits for this service
                 if (isInsufficientCreditsError(errorMessage)) {

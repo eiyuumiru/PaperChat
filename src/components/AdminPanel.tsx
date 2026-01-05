@@ -15,6 +15,19 @@ interface Account {
     created_at: string;
 }
 
+interface AuditLog {
+    id: number;
+    account_id: number;
+    account_email: string;
+    service: 'chat' | 'image' | 'video';
+    action: 'request' | 'credit_change' | 'error';
+    credits_before: number | null;
+    credits_after: number | null;
+    account_status: string | null;
+    error_message: string | null;
+    created_at: string;
+}
+
 interface AdminPanelProps {
     onClose: () => void;
     adminKey: string;
@@ -44,6 +57,11 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const [editData, setEditData] = useState<Partial<Account>>({});
     const [deleting, setDeleting] = useState<number | null>(null);
 
+    // Audit logs state
+    const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+    const [auditLoading, setAuditLoading] = useState(false);
+    const [auditTotal, setAuditTotal] = useState(0);
+
     const fetchAccounts = async () => {
         try {
             const res = await fetch('/api/admin-accounts', {
@@ -63,7 +81,25 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
 
     useEffect(() => {
         fetchAccounts();
+        fetchAuditLogs();
     }, []);
+
+    const fetchAuditLogs = async () => {
+        setAuditLoading(true);
+        try {
+            const res = await fetch('/api/admin-audit-logs?limit=30', {
+                headers: { 'X-Admin-Key': adminKey },
+            });
+            if (!res.ok) throw new Error('Failed to fetch audit logs');
+            const data = await res.json();
+            setAuditLogs(data.logs || []);
+            setAuditTotal(data.total || 0);
+        } catch (err) {
+            console.error('Failed to fetch audit logs:', err);
+        } finally {
+            setAuditLoading(false);
+        }
+    };
 
     const handleRefreshAll = async () => {
         setRefreshing(true);
@@ -207,6 +243,37 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const formatDate = (dateStr: string | null) => {
         if (!dateStr) return '-';
         return new Date(dateStr).toLocaleString('vi-VN');
+    };
+
+    const formatCredits = (val: number | null) => {
+        if (val === null) return '-';
+        return `$${creditsToDollars(val)}`;
+    };
+
+    const getServiceBadge = (service: string) => {
+        const colors: Record<string, string> = {
+            chat: '#2563EB',
+            image: '#7C3AED',
+            video: '#059669',
+        };
+        return (
+            <span className="service-badge" style={{ backgroundColor: colors[service] || '#6b7280' }}>
+                {service}
+            </span>
+        );
+    };
+
+    const getActionBadge = (action: string) => {
+        const colors: Record<string, string> = {
+            request: '#16a34a',
+            error: '#dc2626',
+            credit_change: '#d97706',
+        };
+        return (
+            <span className="action-badge" style={{ backgroundColor: colors[action] || '#6b7280' }}>
+                {action}
+            </span>
+        );
     };
 
     return (
@@ -386,6 +453,71 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                             {adding ? <span className="loading-spinner" /> : 'Thêm'}
                         </button>
                     </form>
+                </div>
+
+                {/* Audit Logs */}
+                <div className="admin-section">
+                    <div className="admin-section-header">
+                        <h2>📜 Audit Logs ({auditTotal})</h2>
+                        <button
+                            className={`btn-refresh-icon ${auditLoading ? 'loading' : ''}`}
+                            onClick={fetchAuditLogs}
+                            disabled={auditLoading}
+                            title="Refresh Audit Logs"
+                        >
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {auditLoading && auditLogs.length === 0 ? (
+                        <p>Đang tải...</p>
+                    ) : (
+                        <table className="accounts-table audit-logs-table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Account</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Action</th>
+                                    <th>Credits</th>
+                                    <th>Status</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {auditLogs.map((log) => (
+                                    <tr key={log.id}>
+                                        <td>{formatDate(log.created_at)}</td>
+                                        <td title={`ID: ${log.account_id}`}>{log.account_email}</td>
+                                        <td>{getServiceBadge(log.service)}</td>
+                                        <td>{getActionBadge(log.action)}</td>
+                                        <td>
+                                            {formatCredits(log.credits_before)}
+                                            {log.credits_after !== null && (
+                                                <> → {formatCredits(log.credits_after)}</>
+                                            )}
+                                        </td>
+                                        <td className={`status-${log.account_status}`}>
+                                            {log.account_status || '-'}
+                                        </td>
+                                        <td className="error-cell" title={log.error_message || ''}>
+                                            {log.error_message ? log.error_message.substring(0, 30) + '...' : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {auditLogs.length === 0 && (
+                                    <tr>
+                                        <td colSpan={7} style={{ textAlign: 'center', color: '#888' }}>
+                                            Chưa có audit log nào
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </div>

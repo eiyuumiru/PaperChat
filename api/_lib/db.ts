@@ -26,6 +26,30 @@ export interface Account {
     created_at: string;
 }
 
+export interface AuditLog {
+    id: number;
+    account_id: number;
+    account_email: string;
+    service: 'chat' | 'image' | 'video';
+    action: 'request' | 'credit_change' | 'error';
+    credits_before: number | null;
+    credits_after: number | null;
+    account_status: string | null;
+    error_message: string | null;
+    created_at: string;
+}
+
+export interface CreateAuditLogData {
+    account_id: number;
+    account_email: string;
+    service: 'chat' | 'image' | 'video';
+    action: 'request' | 'credit_change' | 'error';
+    credits_before?: number;
+    credits_after?: number;
+    account_status?: string;
+    error_message?: string;
+}
+
 // Initialize database schema
 export async function initDatabase(): Promise<void> {
     await getDb().execute(`
@@ -36,6 +60,21 @@ export async function initDatabase(): Promise<void> {
             credits_remaining REAL DEFAULT 0,
             status TEXT DEFAULT 'active',
             last_used DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    await getDb().execute(`
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER NOT NULL,
+            account_email TEXT NOT NULL,
+            service TEXT NOT NULL,
+            action TEXT NOT NULL,
+            credits_before REAL,
+            credits_after REAL,
+            account_status TEXT,
+            error_message TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -132,6 +171,66 @@ export async function getAccountStats(): Promise<{ active: number; exhausted: nu
     return {
         active: Number(row?.active || 0),
         exhausted: Number(row?.exhausted || 0),
+    };
+}
+
+// Create an audit log entry
+export async function createAuditLog(data: CreateAuditLogData): Promise<void> {
+    try {
+        await getDb().execute({
+            sql: `INSERT INTO audit_logs 
+                  (account_id, account_email, service, action, credits_before, credits_after, account_status, error_message)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [
+                data.account_id,
+                data.account_email,
+                data.service,
+                data.action,
+                data.credits_before ?? null,
+                data.credits_after ?? null,
+                data.account_status ?? null,
+                data.error_message ?? null,
+            ],
+        });
+    } catch (err) {
+        console.error('[AuditLog] Failed to create audit log:', err);
+    }
+}
+
+// Get audit logs with pagination
+export async function getAuditLogs(
+    limit: number = 50,
+    offset: number = 0,
+    filters?: { service?: string; account_id?: number }
+): Promise<{ logs: AuditLog[]; total: number }> {
+    let whereClause = '';
+    const args: (string | number)[] = [];
+
+    if (filters?.service) {
+        whereClause = 'WHERE service = ?';
+        args.push(filters.service);
+    }
+    if (filters?.account_id) {
+        whereClause = whereClause ? `${whereClause} AND account_id = ?` : 'WHERE account_id = ?';
+        args.push(filters.account_id);
+    }
+
+    // Get total count
+    const countResult = await getDb().execute({
+        sql: `SELECT COUNT(*) as count FROM audit_logs ${whereClause}`,
+        args,
+    });
+    const total = Number(countResult.rows[0]?.count || 0);
+
+    // Get logs
+    const result = await getDb().execute({
+        sql: `SELECT * FROM audit_logs ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        args: [...args, limit, offset],
+    });
+
+    return {
+        logs: result.rows as unknown as AuditLog[],
+        total,
     };
 }
 

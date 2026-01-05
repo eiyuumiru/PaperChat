@@ -6,6 +6,7 @@ import {
     isInsufficientCreditsError,
 } from './_lib/accountPool.js';
 import { generateImage, getMonthlyUsage } from './_lib/puterClient.js';
+import { createAuditLog } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
 
@@ -46,18 +47,34 @@ export default async function handler(
             try {
                 console.log('[Image API] Calling Puter API...');
 
+                // Store credits before for audit
+                const creditsBefore = account.credits_remaining;
+
                 // Call Puter AI
                 const result = await generateImage(account.auth_token, { prompt, model });
                 console.log('[Image API] Puter response received');
 
                 // Refresh credits after successful call
+                let creditsAfter = creditsBefore;
                 try {
                     const usage = await getMonthlyUsage(account.auth_token);
+                    creditsAfter = usage.creditsRemaining;
                     await refreshAccountCredits(account.id, usage.creditsRemaining);
                     console.log('[Image API] Credits refreshed:', usage.creditsRemaining);
                 } catch (usageError) {
                     console.error('[Image API] Failed to refresh credits:', usageError);
                 }
+
+                // Create success audit log
+                await createAuditLog({
+                    account_id: account.id,
+                    account_email: account.email,
+                    service: 'image',
+                    action: 'request',
+                    credits_before: creditsBefore,
+                    credits_after: creditsAfter,
+                    account_status: account.status,
+                });
 
                 // Return response
                 return res.status(200).json({
@@ -67,6 +84,17 @@ export default async function handler(
             } catch (apiError: unknown) {
                 const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
                 console.error('[Image API] Puter API error:', errorMessage);
+
+                // Create error audit log
+                await createAuditLog({
+                    account_id: account.id,
+                    account_email: account.email,
+                    service: 'image',
+                    action: 'error',
+                    credits_before: account.credits_remaining,
+                    account_status: account.status,
+                    error_message: errorMessage,
+                });
 
                 // Check if insufficient credits - retry with another account (don't mark exhausted)
                 if (isInsufficientCreditsError(errorMessage)) {

@@ -647,6 +647,40 @@
 }
 
 /* ============================================
+   AUDIT LOGS STYLES
+   ============================================ */
+
+.audit-logs-table {
+    font-size: 0.9rem;
+}
+
+.audit-logs-table th,
+.audit-logs-table td {
+    padding: 10px 12px;
+}
+
+.service-badge,
+.action-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    font-family: "Mali", cursive;
+}
+
+.error-cell {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--accent-rose, #BE123C);
+    font-size: 0.85rem;
+}
+
+/* ============================================
    DARK MODE OVERRIDES
    ============================================ */
 

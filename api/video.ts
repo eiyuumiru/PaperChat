@@ -7,6 +7,7 @@ import {
     getVideoInsufficientCreditsError,
 } from './_lib/accountPool.js';
 import { generateVideo, getMonthlyUsage } from './_lib/puterClient.js';
+import { createAuditLog } from './_lib/db.js';
 
 export default async function handler(
     req: VercelRequest,
@@ -40,6 +41,9 @@ export default async function handler(
         try {
             console.log('[Video API] Calling Puter API...');
 
+            // Store credits before for audit
+            const creditsBefore = account.credits_remaining;
+
             // Call Puter AI
             const result = await generateVideo(account.auth_token, {
                 prompt,
@@ -51,13 +55,26 @@ export default async function handler(
             console.log('[Video API] Puter response received');
 
             // Refresh credits after successful call
+            let creditsAfter = creditsBefore;
             try {
                 const usage = await getMonthlyUsage(account.auth_token);
+                creditsAfter = usage.creditsRemaining;
                 await refreshAccountCredits(account.id, usage.creditsRemaining);
                 console.log('[Video API] Credits refreshed:', usage.creditsRemaining);
             } catch (usageError) {
                 console.error('[Video API] Failed to refresh credits:', usageError);
             }
+
+            // Create success audit log
+            await createAuditLog({
+                account_id: account.id,
+                account_email: account.email,
+                service: 'video',
+                action: 'request',
+                credits_before: creditsBefore,
+                credits_after: creditsAfter,
+                account_status: account.status,
+            });
 
             // Return response
             return res.status(200).json({
@@ -67,6 +84,17 @@ export default async function handler(
         } catch (apiError: unknown) {
             const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
             console.error('[Video API] Puter API error:', errorMessage);
+
+            // Create error audit log
+            await createAuditLog({
+                account_id: account.id,
+                account_email: account.email,
+                service: 'video',
+                action: 'error',
+                credits_before: account.credits_remaining,
+                account_status: account.status,
+                error_message: errorMessage,
+            });
 
             // Check if insufficient credits - return error immediately (no retry, no contact info)
             if (isInsufficientCreditsError(errorMessage)) {
