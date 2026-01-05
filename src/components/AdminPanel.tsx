@@ -62,6 +62,10 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     const [auditLoading, setAuditLoading] = useState(false);
     const [auditTotal, setAuditTotal] = useState(0);
 
+    // Tab state
+    type TabType = 'accounts' | 'add' | 'logs';
+    const [activeTab, setActiveTab] = useState<TabType>('accounts');
+
     const fetchAccounts = async () => {
         try {
             const res = await fetch('/api/admin-accounts', {
@@ -292,233 +296,261 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
                     </div>
                 )}
 
-                {/* Accounts Table */}
-                <div className="admin-section">
-                    <div className="admin-section-header">
-                        <h2>📋 Danh sách Accounts</h2>
-                        <button
-                            className={`btn-refresh-icon ${refreshing ? 'loading' : ''}`}
-                            onClick={handleRefreshAll}
-                            disabled={refreshing}
-                            title="Refresh All Credits"
-                        >
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M23 4v6h-6M1 20v-6h6" />
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {loading ? (
-                        <p>Đang tải...</p>
-                    ) : (
-                        <table className="accounts-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Email</th>
-                                    <th>Credits ($)</th>
-                                    <th>Status</th>
-                                    <th>Last Used</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {accounts.map((acc) => (
-                                    <tr key={acc.id}>
-                                        <td>{acc.id}</td>
-                                        {editingId === acc.id ? (
-                                            <>
-                                                <td>
-                                                    <input
-                                                        type="email"
-                                                        className="edit-input"
-                                                        value={editData.email || ''}
-                                                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type="number"
-                                                        className="edit-input edit-input-small"
-                                                        value={editData.credits_remaining || 0}
-                                                        onChange={(e) => setEditData({ ...editData, credits_remaining: parseFloat(e.target.value) })}
-                                                        step="1000000"
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <select
-                                                        className="edit-select"
-                                                        value={editData.status || 'active'}
-                                                        onChange={(e) => setEditData({ ...editData, status: e.target.value as Account['status'] })}
-                                                    >
-                                                        <option value="active">active</option>
-                                                        <option value="exhausted">exhausted</option>
-                                                        <option value="error">error</option>
-                                                    </select>
-                                                </td>
-                                                <td>{formatDate(acc.last_used)}</td>
-                                                <td className="actions-cell">
-                                                    <button
-                                                        className="btn-action btn-save"
-                                                        onClick={() => handleUpdateAccount(acc.id)}
-                                                        title="Lưu"
-                                                    >
-                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                            <polyline points="20 6 9 17 4 12" />
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        className="btn-action btn-cancel-edit"
-                                                        onClick={cancelEdit}
-                                                        title="Huỷ"
-                                                    >
-                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <td className={failedIds.has(acc.id) ? 'email-refresh-failed' : ''}>{acc.email}</td>
-                                                <td>${creditsToDollars(acc.credits_remaining)}</td>
-                                                <td className={`status-${acc.status}`}>
-                                                    {acc.status}
-                                                </td>
-                                                <td>{formatDate(acc.last_used)}</td>
-                                                <td className="actions-cell">
-                                                    <button
-                                                        className="btn-action btn-edit"
-                                                        onClick={() => startEdit(acc)}
-                                                        title="Sửa"
-                                                    >
-                                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        className="btn-action btn-delete"
-                                                        onClick={() => handleDeleteAccount(acc.id)}
-                                                        disabled={deleting === acc.id}
-                                                        title="Xoá"
-                                                    >
-                                                        {deleting === acc.id ? (
-                                                            <span className="loading-spinner-small" />
-                                                        ) : (
-                                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <polyline points="3 6 5 6 21 6" />
-                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            </svg>
-                                                        )}
-                                                    </button>
-                                                </td>
-                                            </>
-                                        )}
-                                    </tr>
-                                ))}
-                                {accounts.length === 0 && (
-                                    <tr>
-                                        <td colSpan={6} style={{ textAlign: 'center', color: '#888' }}>
-                                            Chưa có account nào
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
+                {/* Tab Navigation */}
+                <div className="admin-tabs">
+                    <button
+                        className={`admin-tab ${activeTab === 'accounts' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('accounts')}
+                    >
+                        📋 Danh sách Accounts
+                    </button>
+                    <button
+                        className={`admin-tab ${activeTab === 'add' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('add')}
+                    >
+                        ➕ Thêm Account
+                    </button>
+                    <button
+                        className={`admin-tab ${activeTab === 'logs' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('logs')}
+                    >
+                        📜 Audit Logs ({auditTotal})
+                    </button>
                 </div>
+
+                {/* Accounts Table */}
+                {activeTab === 'accounts' && (
+                    <div className="admin-section">
+                        <div className="admin-section-header">
+                            <h2>📋 Danh sách Accounts</h2>
+                            <button
+                                className={`btn-refresh-icon ${refreshing ? 'loading' : ''}`}
+                                onClick={handleRefreshAll}
+                                disabled={refreshing}
+                                title="Refresh All Credits"
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M23 4v6h-6M1 20v-6h6" />
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {loading ? (
+                            <p>Đang tải...</p>
+                        ) : (
+                            <table className="accounts-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Email</th>
+                                        <th>Credits ($)</th>
+                                        <th>Status</th>
+                                        <th>Last Used</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {accounts.map((acc) => (
+                                        <tr key={acc.id}>
+                                            <td>{acc.id}</td>
+                                            {editingId === acc.id ? (
+                                                <>
+                                                    <td>
+                                                        <input
+                                                            type="email"
+                                                            className="edit-input"
+                                                            value={editData.email || ''}
+                                                            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            className="edit-input edit-input-small"
+                                                            value={editData.credits_remaining || 0}
+                                                            onChange={(e) => setEditData({ ...editData, credits_remaining: parseFloat(e.target.value) })}
+                                                            step="1000000"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <select
+                                                            className="edit-select"
+                                                            value={editData.status || 'active'}
+                                                            onChange={(e) => setEditData({ ...editData, status: e.target.value as Account['status'] })}
+                                                        >
+                                                            <option value="active">active</option>
+                                                            <option value="exhausted">exhausted</option>
+                                                            <option value="error">error</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>{formatDate(acc.last_used)}</td>
+                                                    <td className="actions-cell">
+                                                        <button
+                                                            className="btn-action btn-save"
+                                                            onClick={() => handleUpdateAccount(acc.id)}
+                                                            title="Lưu"
+                                                        >
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polyline points="20 6 9 17 4 12" />
+                                                            </svg>
+                                                        </button>
+                                                        <button
+                                                            className="btn-action btn-cancel-edit"
+                                                            onClick={cancelEdit}
+                                                            title="Huỷ"
+                                                        >
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                <line x1="18" y1="6" x2="6" y2="18" />
+                                                                <line x1="6" y1="6" x2="18" y2="18" />
+                                                            </svg>
+                                                        </button>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td className={failedIds.has(acc.id) ? 'email-refresh-failed' : ''}>{acc.email}</td>
+                                                    <td>${creditsToDollars(acc.credits_remaining)}</td>
+                                                    <td className={`status-${acc.status}`}>
+                                                        {acc.status}
+                                                    </td>
+                                                    <td>{formatDate(acc.last_used)}</td>
+                                                    <td className="actions-cell">
+                                                        <button
+                                                            className="btn-action btn-edit"
+                                                            onClick={() => startEdit(acc)}
+                                                            title="Sửa"
+                                                        >
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button
+                                                            className="btn-action btn-delete"
+                                                            onClick={() => handleDeleteAccount(acc.id)}
+                                                            disabled={deleting === acc.id}
+                                                            title="Xoá"
+                                                        >
+                                                            {deleting === acc.id ? (
+                                                                <span className="loading-spinner-small" />
+                                                            ) : (
+                                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polyline points="3 6 5 6 21 6" />
+                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                                </svg>
+                                                            )}
+                                                        </button>
+                                                    </td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    ))}
+                                    {accounts.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} style={{ textAlign: 'center', color: '#888' }}>
+                                                Chưa có account nào
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )}
 
                 {/* Add Account Form */}
-                <div className="admin-section">
-                    <h2>➕ Thêm Account</h2>
-                    <form className="add-account-form" onSubmit={handleAddAccount}>
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="Auth Token"
-                            value={newAuthToken}
-                            onChange={(e) => setNewAuthToken(e.target.value)}
-                            required
-                        />
-                        <button type="submit" disabled={adding || !newEmail || !newAuthToken}>
-                            {adding ? <span className="loading-spinner" /> : 'Thêm'}
-                        </button>
-                    </form>
-                </div>
+                {activeTab === 'add' && (
+                    <div className="admin-section">
+                        <h2>➕ Thêm Account</h2>
+                        <form className="add-account-form" onSubmit={handleAddAccount}>
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                required
+                            />
+                            <input
+                                type="text"
+                                placeholder="Auth Token"
+                                value={newAuthToken}
+                                onChange={(e) => setNewAuthToken(e.target.value)}
+                                required
+                            />
+                            <button type="submit" disabled={adding || !newEmail || !newAuthToken}>
+                                {adding ? <span className="loading-spinner" /> : 'Thêm'}
+                            </button>
+                        </form>
+                    </div>
+                )}
 
                 {/* Audit Logs */}
-                <div className="admin-section">
-                    <div className="admin-section-header">
-                        <h2>📜 Audit Logs ({auditTotal})</h2>
-                        <button
-                            className={`btn-refresh-icon ${auditLoading ? 'loading' : ''}`}
-                            onClick={fetchAuditLogs}
-                            disabled={auditLoading}
-                            title="Refresh Audit Logs"
-                        >
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M23 4v6h-6M1 20v-6h6" />
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                            </svg>
-                        </button>
-                    </div>
+                {activeTab === 'logs' && (
+                    <div className="admin-section">
+                        <div className="admin-section-header">
+                            <h2>📜 Audit Logs ({auditTotal})</h2>
+                            <button
+                                className={`btn-refresh-icon ${auditLoading ? 'loading' : ''}`}
+                                onClick={fetchAuditLogs}
+                                disabled={auditLoading}
+                                title="Refresh Audit Logs"
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M23 4v6h-6M1 20v-6h6" />
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                </svg>
+                            </button>
+                        </div>
 
-                    {auditLoading && auditLogs.length === 0 ? (
-                        <p>Đang tải...</p>
-                    ) : (
-                        <table className="accounts-table audit-logs-table">
-                            <thead>
-                                <tr>
-                                    <th>Thời gian</th>
-                                    <th>Account</th>
-                                    <th>Dịch vụ</th>
-                                    <th>Action</th>
-                                    <th>Credits</th>
-                                    <th>Status</th>
-                                    <th>Error</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {auditLogs.map((log) => (
-                                    <tr key={log.id}>
-                                        <td>{formatDate(log.created_at)}</td>
-                                        <td title={`ID: ${log.account_id}`}>{log.account_email}</td>
-                                        <td>{getServiceBadge(log.service)}</td>
-                                        <td>{getActionBadge(log.action)}</td>
-                                        <td>
-                                            {formatCredits(log.credits_before)}
-                                            {log.credits_after !== null && (
-                                                <> → {formatCredits(log.credits_after)}</>
-                                            )}
-                                        </td>
-                                        <td className={`status-${log.account_status}`}>
-                                            {log.account_status || '-'}
-                                        </td>
-                                        <td className="error-cell" title={log.error_message || ''}>
-                                            {log.error_message ? log.error_message.substring(0, 30) + '...' : '-'}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {auditLogs.length === 0 && (
+                        {auditLoading && auditLogs.length === 0 ? (
+                            <p>Đang tải...</p>
+                        ) : (
+                            <table className="accounts-table audit-logs-table">
+                                <thead>
                                     <tr>
-                                        <td colSpan={7} style={{ textAlign: 'center', color: '#888' }}>
-                                            Chưa có audit log nào
-                                        </td>
+                                        <th>Thời gian</th>
+                                        <th>Account</th>
+                                        <th>Dịch vụ</th>
+                                        <th>Action</th>
+                                        <th>Credits</th>
+                                        <th>Status</th>
+                                        <th>Error</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                </thead>
+                                <tbody>
+                                    {auditLogs.map((log) => (
+                                        <tr key={log.id}>
+                                            <td>{formatDate(log.created_at)}</td>
+                                            <td title={`ID: ${log.account_id}`}>{log.account_email}</td>
+                                            <td>{getServiceBadge(log.service)}</td>
+                                            <td>{getActionBadge(log.action)}</td>
+                                            <td>
+                                                {formatCredits(log.credits_before)}
+                                                {log.credits_after !== null && (
+                                                    <> → {formatCredits(log.credits_after)}</>
+                                                )}
+                                            </td>
+                                            <td className={`status-${log.account_status}`}>
+                                                {log.account_status || '-'}
+                                            </td>
+                                            <td className="error-cell" title={log.error_message || ''}>
+                                                {log.error_message ? log.error_message.substring(0, 30) + '...' : '-'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {auditLogs.length === 0 && (
+                                        <tr>
+                                            <td colSpan={7} style={{ textAlign: 'center', color: '#888' }}>
+                                                Chưa có audit log nào
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

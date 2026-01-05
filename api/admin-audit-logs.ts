@@ -54,6 +54,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const db = getDb();
 
     try {
+        // Ensure table exists
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER NOT NULL,
+                account_email TEXT NOT NULL,
+                service TEXT NOT NULL,
+                action TEXT NOT NULL,
+                credits_before REAL,
+                credits_after REAL,
+                account_status TEXT,
+                error_message TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Parse query parameters
         const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
         const offset = parseInt(req.query.offset as string) || 0;

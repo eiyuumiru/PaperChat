@@ -177,6 +177,22 @@ export async function getAccountStats(): Promise<{ active: number; exhausted: nu
 // Create an audit log entry
 export async function createAuditLog(data: CreateAuditLogData): Promise<void> {
     try {
+        // Ensure table exists
+        await getDb().execute(`
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER NOT NULL,
+                account_email TEXT NOT NULL,
+                service TEXT NOT NULL,
+                action TEXT NOT NULL,
+                credits_before REAL,
+                credits_after REAL,
+                account_status TEXT,
+                error_message TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         await getDb().execute({
             sql: `INSERT INTO audit_logs 
                   (account_id, account_email, service, action, credits_before, credits_after, account_status, error_message)
