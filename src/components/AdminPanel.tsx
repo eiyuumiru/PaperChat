@@ -246,7 +246,9 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
 
     const formatDate = (dateStr: string | null) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleString('vi-VN');
+        // Database stores UTC timestamps, append 'Z' if not present to ensure correct parsing
+        const utcDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+        return new Date(utcDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     };
 
     const formatCredits = (val: number | null) => {
