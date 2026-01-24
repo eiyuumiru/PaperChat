@@ -7,6 +7,7 @@ import {
 } from './_lib/accountPool.js';
 import { chat, getMonthlyUsage } from './_lib/puterClient.js';
 import { markAccountExhausted, createAuditLog } from './_lib/db.js';
+import { parseFileContent } from './_lib/fileParser.js';
 
 const MAX_RETRIES = 3;
 
@@ -61,53 +62,62 @@ export default async function handler(
                 // The Puter delegate requires this specific format
                 const processedMessages = await Promise.all(messages.map(async (msg: any) => {
                     if (Array.isArray(msg.content)) {
-                        const processedContent = await Promise.all(msg.content.map(async (item: any) => {
-                            if (item.type === 'text') {
-                                // Responses API uses type: "input_text"
-                                return {
-                                    type: 'input_text',
-                                    text: item.text
-                                };
-                            }
-                            if (item.type === 'file' && item.base64) {
-                                const isImage = item.mimeType?.startsWith('image/');
-                                const isPdf = item.mimeType === 'application/pdf';
+                        const processedContent: any[] = [];
+                        const textParts: string[] = [];
 
+                        for (const item of msg.content) {
+                            if (item.type === 'text') {
+                                textParts.push(item.text);
+                            } else if (item.type === 'file' && item.base64) {
                                 // Ensure we have raw base64 data (without data: prefix)
                                 const rawBase64 = item.base64.includes(',')
                                     ? item.base64.split(',')[1]
                                     : item.base64;
 
-                                if (isImage) {
-                                    console.log('[Chat API] Processing image for pool account:', item.name);
-                                    // Build data URI for image
-                                    const dataUri = `data:${item.mimeType || 'image/png'};base64,${rawBase64}`;
+                                // Use the new file parser
+                                const parsed = await parseFileContent(
+                                    rawBase64,
+                                    item.mimeType || '',
+                                    item.name || 'file'
+                                );
 
-                                    // Responses API format for images
-                                    // Use image_url as a direct string, not an object
-                                    return {
-                                        type: 'input_image',
-                                        image_url: dataUri
-                                    };
-                                } else if (isPdf) {
-                                    console.log('[Chat API] Processing PDF for pool account:', item.name);
-                                    // Build data URI for PDF
-                                    const dataUri = `data:application/pdf;base64,${rawBase64}`;
+                                console.log('[Chat API] Parsed file:', item.name, 'type:', parsed.type);
 
-                                    // Responses API format for files
-                                    return {
-                                        type: 'input_file',
-                                        filename: item.name || 'document.pdf',
-                                        file_data: dataUri
-                                    };
-                                } else {
-                                    // Unsupported file type
-                                    console.error('[Chat API] Unsupported file type in Pool Mode:', item.mimeType);
-                                    throw new Error(`File type "${item.mimeType}" is not supported. Only images (PNG, JPEG, GIF, WebP) and PDF files are supported.`);
+                                switch (parsed.type) {
+                                    case 'text':
+                                        // Append extracted text to the message
+                                        textParts.push(parsed.content || '');
+                                        break;
+                                    case 'image':
+                                        // Pass image as input_image
+                                        processedContent.push({
+                                            type: 'input_image',
+                                            image_url: parsed.dataUri
+                                        });
+                                        break;
+                                    case 'file':
+                                        // Pass PDF as input_file
+                                        processedContent.push({
+                                            type: 'input_file',
+                                            filename: item.name || 'document.pdf',
+                                            file_data: parsed.dataUri
+                                        });
+                                        break;
+                                    case 'unsupported':
+                                        // Throw error for unsupported files
+                                        throw new Error(parsed.error || `File type "${item.mimeType}" is not supported.`);
                                 }
                             }
-                            return item;
-                        }));
+                        }
+
+                        // Combine all text parts into a single input_text
+                        if (textParts.length > 0) {
+                            processedContent.push({
+                                type: 'input_text',
+                                text: textParts.join('\n\n')
+                            });
+                        }
+
                         return { ...msg, content: processedContent };
                     }
                     return msg;
