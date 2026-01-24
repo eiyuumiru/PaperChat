@@ -30,10 +30,19 @@ class ChatService {
      * Performs web search using GPT-4o Search model
      */
     static async performWebSearch(query: string): Promise<string> {
-        ChatService.ensurePuterAvailable();
-
+        const usePool = getUseAccountPool();
         const searchPrompt = `Tìm kiếm thông tin mới nhất về: "${query}". Trả về kết quả ngắn gọn, chính xác với nguồn nếu có.`;
 
+        if (usePool) {
+            // Use account pool for web search
+            return await chatViaPool({
+                model: WEB_SEARCH_MODEL,
+                messages: [{ role: 'user', content: searchPrompt }],
+            });
+        }
+
+        // Direct Puter.js mode
+        ChatService.ensurePuterAvailable();
         const response = await window.puter.ai.chat(searchPrompt, {
             model: WEB_SEARCH_MODEL,
         });
@@ -127,8 +136,8 @@ class ChatService {
 
         const response = await window.puter.ai.chat(messagesForAPI, {
             model: model,
-            // Add native web_search tool if supported (always-on for native models)
-            ...(isNative && {
+            // Add native web_search tool if user enabled it
+            ...(enableWebSearch && isNative && {
                 tools: [{ type: 'web_search' }]
             }),
         });

@@ -12,12 +12,17 @@ interface LocalizedTab {
 
 const TABS: LocalizedTab[] = [
     { id: 'chat', labelKey: 'tabChat' },
-    { id: 'image', labelKey: 'tabImage' },
-    { id: 'video', labelKey: 'tabVideo' },
+    // { id: 'image', labelKey: 'tabImage' },  // Temporarily disabled
+    // { id: 'video', labelKey: 'tabVideo' },  // Temporarily disabled
 ];
 
-function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps): React.ReactElement {
+function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps): React.ReactElement | null {
     const { t } = useLanguage();
+
+    // Hide tab navigation when only one tab
+    if (TABS.length <= 1) {
+        return null;
+    }
 
     return (
         <nav className="tab-container">

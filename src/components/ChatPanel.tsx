@@ -13,7 +13,6 @@ import {
     TEXTAREA_MAX_HEIGHT,
     MAX_FILES,
     WEB_SEARCH_MODEL,
-    isNativeWebSearchModel,
 } from '../utils/constants';
 import { FileValidator } from '../utils/fileValidator';
 import ModelSelector from './ModelSelector';
@@ -212,15 +211,13 @@ function ChatPanel(): React.ReactElement {
 
 
 
-    // Auto-enable web search for OpenAI native models
+    // Auto-enable web search only for gpt-4o-search-preview model
     useEffect(() => {
-        if (isNativeWebSearchModel(model)) {
-            setWebSearchEnabled(true);
-        } else if (model === WEB_SEARCH_MODEL) {
+        if (model === WEB_SEARCH_MODEL) {
             setWebSearchEnabled(true);
         } else {
-            // For other models, we can keep the previous state or default to false
-            // But usually we default to false for non-OpenAI models unless already enabled
+            // Default to off for all other models (user can toggle on)
+            setWebSearchEnabled(false);
         }
     }, [model]);
 
@@ -346,17 +343,17 @@ function ChatPanel(): React.ReactElement {
 
                             <button
                                 type="button"
-                                className={`web-search-btn ${webSearchEnabled ? 'active' : ''} ${(isNativeWebSearchModel(model) && webSearchEnabled) || model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
+                                className={`web-search-btn ${webSearchEnabled ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
                                 onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                                 title={
-                                    model === WEB_SEARCH_MODEL || isNativeWebSearchModel(model)
+                                    model === WEB_SEARCH_MODEL
                                         ? t('webSearchBuiltIn')
                                         : webSearchEnabled
                                             ? t('webSearchOff')
                                             : t('webSearchOn')
                                 }
                                 disabled={
-                                    isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL || isNativeWebSearchModel(model)
+                                    isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
                                 }
                             >
                                 🔍

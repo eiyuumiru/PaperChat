@@ -203,10 +203,23 @@ export async function chat(
             model,
             ...extraParams,
         }
-    ) as { message?: { content?: string }; usage?: unknown };
+    ) as { message?: { content?: string | Array<{ type: string; text?: string }> }; usage?: unknown };
+
+    // Handle content as string or array (Claude returns array format)
+    let responseText = '';
+    const content = result?.message?.content;
+    if (typeof content === 'string') {
+        responseText = content;
+    } else if (Array.isArray(content)) {
+        // Extract text from array format: [{ type: "text", text: "..." }]
+        responseText = content
+            .filter((item) => item.type === 'text' && item.text)
+            .map((item) => item.text)
+            .join('');
+    }
 
     return {
-        response: result?.message?.content || '',
+        response: responseText,
         usage: result?.usage,
     };
 }
