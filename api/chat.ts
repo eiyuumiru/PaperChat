@@ -5,44 +5,10 @@ import {
     getPoolExhaustedError,
     isInsufficientCreditsError,
 } from './_lib/accountPool.js';
-import { chat, uploadFile, getMonthlyUsage } from './_lib/puterClient.js';
+import { chat, getMonthlyUsage } from './_lib/puterClient.js';
 import { markAccountExhausted, createAuditLog } from './_lib/db.js';
 
 const MAX_RETRIES = 3;
-const MIME_EXTENSION_MAP: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif',
-    'image/webp': 'webp',
-    'image/heic': 'heic',
-    'image/heif': 'heif',
-    'image/bmp': 'bmp',
-    'image/svg+xml': 'svg',
-    'application/pdf': 'pdf',
-};
-
-function getExtensionFromName(name?: string): string {
-    if (!name) return '';
-    const dotIndex = name.lastIndexOf('.');
-    if (dotIndex <= 0 || dotIndex >= name.length - 1) return '';
-    const ext = name.slice(dotIndex + 1).toLowerCase();
-    return /^[a-z0-9]+$/.test(ext) ? ext : '';
-}
-
-function getExtensionFromMime(mimeType?: string): string {
-    if (!mimeType) return '';
-    return MIME_EXTENSION_MAP[mimeType.toLowerCase()] || '';
-}
-
-function buildSafeFileName(
-    prefix: string,
-    name: string | undefined,
-    mimeType: string | undefined,
-    index: number
-): string {
-    const ext = getExtensionFromName(name) || getExtensionFromMime(mimeType) || 'bin';
-    return `${prefix}_${Date.now()}_${index}.${ext}`;
-}
 
 export default async function handler(
     req: VercelRequest,
@@ -91,41 +57,53 @@ export default async function handler(
                 const creditsBefore = account.credits_remaining;
 
                 // Create a copy of messages and handle any Base64 file uploads
-                // Using OpenAI "Responses API" format as required by the openai-completion delegate
+                // Using OpenAI Responses API format (input_text, input_image, input_file)
+                // The Puter delegate requires this specific format
                 const processedMessages = await Promise.all(messages.map(async (msg: any) => {
                     if (Array.isArray(msg.content)) {
-                        const processedContent = await Promise.all(msg.content.map(async (item: any, itemIndex: number) => {
+                        const processedContent = await Promise.all(msg.content.map(async (item: any) => {
                             if (item.type === 'text') {
+                                // Responses API uses type: "input_text"
                                 return {
                                     type: 'input_text',
                                     text: item.text
                                 };
                             }
                             if (item.type === 'file' && item.base64) {
-                                console.log('[Chat API] Uploading file for pool account:', item.name);
-                                try {
-                                    const fileName = buildSafeFileName('chat_pool', item.name, item.mimeType, itemIndex);
-                                    const puterPath = await uploadFile(account.auth_token, item.base64, fileName, item.mimeType);
-                                    console.log(`[Chat API] File uploaded to: ${puterPath}`);
-                                    const isImage = item.mimeType?.startsWith('image/');
+                                const isImage = item.mimeType?.startsWith('image/');
+                                const isPdf = item.mimeType === 'application/pdf';
 
-                                    const rawBase64 = item.base64.includes(',') ? item.base64.split(',')[1] : item.base64;
-                                    if (isImage) {
-                                        // Realtime API / Responses Beta uses 'image' property for raw base64
-                                        return {
-                                            type: 'input_image',
-                                            image: rawBase64
-                                        };
-                                    } else {
-                                        // Realtime API / Responses Beta uses 'file' property for raw base64
-                                        return {
-                                            type: 'input_file',
-                                            file: rawBase64
-                                        };
-                                    }
-                                } catch (uploadError: any) {
-                                    console.error('[Chat API] File upload failed:', uploadError);
-                                    throw new Error(`Server-side file upload failed: ${uploadError.message || uploadError.toString()}`);
+                                // Ensure we have raw base64 data (without data: prefix)
+                                const rawBase64 = item.base64.includes(',')
+                                    ? item.base64.split(',')[1]
+                                    : item.base64;
+
+                                if (isImage) {
+                                    console.log('[Chat API] Processing image for pool account:', item.name);
+                                    // Build data URI for image
+                                    const dataUri = `data:${item.mimeType || 'image/png'};base64,${rawBase64}`;
+
+                                    // Responses API format for images
+                                    // Use image_url as a direct string, not an object
+                                    return {
+                                        type: 'input_image',
+                                        image_url: dataUri
+                                    };
+                                } else if (isPdf) {
+                                    console.log('[Chat API] Processing PDF for pool account:', item.name);
+                                    // Build data URI for PDF
+                                    const dataUri = `data:application/pdf;base64,${rawBase64}`;
+
+                                    // Responses API format for files
+                                    return {
+                                        type: 'input_file',
+                                        filename: item.name || 'document.pdf',
+                                        file_data: dataUri
+                                    };
+                                } else {
+                                    // Unsupported file type
+                                    console.error('[Chat API] Unsupported file type in Pool Mode:', item.mimeType);
+                                    throw new Error(`File type "${item.mimeType}" is not supported. Only images (PNG, JPEG, GIF, WebP) and PDF files are supported.`);
                                 }
                             }
                             return item;
