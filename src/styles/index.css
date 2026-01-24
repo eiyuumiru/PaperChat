@@ -2408,43 +2408,6 @@ body {
   border: 1px solid var(--dot-grid-tint);
 }
 
-/* Code Blocks */
-.markdown-body pre {
-  background-color: #2d2d2d;
-  border: 2px solid rgba(215, 194, 168, 0.4);
-  border-radius: 12px;
-  padding: 1em;
-  margin: 1em 0;
-  overflow-x: auto;
-  box-shadow: 4px 4px 12px rgba(215, 194, 168, 0.4), 0 2px 4px rgba(0, 0, 0, 0.08);
-  position: relative;
-}
-
-.markdown-body pre::before {
-  content: "code";
-  position: absolute;
-  top: -10px;
-  left: 12px;
-  font-family: "Mali", cursive;
-  font-size: 0.7em;
-  background-color: var(--accent-blue);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.markdown-body pre code {
-  font-family: "Consolas", "Monaco", monospace;
-  font-size: 0.85em;
-  background: none;
-  padding: 0;
-  border: none;
-  color: #d4d4d4;
-  display: block;
-  white-space: pre;
-  line-height: 1.5;
-}
-
 /* Blockquote */
 .markdown-body blockquote {
   margin: 1em 0;

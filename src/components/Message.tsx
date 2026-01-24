@@ -8,6 +8,49 @@ import { remarkPlugins, rehypePlugins } from '../utils/markdown';
 import { ContentNormalizer } from '../utils/content';
 import { useLanguage } from '../utils/i18n';
 import type { MessageProps, LoadingMessageProps, ChatAttachment } from '../types';
+import { CodeBlock, CodeBlockCode, CodeBlockGroup } from './ui/code-block';
+import { Button } from './ui/button';
+import { Check, Copy } from 'lucide-react';
+import { useState } from 'react';
+
+/**
+ * CodeBlockWithHeader - Wrapper to add header and copy functionality to CodeBlock
+ */
+function CodeBlockWithHeader({ code, language }: { code: string; language?: string }) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <CodeBlock>
+            <CodeBlockGroup className="code-block-header">
+                <div className="code-block-header-left">
+                    <div className="code-block-lang-badge">
+                        {language?.toUpperCase() || 'CODE'}
+                    </div>
+                </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleCopy}
+                    title="Copy code"
+                >
+                    {copied ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                        <Copy className="h-4 w-4" />
+                    )}
+                </Button>
+            </CodeBlockGroup>
+            <CodeBlockCode code={code} language={language} />
+        </CodeBlock>
+    );
+}
 
 /**
  * LaTeXNormalizer - Utility class for normalizing LaTeX expressions
@@ -81,6 +124,25 @@ function Message({ role, content, attachments }: ExtendedMessageProps): React.Re
                     <ReactMarkdown
                         remarkPlugins={remarkPlugins}
                         rehypePlugins={rehypePlugins}
+                        components={{
+                            pre({ children }) {
+                                return <>{children}</>;
+                            },
+                            code({ node, inline, className, children, ...props }: any) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                const code = String(children).replace(/\n$/, '');
+                                return !inline ? (
+                                    <CodeBlockWithHeader
+                                        code={code}
+                                        language={match ? match[1] : undefined}
+                                    />
+                                ) : (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                        }}
                     >
                         {safeContent}
                     </ReactMarkdown>

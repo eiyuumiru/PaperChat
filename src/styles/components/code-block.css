@@ -1,0 +1,128 @@
+/* CodeBlock Component Styles */
+.code-block-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 2px solid rgba(215, 194, 168, 0.6);
+    background-color: #ffffff;
+    /* Solid white for light mode */
+    color: var(--ink-primary);
+    border-radius: 12px;
+    margin: 0.5rem 0;
+    box-shadow: 4px 4px 12px rgba(215, 194, 168, 0.3), 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-family: inherit;
+}
+
+[data-theme="dark"] .code-block-container {
+    border-color: rgba(100, 100, 130, 0.3);
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.code-block-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(215, 194, 168, 0.3);
+    padding: 0.4rem 0.5rem 0.4rem 0.8rem;
+    background-color: rgba(215, 194, 168, 0.15);
+}
+
+[data-theme="dark"] .code-block-container {
+    border-color: rgba(100, 100, 130, 0.5);
+    background-color: #0d1117;
+    /* Solid dark for dark mode */
+    color: #e6edf3;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .code-block-group {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.code-block-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.code-block-lang-badge {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--accent-blue);
+    border-radius: 4px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: "Mali", sans-serif;
+}
+
+.code-block-filename {
+    color: var(--ink-secondary);
+    font-size: 0.875rem;
+    font-family: "Patrick Hand", cursive;
+}
+
+.code-block-content {
+    width: 100%;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+.code-block-content pre {
+    padding: 0.8rem 1rem;
+    margin: 0;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.code-block-content code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    font-family: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+/* Button UI Styles */
+.ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    font-family: "Mali", sans-serif;
+}
+
+.ui-button:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.ui-button-ghost {
+    background: transparent;
+    color: var(--ink-primary);
+}
+
+.ui-button-ghost:hover {
+    background-color: rgba(215, 194, 168, 0.2);
+}
+
+[data-theme="dark"] .ui-button-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.ui-button-icon {
+    height: 2rem;
+    width: 2rem;
+    padding: 0;
+}

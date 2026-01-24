@@ -564,6 +564,7 @@ function Header(): React.ReactElement {
                                 </div>
                                 <ul className="version-changes">
                                     <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? 'Hỗ trợ native web_search cho các model OpenAI' : 'Native web_search support for OpenAI models'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm giao diện Code Block mới với syntax highlighting và nút copy' : 'New Code Block UI with syntax highlighting and copy button'}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Hỗ trợ đọc file Word, Excel, PowerPoint và các file văn bản/code' : 'Support for Word, Excel, PowerPoint and text/code files'}</li>
                                     <li><span className="change-type improve">🗑️ {language === 'vi' ? 'Xoá' : 'Remove'}</span> {language === 'vi' ? 'Xoá tính năng tạo ảnh và video (ít người dùng, tốn tài nguyên)' : 'Removed image and video generation (low usage, resource-intensive)'}</li>
                                     <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi gpt-5.2-pro không thể upload ảnh' : 'Fixed gpt-5.2-pro not being able to upload images'}</li>

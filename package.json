@@ -15,8 +15,12 @@
   "dependencies": {
     "@heyputer/puter.js": "^2.2.2",
     "@libsql/client": "^0.15.15",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "highlight.js": "^11.10.0",
     "katex": "^0.16.9",
+    "lucide-react": "^0.563.0",
     "mammoth": "^1.11.0",
     "officeparser": "^6.0.4",
     "react": "^18.3.1",
@@ -27,6 +31,8 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
+    "shiki": "^3.21.0",
+    "tailwind-merge": "^3.4.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
