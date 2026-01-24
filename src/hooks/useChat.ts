@@ -7,32 +7,10 @@ import { useState, useCallback, useRef } from 'react';
 import { ContentNormalizer } from '../utils/content';
 import { FileValidator } from '../utils/fileValidator';
 import { IPYNBParser } from '../utils/ipynbParser';
-import { MAX_CHAT_HISTORY, WEB_SEARCH_MODEL } from '../utils/constants';
+import { MAX_CHAT_HISTORY, WEB_SEARCH_MODEL, isNativeWebSearchModel } from '../utils/constants';
+import { getUseAccountPool, chatViaPool } from '../utils/api';
 import type { ChatMessage, UseChatReturn, ChatAttachment } from '../types';
 
-/**
- * Model config parsed from value string
- */
-interface ModelConfig {
-    model: string;
-    driver?: string;
-}
-
-/**
- * Parse model value to extract driver if present
- * Format: "driver:driverName:modelName" or just "modelName"
- */
-function parseModelConfig(modelValue: string): ModelConfig {
-    if (modelValue.startsWith('driver:')) {
-        const parts = modelValue.split(':');
-        // driver:openrouter:gpt-5.2-pro -> { model: 'gpt-5.2-pro', driver: 'openrouter' }
-        return {
-            driver: parts[1],
-            model: parts.slice(2).join(':'),
-        };
-    }
-    return { model: modelValue };
-}
 
 /**
  * ChatService - Handles chat-related API calls
@@ -72,29 +50,29 @@ class ChatService {
         history: ChatMessage[],
         enableWebSearch: boolean
     ): Promise<string> {
+        const isNative = isNativeWebSearchModel(model);
         // Check if using pool mode from localStorage
-        const { getUseAccountPool, chatViaPool } = await import('../utils/api');
         const usePool = getUseAccountPool();
 
         if (usePool) {
-            // Use backend pool API
             interface APIMessage {
                 role: string;
-                content: string;
+                content: string | any[];
             }
-
             const messagesForAPI: APIMessage[] = [];
 
             // Web Search Chain for Pool mode: search first, then use results as context
             if (enableWebSearch && model !== WEB_SEARCH_MODEL) {
-                try {
-                    const searchResults = await ChatService.performWebSearch(content);
-                    messagesForAPI.push({
-                        role: 'system',
-                        content: `[Kết quả tìm kiếm web]\n${searchResults}\n\n[Hướng dẫn]\nDựa trên thông tin tìm kiếm ở trên, hãy trả lời câu hỏi của người dùng một cách chính xác và đầy đủ.`,
-                    });
-                } catch {
-                    // Ignore search errors, continue without context
+                if (!isNative) {
+                    try {
+                        const searchResults = await ChatService.performWebSearch(content);
+                        messagesForAPI.push({
+                            role: 'system',
+                            content: `[Kết quả tìm kiếm web]\n${searchResults}\n\n[Hướng dẫn]\nDựa trên thông tin tìm kiếm ở trên, hãy trả lời câu hỏi của người dùng một cách chính xác và đầy đủ.`,
+                        });
+                    } catch {
+                        // Ignore search errors, continue without context
+                    }
                 }
             }
 
@@ -108,6 +86,9 @@ class ChatService {
             return await chatViaPool({
                 model,
                 messages: messagesForAPI,
+                ...(enableWebSearch && isNative && {
+                    tools: [{ type: 'web_search' }]
+                }),
             });
         }
 
@@ -117,7 +98,7 @@ class ChatService {
         let systemContext: string | null = null;
 
         // Web Search Chain: search first, then use results as context
-        if (enableWebSearch && model !== WEB_SEARCH_MODEL) {
+        if (enableWebSearch && model !== WEB_SEARCH_MODEL && !isNative) {
             try {
                 const searchResults = await ChatService.performWebSearch(content);
                 systemContext = `[Kết quả tìm kiếm web]\n${searchResults}\n\n[Hướng dẫn]\nDựa trên thông tin tìm kiếm ở trên, hãy trả lời câu hỏi của người dùng một cách chính xác và đầy đủ.`;
@@ -144,10 +125,12 @@ class ChatService {
             }))
         );
 
-        const config = parseModelConfig(model);
         const response = await window.puter.ai.chat(messagesForAPI, {
-            model: config.model,
-            ...(config.driver && { driver: config.driver }),
+            model: model,
+            // Add native web_search tool if supported (always-on for native models)
+            ...(isNative && {
+                tools: [{ type: 'web_search' }]
+            }),
         });
 
         return ContentNormalizer.normalize(response);
@@ -162,7 +145,6 @@ class ChatService {
         files: File[],
         model: string
     ): Promise<{ response: string; uploadedPaths: string[] }> {
-        const { getUseAccountPool, chatViaPool } = await import('../utils/api');
         const usePool = getUseAccountPool();
 
         if (usePool) {
@@ -211,6 +193,9 @@ class ChatService {
             const response = await chatViaPool({
                 model,
                 messages: messagesForAPI as any,
+                ...(usePool && isNativeWebSearchModel(model) && {
+                    tools: [{ type: 'web_search' }]
+                }),
             });
 
             return {
@@ -220,23 +205,18 @@ class ChatService {
         }
 
         // Direct Puter.js mode (original logic)
-
         const uploadedPaths: string[] = [];
         const ipynbContents: string[] = [];
         const regularFiles: File[] = [];
 
         console.log('[DEBUG] Starting file processing, files:', files.length);
 
-        // Separate IPYNB files from regular files
         for (const file of files) {
             if (IPYNBParser.hasIPYNBExtension(file.name)) {
-                console.log('[DEBUG] Parsing IPYNB file:', file.name);
                 try {
                     const parsedContent = await IPYNBParser.parseFile(file);
                     ipynbContents.push(`\n--- File: ${file.name} ---\n${parsedContent}`);
-                    console.log('[DEBUG] Successfully parsed IPYNB:', file.name);
                 } catch (error) {
-                    console.error('[DEBUG] Failed to parse IPYNB:', file.name, error);
                     throw new Error(`Không thể đọc file ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
             } else {
@@ -244,24 +224,19 @@ class ChatService {
             }
         }
 
-        // Upload regular files to Puter FS
         for (let i = 0; i < regularFiles.length; i++) {
             const file = regularFiles[i];
             const fileName = FileValidator.buildSafeFileName('chat_file', file, i);
-            console.log('[DEBUG] Uploading file:', fileName, file.type, file.size);
             const puterFile = await window.puter.fs.write(fileName, file);
-            console.log('[DEBUG] Uploaded to:', puterFile.path);
             uploadedPaths.push(puterFile.path);
         }
 
-        // Build multimodal content array
         interface ContentItem {
             type: string;
             puter_path?: string;
             text?: string;
         }
 
-        // Combine user message with IPYNB contents
         let textContent = content || 'Hãy phân tích các files này';
         if (ipynbContents.length > 0) {
             textContent = `${textContent}\n\n[Nội dung Jupyter Notebook]\n${ipynbContents.join('\n\n')}`;
@@ -277,17 +252,9 @@ class ChatService {
             content: contentArray,
         };
 
-        console.log('[DEBUG] Sending multimodal message:', JSON.stringify(multimodalMessage, null, 2));
-
-        const config = parseModelConfig(model);
-        console.log('[DEBUG] Model config:', config);
-
         const response = await window.puter.ai.chat([multimodalMessage], {
-            model: config.model,
-            ...(config.driver && { driver: config.driver }),
+            model: model,
         });
-
-        console.log('[DEBUG] Raw response:', response);
 
         return {
             response: ContentNormalizer.normalize(response),
@@ -337,7 +304,9 @@ export function useChat(): UseChatReturn {
             setError(null);
 
             if (enableWebSearch && model !== WEB_SEARCH_MODEL) {
-                setIsSearching(true);
+                if (!isNativeWebSearchModel(model)) {
+                    setIsSearching(true);
+                }
             }
 
             try {
@@ -370,7 +339,6 @@ export function useChat(): UseChatReturn {
         async (content: string, files: File[], model: string) => {
             if (isLoading) return;
 
-            // Validate all files
             for (const file of files) {
                 const validation = FileValidator.validate(file);
                 if (!validation.valid) {
@@ -379,7 +347,6 @@ export function useChat(): UseChatReturn {
                 }
             }
 
-            // Build attachments for display
             const attachments: ChatAttachment[] = [];
             for (const file of files) {
                 if (FileValidator.isImage(file)) {

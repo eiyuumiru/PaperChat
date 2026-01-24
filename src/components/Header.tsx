@@ -559,6 +559,17 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag major">v5.0.0</span>
+                                    <span className="version-date">24/01/2026</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? 'Hỗ trợ native web_search cho các model OpenAI' : 'Native web_search support for OpenAI models'}</li>
+                                    <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi gpt-5.2-pro không thể upload ảnh' : 'Fixed gpt-5.2-pro not being able to upload images'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <div className="version-tag-wrapper">
                                         <span className="version-tag">v4.2.4</span>
                                         <img src={SantaHat} alt="" className="santa-hat santa-hat-version" />

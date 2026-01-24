@@ -13,7 +13,7 @@ import {
     TEXTAREA_MAX_HEIGHT,
     MAX_FILES,
     WEB_SEARCH_MODEL,
-    NO_FILE_UPLOAD_MODELS,
+    isNativeWebSearchModel,
 } from '../utils/constants';
 import { FileValidator } from '../utils/fileValidator';
 import ModelSelector from './ModelSelector';
@@ -210,14 +210,19 @@ function ChatPanel(): React.ReactElement {
         textareaRef.current?.focus();
     };
 
-    const isFileUploadDisabled = NO_FILE_UPLOAD_MODELS.includes(model as typeof NO_FILE_UPLOAD_MODELS[number]);
 
+
+    // Auto-enable web search for OpenAI native models
     useEffect(() => {
-        if (isFileUploadDisabled && attachedFiles.length > 0) {
-            handleClearAllFiles();
-            setError(t('modelNoFileUploadReset'));
+        if (isNativeWebSearchModel(model)) {
+            setWebSearchEnabled(true);
+        } else if (model === WEB_SEARCH_MODEL) {
+            setWebSearchEnabled(true);
+        } else {
+            // For other models, we can keep the previous state or default to false
+            // But usually we default to false for non-OpenAI models unless already enabled
         }
-    }, [model, isFileUploadDisabled, attachedFiles.length, handleClearAllFiles, setError, t]);
+    }, [model]);
 
     const canSubmit = !isLoading && (input.trim() || attachedFiles.length > 0);
 
@@ -330,12 +335,8 @@ function ChatPanel(): React.ReactElement {
                                 type="button"
                                 className={`file-upload-btn ${attachedFiles.length > 0 ? 'has-files' : ''}`}
                                 onClick={() => fileInputRef.current?.click()}
-                                title={
-                                    isFileUploadDisabled
-                                        ? t('modelNoFileUpload')
-                                        : `${t('attachFile')} (${attachedFiles.length}/${MAX_FILES})`
-                                }
-                                disabled={isLoading || attachedFiles.length >= MAX_FILES || isFileUploadDisabled}
+                                title={`${t('attachFile')} (${attachedFiles.length}/${MAX_FILES})`}
+                                disabled={isLoading || attachedFiles.length >= MAX_FILES}
                             >
                                 📎
                                 {attachedFiles.length > 0 && (
@@ -345,17 +346,17 @@ function ChatPanel(): React.ReactElement {
 
                             <button
                                 type="button"
-                                className={`web-search-btn ${webSearchEnabled && model !== WEB_SEARCH_MODEL ? 'active' : ''} ${model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
+                                className={`web-search-btn ${webSearchEnabled ? 'active' : ''} ${(isNativeWebSearchModel(model) && webSearchEnabled) || model === WEB_SEARCH_MODEL ? 'always-on' : ''}`}
                                 onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                                 title={
-                                    model === WEB_SEARCH_MODEL
+                                    model === WEB_SEARCH_MODEL || isNativeWebSearchModel(model)
                                         ? t('webSearchBuiltIn')
                                         : webSearchEnabled
                                             ? t('webSearchOff')
                                             : t('webSearchOn')
                                 }
                                 disabled={
-                                    isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL
+                                    isLoading || attachedFiles.length > 0 || model === WEB_SEARCH_MODEL || isNativeWebSearchModel(model)
                                 }
                             >
                                 🔍

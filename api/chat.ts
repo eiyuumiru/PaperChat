@@ -56,8 +56,9 @@ export default async function handler(
     }
 
     try {
-        const { model, messages, language = 'vi' } = req.body;
-        console.log('[Chat API] Body:', { model, messagesCount: messages?.length, language });
+        const { model, messages, language = 'vi', ...extraParams } = req.body;
+        console.log('[Chat API] Request Body:', JSON.stringify(req.body, null, 2));
+        console.log('[Chat API] Parameters:', { model, messagesCount: messages?.length, language, extraParams });
 
         if (!model || !messages || !Array.isArray(messages)) {
             console.log('[Chat API] Invalid request body');
@@ -89,22 +90,39 @@ export default async function handler(
                 // Store credits before for audit
                 const creditsBefore = account.credits_remaining;
 
-                // Create a copy of messages to avoid modifying the original during retries
-                // and handle any Base64 file uploads
+                // Create a copy of messages and handle any Base64 file uploads
+                // Using OpenAI "Responses API" format as required by the openai-completion delegate
                 const processedMessages = await Promise.all(messages.map(async (msg: any) => {
                     if (Array.isArray(msg.content)) {
                         const processedContent = await Promise.all(msg.content.map(async (item: any, itemIndex: number) => {
+                            if (item.type === 'text') {
+                                return {
+                                    type: 'input_text',
+                                    text: item.text
+                                };
+                            }
                             if (item.type === 'file' && item.base64) {
                                 console.log('[Chat API] Uploading file for pool account:', item.name);
                                 try {
                                     const fileName = buildSafeFileName('chat_pool', item.name, item.mimeType, itemIndex);
                                     const puterPath = await uploadFile(account.auth_token, item.base64, fileName, item.mimeType);
                                     console.log(`[Chat API] File uploaded to: ${puterPath}`);
-                                    // Puter REST API expects 'puter_path' property for AI models
-                                    return {
-                                        type: 'file',
-                                        puter_path: puterPath
-                                    };
+                                    const isImage = item.mimeType?.startsWith('image/');
+
+                                    const rawBase64 = item.base64.includes(',') ? item.base64.split(',')[1] : item.base64;
+                                    if (isImage) {
+                                        // Realtime API / Responses Beta uses 'image' property for raw base64
+                                        return {
+                                            type: 'input_image',
+                                            image: rawBase64
+                                        };
+                                    } else {
+                                        // Realtime API / Responses Beta uses 'file' property for raw base64
+                                        return {
+                                            type: 'input_file',
+                                            file: rawBase64
+                                        };
+                                    }
                                 } catch (uploadError: any) {
                                     console.error('[Chat API] File upload failed:', uploadError);
                                     throw new Error(`Server-side file upload failed: ${uploadError.message || uploadError.toString()}`);
@@ -118,7 +136,12 @@ export default async function handler(
                 }));
 
                 // Call Puter AI
-                const result = await chat(account.auth_token, { model, messages: processedMessages });
+                const result = await chat(account.auth_token, {
+                    model,
+                    messages: processedMessages,
+                    vision: true,
+                    ...extraParams
+                });
                 console.log('[Chat API] Puter response received');
 
                 // Refresh credits after successful call

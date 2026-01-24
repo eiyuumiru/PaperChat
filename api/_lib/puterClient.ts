@@ -85,6 +85,7 @@ export interface ChatMessage {
 export interface ChatOptions {
     model: string;
     messages: ChatMessage[];
+    [key: string]: any;
 }
 
 export interface ImageOptions {
@@ -141,6 +142,8 @@ async function driverCall(
         test_mode: testMode,
     };
 
+    console.log('[Puter Driver Call] Payload:', JSON.stringify(requestBody, null, 2));
+
 
     const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
         method: 'POST',
@@ -187,14 +190,18 @@ export async function chat(
     authToken: string,
     options: ChatOptions
 ): Promise<{ response: string; usage?: unknown }> {
+    const { messages, model, ...extraParams } = options;
+    console.log('[Puter Chat] Calling completion with:', { model, messagesCount: messages.length, extraParams });
+
     const result = await driverCall(
         authToken,
         'puter-chat-completion',
         'ai-chat',
         'complete',
         {
-            messages: options.messages,
-            model: options.model,
+            messages,
+            model,
+            ...extraParams,
         }
     ) as { message?: { content?: string }; usage?: unknown };
 
@@ -203,6 +210,7 @@ export async function chat(
         usage: result?.usage,
     };
 }
+
 
 /**
  * Generate image

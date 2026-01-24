@@ -34,6 +34,7 @@ interface ChatRequest {
     model: string;
     messages: Array<{ role: string; content: string | any[] }>;
     language?: string;
+    [key: string]: any;
 }
 
 interface ImageRequest {
