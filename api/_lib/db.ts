@@ -30,7 +30,7 @@ export interface AuditLog {
     id: number;
     account_id: number;
     account_email: string;
-    service: 'chat' | 'image' | 'video';
+    service: 'chat';
     action: 'request' | 'credit_change' | 'error';
     credits_before: number | null;
     credits_after: number | null;
@@ -42,7 +42,7 @@ export interface AuditLog {
 export interface CreateAuditLogData {
     account_id: number;
     account_email: string;
-    service: 'chat' | 'image' | 'video';
+    service: 'chat';
     action: 'request' | 'credit_change' | 'error';
     credits_before?: number;
     credits_after?: number;
@@ -99,34 +99,6 @@ export async function getAccountWithLeastCredits(): Promise<Account | null> {
     return (result.rows[0] as unknown as Account) || null;
 }
 
-// Get account with MOST credits (for video - most expensive operations)
-export async function getAccountWithMostCredits(): Promise<Account | null> {
-    const result = await getDb().execute(
-        `SELECT * FROM accounts 
-         WHERE status = 'active' 
-         ORDER BY credits_remaining DESC 
-         LIMIT 1`
-    );
-    return (result.rows[0] as unknown as Account) || null;
-}
-
-// Get account with MIDDLE credits (for image - medium operations)
-export async function getAccountWithMiddleCredits(): Promise<Account | null> {
-    // Get all active accounts sorted by credits
-    const result = await getDb().execute(
-        `SELECT * FROM accounts 
-         WHERE status = 'active' 
-         ORDER BY credits_remaining ASC`
-    );
-
-    const accounts = result.rows as unknown as Account[];
-    if (accounts.length === 0) return null;
-
-    // Return the middle account
-    const middleIndex = Math.floor(accounts.length / 2);
-    return accounts[middleIndex];
-}
-
 // Update account credits
 export async function updateAccountCredits(
     accountId: number,
@@ -177,22 +149,6 @@ export async function getAccountStats(): Promise<{ active: number; exhausted: nu
 // Create an audit log entry
 export async function createAuditLog(data: CreateAuditLogData): Promise<void> {
     try {
-        // Ensure table exists
-        await getDb().execute(`
-            CREATE TABLE IF NOT EXISTS audit_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                account_id INTEGER NOT NULL,
-                account_email TEXT NOT NULL,
-                service TEXT NOT NULL,
-                action TEXT NOT NULL,
-                credits_before REAL,
-                credits_after REAL,
-                account_status TEXT,
-                error_message TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
         await getDb().execute({
             sql: `INSERT INTO audit_logs 
                   (account_id, account_email, service, action, credits_before, credits_after, account_status, error_message)
@@ -209,7 +165,7 @@ export async function createAuditLog(data: CreateAuditLogData): Promise<void> {
             ],
         });
     } catch (err) {
-        console.error('[AuditLog] Failed to create audit log:', err);
+        // Silently fail or use a simple logging mechanism
     }
 }
 

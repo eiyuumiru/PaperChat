@@ -45,22 +45,6 @@ const EXTENSION_MIME_MAP: Record<string, string> = {
     '.webp': 'image/webp',
     '.bmp': 'image/bmp',
     '.svg': 'image/svg+xml',
-    '.mp3': 'audio/mpeg',
-    '.wav': 'audio/wav',
-    '.flac': 'audio/flac',
-    '.m4a': 'audio/mp4',
-    '.ogg': 'audio/ogg',
-    '.mp4': 'video/mp4',
-    '.mov': 'video/quicktime',
-    '.webm': 'video/webm',
-    '.mkv': 'video/x-matroska',
-    '.avi': 'video/x-msvideo',
-    '.zip': 'application/zip',
-    '.rar': 'application/vnd.rar',
-    '.7z': 'application/x-7z-compressed',
-    '.tar': 'application/x-tar',
-    '.gz': 'application/gzip',
-    '.tgz': 'application/gzip',
 };
 
 function inferMimeType(fileName: string): string | null {
@@ -86,19 +70,6 @@ export interface ChatOptions {
     model: string;
     messages: ChatMessage[];
     [key: string]: any;
-}
-
-export interface ImageOptions {
-    prompt: string;
-    model?: string;
-}
-
-export interface VideoOptions {
-    prompt: string;
-    model?: string;
-    seconds?: number;
-    size?: string;
-    testMode?: boolean;
 }
 
 interface DriverCallRequest {
@@ -142,9 +113,6 @@ async function driverCall(
         test_mode: testMode,
     };
 
-    console.log('[Puter Driver Call] Payload:', JSON.stringify(requestBody, null, 2));
-
-
     const response = await fetch(`${PUTER_API_ORIGIN}/drivers/call`, {
         method: 'POST',
         headers: {
@@ -158,26 +126,13 @@ async function driverCall(
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Puter API] Error response:', response.status, errorText);
-        throw new Error(`Puter API error: ${response.status} - ${errorText}`);
-    }
-
-    // Check if response is binary (image or video)
-    const contentType = response.headers.get('content-type') || '';
-    if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
-        // Return media as base64 data URL
-        const buffer = await response.arrayBuffer();
-        const base64 = Buffer.from(buffer).toString('base64');
-        const mimeType = contentType.split(';')[0];
-        return { src: `data:${mimeType};base64,${base64}` };
+        throw new Error(`Puter API error: ${response.status}`);
     }
 
     const data: DriverCallResponse = await response.json();
 
     if (data.success === false) {
-        console.error('[Puter API] Driver call failed:', JSON.stringify(data, null, 2));
-        throw new Error(data.error?.message || data.error?.code || JSON.stringify(data.error) || 'Puter driver call failed');
+        throw new Error(data.error?.message || data.error?.code || 'Puter driver call failed');
     }
 
     return data.result !== undefined ? data.result : data;
@@ -191,7 +146,6 @@ export async function chat(
     options: ChatOptions
 ): Promise<{ response: string; usage?: unknown }> {
     const { messages, model, ...extraParams } = options;
-    console.log('[Puter Chat] Calling completion with:', { model, messagesCount: messages.length, extraParams });
 
     const result = await driverCall(
         authToken,
@@ -222,100 +176,6 @@ export async function chat(
         response: responseText,
         usage: result?.usage,
     };
-}
-
-
-/**
- * Generate image
- */
-export async function generateImage(
-    authToken: string,
-    options: ImageOptions
-): Promise<{ imageUrl: string }> {
-    const result = await driverCall(
-        authToken,
-        'puter-image-generation',
-        'ai-image',
-        'generate',
-        {
-            prompt: options.prompt,
-            model: options.model,
-        }
-    );
-
-    // Result could be a URL string or base64 data
-    let imageUrl: string;
-    if (typeof result === 'string') {
-        imageUrl = result;
-    } else if (result && typeof result === 'object' && 'src' in result) {
-        imageUrl = (result as { src: string }).src;
-    } else {
-        throw new Error('Unexpected image response format');
-    }
-
-    return { imageUrl };
-}
-
-/**
- * Generate video
- */
-export async function generateVideo(
-    authToken: string,
-    options: VideoOptions
-): Promise<{ videoUrl: string }> {
-    const model = options.model || 'sora-2';
-
-    // Detect driver based on model name
-    let driver = 'openai-video-generation'; // default for sora
-    const modelLower = model.toLowerCase();
-
-    if (modelLower.includes('sora')) {
-        driver = 'openai-video-generation';
-    } else if (
-        modelLower.includes('veo') ||
-        modelLower.includes('google') ||
-        modelLower.includes('kling') ||
-        modelLower.includes('kwaivgi') ||
-        modelLower.includes('minimax') ||
-        modelLower.includes('hailuo') ||
-        modelLower.includes('video-01') ||
-        modelLower.includes('wan') ||
-        modelLower.includes('seedance') ||
-        modelLower.includes('bytedance') ||
-        modelLower.includes('pixverse') ||
-        modelLower.includes('vidu') ||
-        model.includes('/')  // Any model with / is likely from Together
-    ) {
-        driver = 'together-video-generation';
-    }
-
-    console.log('[Video API] Using driver:', driver, 'for model:', model);
-
-    const result = await driverCall(
-        authToken,
-        'puter-video-generation',
-        driver,
-        'generate',
-        {
-            prompt: options.prompt,
-            model: model,
-            seconds: options.seconds || 4,
-            size: options.size || '1280x720',
-        },
-        options.testMode || false
-    );
-
-    // Result could be a URL string or video element data
-    let videoUrl: string;
-    if (typeof result === 'string') {
-        videoUrl = result;
-    } else if (result && typeof result === 'object' && 'src' in result) {
-        videoUrl = (result as { src: string }).src;
-    } else {
-        throw new Error('Unexpected video response format');
-    }
-
-    return { videoUrl };
 }
 
 /**
@@ -396,7 +256,6 @@ async function getAppUid(authToken: string): Promise<string | null> {
         whoamiCache.set(authToken, { appUid: appUid || null, fetchedAt: now });
         return appUid || null;
     } catch (error) {
-        console.warn('[Puter Upload] Failed to resolve app UID:', error);
         whoamiCache.set(authToken, { appUid: null, fetchedAt: now });
         return null;
     }
@@ -420,8 +279,6 @@ export async function uploadFile(
     const finalName = pathPosix.basename(filePath);
     const buffer = Buffer.from(base64Content, 'base64');
     const safeMimeType = normalizeMimeType(fileName, mimeType);
-
-    console.log(`[Puter Upload] Uploading via /batch for ${filePath}`);
 
     const operationId = randomUUID();
     const socketId = randomUUID();

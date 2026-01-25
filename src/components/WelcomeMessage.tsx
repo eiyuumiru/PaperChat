@@ -4,6 +4,7 @@
 
 import type { WelcomeMessageProps } from '../types';
 import { useLanguage, type TranslationKey } from '../utils/i18n';
+import { isTetSeason } from '../utils/seasonalTheme';
 
 interface LocalizedTip {
     textKey: TranslationKey;
@@ -22,7 +23,7 @@ function WelcomeMessage({ onPromptClick }: WelcomeMessageProps): React.ReactElem
     return (
         <div className="welcome-message">
             <div className="welcome-icon"></div>
-            <h2 className="welcome-title">{t('welcomeTitle')}</h2>
+            <h2 className={`welcome-title${isTetSeason() ? ' tet-theme' : ''}`}>{t('welcomeTitle')}</h2>
             <p className="welcome-text">
                 {t('welcomeText')}
                 <br />

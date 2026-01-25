@@ -11,7 +11,7 @@ export type Language = 'vi' | 'en';
 const translations = {
     vi: {
         // Header
-        appSubtitle: 'AI Chat, Image & Video Generation với phong cách Studygram',
+        appSubtitle: 'AI Chat phong cách Studygram tối giản cho học tập & làm việc',
 
         // Settings dropdown
         settings: 'Cài đặt',
@@ -40,7 +40,7 @@ const translations = {
         // Help Modal
         helpTitle: '📚 Hướng dẫn sử dụng',
         helpPurposeTitle: 'Mục đích',
-        helpPurposeText: 'PaperChat là ứng dụng AI Chat & Image Generation hoàn toàn miễn phí, sử dụng Puter.js để kết nối với các mô hình AI hàng đầu như GPT-5.2, Claude, Gemini và nhiều model khác.',
+        helpPurposeText: 'PaperChat là ứng dụng AI Chat hoàn toàn miễn phí, sử dụng Puter.js để kết nối với các mô hình AI hàng đầu như GPT-5.2, Claude, Gemini và nhiều model khác.',
         helpLimitTitle: 'Giới hạn API',
         helpLimitText: 'Mặc dù miễn phí hoàn toàn, Puter.js vẫn có giới hạn về số lượng request API cho mỗi tài khoản. Khi bạn gặp lỗi "API limit exceeded" hoặc chatbot không phản hồi, hãy làm theo hướng dẫn bên dưới.',
         helpFixTitle: 'Cách khắc phục khi tràn API',
@@ -55,8 +55,6 @@ const translations = {
 
         // Tabs
         tabChat: 'Chat văn bản',
-        tabImage: 'Tạo hình ảnh',
-        tabVideo: 'Tạo video',
 
         // Chat Panel
         selectModel: 'Chọn Model:',
@@ -93,47 +91,6 @@ const translations = {
         tipStartup: 'Ý tưởng startup',
         tipStartupPrompt: 'Cho tôi 5 ý tưởng startup công nghệ',
 
-        // Image Panel
-        describeEdit: 'Mô tả chỉnh sửa:',
-        describeImage: 'Mô tả hình ảnh:',
-        editPlaceholder: 'Mô tả cách bạn muốn chỉnh sửa ảnh... Ví dụ: Thêm mũ phù thủy cho nhân vật, đổi nền thành bãi biển',
-        imagePlaceholder: 'Mô tả chi tiết hình ảnh bạn muốn tạo... Ví dụ: A cute cat wearing a wizard hat, digital art style, vibrant colors',
-        sourceImageLabel: 'Ảnh gốc (tùy chọn - để chỉnh sửa):',
-        removeSourceImage: 'Xóa ảnh gốc',
-        dropImageHere: 'Kéo thả ảnh vào đây hoặc nhấn để chọn',
-        imageFormats: 'Hỗ trợ: JPEG, PNG, GIF, WebP (tối đa 5MB)',
-        editImage: 'Chỉnh sửa ảnh',
-        generateImage: 'Tạo hình ảnh',
-        generating: 'Đang tạo...',
-        imageLoadingText: 'AI đang vẽ cho bạn...',
-        imageLoadingSubtext: 'Hãy chờ một chút nha!',
-        imagePlaceholderText: 'Hình ảnh được tạo sẽ hiển thị ở đây',
-        imagePlaceholderHint: 'Nhập prompt và nhấn "Tạo hình ảnh"',
-
-        // Video Panel
-        unstable: 'Unstable',
-        unstableVideoWarning: 'Tính năng này tốn RẤT NHIỀU credits, có thể có một số model không đủ credit để tạo.',
-        videoFeaturePaused: 'Tính năng tạm ngừng:',
-        videoNotWorking: 'Tạo video hiện không hoạt động do',
-        puterBug: 'lỗi từ Puter.js (issue #2175)',
-        pleaseWait: 'Vui lòng chờ bản fix.',
-        duration: 'Thời lượng:',
-        size: 'Kích thước:',
-        seconds: 'giây',
-        horizontal: 'Ngang',
-        vertical: 'Dọc',
-        testMode: 'Test Mode',
-        testModeHint: '(Không tốn credits)',
-        describeVideo: 'Mô tả video:',
-        videoPlaceholder: 'Mô tả chi tiết video bạn muốn tạo... Ví dụ: A fox sprinting through a snow-covered forest at dusk, cinematic lighting',
-        generatingVideo: 'Đang tạo...',
-        generateVideo: 'Tạo video',
-        videoLoadingText: 'Đang tạo video...',
-        videoLoadingSubtext: 'Quá trình này có thể mất 1-5 phút',
-        videoPlaceholderText: 'Video được tạo sẽ hiển thị ở đây',
-        videoPlaceholderHint: 'Nhập prompt và nhấn "Tạo video"',
-        pleaseTryAgain: 'Vui lòng thử lại',
-
         // Model groups
         other: 'Khác',
 
@@ -142,26 +99,10 @@ const translations = {
 
         // Common
         and: 'và',
-
-        // Alpha Modal
-        alphaTitle: 'Tính năng Alpha',
-        alphaNote: 'Lưu ý:',
-        alphaVideoDisabled: 'Tạo video hiện không hoạt động do',
-        alphaWaitFix: 'Vui lòng chờ bản fix.',
-        alphaVideoAI: 'Tạo video bằng AI',
-        alphaInPhase: 'hiện đang trong giai đoạn',
-        alphaUnstable: 'Tính năng này RẤT KHÔNG ỔN ĐỊNH',
-        alphaManyModelsNotWork: 'Nhiều model có thể không hoạt động',
-        alphaTime: 'Thời gian tạo video có thể từ 1-5 phút',
-        alphaCredits: 'Một số model yêu cầu credits Puter',
-        alphaInDevelopment: 'Đang trong quá trình phát triển',
-        alphaTestModeNote: 'Bật Test Mode để thử nghiệm mà không tốn credits.',
-        alphaGoBack: 'Quay lại',
-        alphaUnderstandContinue: 'Tôi hiểu rủi ro, tiếp tục',
     },
     en: {
         // Header
-        appSubtitle: 'AI Chat, Image & Video Generation with Studygram aesthetic',
+        appSubtitle: 'Minimalist Studygram-style AI Chat for study & work',
 
         // Settings dropdown
         settings: 'Settings',
@@ -190,7 +131,7 @@ const translations = {
         // Help Modal
         helpTitle: '📚 User Guide',
         helpPurposeTitle: 'Purpose',
-        helpPurposeText: 'PaperChat is a completely free AI Chat & Image Generation app, using Puter.js to connect with top AI models like GPT-5.2, Claude, Gemini and more.',
+        helpPurposeText: 'PaperChat is a completely free AI Chat app, using Puter.js to connect with top AI models like GPT-5.2, Claude, Gemini and more.',
         helpLimitTitle: 'API Limits',
         helpLimitText: 'Although completely free, Puter.js has request limits per account. When you encounter "API limit exceeded" errors or the chatbot stops responding, follow the instructions below.',
         helpFixTitle: 'How to fix API overflow',
@@ -205,8 +146,6 @@ const translations = {
 
         // Tabs
         tabChat: 'Text Chat',
-        tabImage: 'Image Gen',
-        tabVideo: 'Video Gen',
 
         // Chat Panel
         selectModel: 'Select Model:',
@@ -243,47 +182,6 @@ const translations = {
         tipStartup: 'Startup ideas',
         tipStartupPrompt: 'Give me 5 tech startup ideas',
 
-        // Image Panel
-        describeEdit: 'Describe edit:',
-        describeImage: 'Describe image:',
-        editPlaceholder: 'Describe how you want to edit the image... e.g., Add a wizard hat to the character, change background to beach',
-        imagePlaceholder: 'Describe the image you want to create in detail... e.g., A cute cat wearing a wizard hat, digital art style, vibrant colors',
-        sourceImageLabel: 'Source image (optional - for editing):',
-        removeSourceImage: 'Remove source image',
-        dropImageHere: 'Drop image here or click to select',
-        imageFormats: 'Supports: JPEG, PNG, GIF, WebP (max 5MB)',
-        editImage: 'Edit Image',
-        generateImage: 'Generate Image',
-        generating: 'Generating...',
-        imageLoadingText: 'AI is drawing for you...',
-        imageLoadingSubtext: 'Please wait a moment!',
-        imagePlaceholderText: 'Generated image will appear here',
-        imagePlaceholderHint: 'Enter a prompt and click "Generate Image"',
-
-        // Video Panel
-        unstable: 'Unstable',
-        unstableVideoWarning: 'This feature uses A LOT of credits, some models may not have enough credits to generate.',
-        videoFeaturePaused: 'Feature paused:',
-        videoNotWorking: 'Video generation is not working due to',
-        puterBug: 'Puter.js bug (issue #2175)',
-        pleaseWait: 'Please wait for a fix.',
-        duration: 'Duration:',
-        size: 'Size:',
-        seconds: 'sec',
-        horizontal: 'Horizontal',
-        vertical: 'Vertical',
-        testMode: 'Test Mode',
-        testModeHint: '(No credits used)',
-        describeVideo: 'Describe video:',
-        videoPlaceholder: 'Describe the video you want to create in detail... e.g., A fox sprinting through a snow-covered forest at dusk, cinematic lighting',
-        generatingVideo: 'Generating...',
-        generateVideo: 'Generate Video',
-        videoLoadingText: 'Generating video...',
-        videoLoadingSubtext: 'This may take 1-5 minutes',
-        videoPlaceholderText: 'Generated video will appear here',
-        videoPlaceholderHint: 'Enter a prompt and click "Generate Video"',
-        pleaseTryAgain: 'Please try again',
-
         // Model groups
         other: 'Other',
 
@@ -292,22 +190,6 @@ const translations = {
 
         // Common
         and: 'and',
-
-        // Alpha Modal
-        alphaTitle: 'Alpha Feature',
-        alphaNote: 'Note:',
-        alphaVideoDisabled: 'Video generation is not working due to',
-        alphaWaitFix: 'Please wait for a fix.',
-        alphaVideoAI: 'AI Video Generation',
-        alphaInPhase: 'is currently in',
-        alphaUnstable: 'This feature is VERY UNSTABLE',
-        alphaManyModelsNotWork: 'Many models may not work',
-        alphaTime: 'Video generation may take 1-5 minutes',
-        alphaCredits: 'Some models require Puter credits',
-        alphaInDevelopment: 'Currently in development',
-        alphaTestModeNote: 'Enable Test Mode to experiment without using credits.',
-        alphaGoBack: 'Go Back',
-        alphaUnderstandContinue: 'I understand the risks, continue',
     },
 } as const;
 

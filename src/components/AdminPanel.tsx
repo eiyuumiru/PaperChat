@@ -19,7 +19,7 @@ interface AuditLog {
     id: number;
     account_id: number;
     account_email: string;
-    service: 'chat' | 'image' | 'video';
+    service: 'chat';
     action: 'request' | 'credit_change' | 'error';
     credits_before: number | null;
     credits_after: number | null;
@@ -257,13 +257,8 @@ export default function AdminPanel({ onClose, adminKey }: AdminPanelProps): Reac
     };
 
     const getServiceBadge = (service: string) => {
-        const colors: Record<string, string> = {
-            chat: '#2563EB',
-            image: '#7C3AED',
-            video: '#059669',
-        };
         return (
-            <span className="service-badge" style={{ backgroundColor: colors[service] || '#6b7280' }}>
+            <span className="service-badge" style={{ backgroundColor: '#2563EB' }}>
                 {service}
             </span>
         );

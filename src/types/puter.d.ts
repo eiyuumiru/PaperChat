@@ -25,36 +25,11 @@ interface PuterFile {
     name?: string;
 }
 
-interface PuterImageResponse {
-    src?: string;
-    url?: string;
-    image?: string;
-    data?: string;
-    success?: boolean;
-    error?: Record<string, unknown>;
-}
-
 interface PuterAI {
     chat(
         messages: unknown,
         options?: { model: string; driver?: string }
     ): Promise<PuterAIResponse | string>;
-
-    txt2img(
-        prompt: string,
-        options?: Record<string, unknown>
-    ): Promise<PuterImageResponse | HTMLImageElement | string>;
-
-    txt2vid(
-        prompt: string,
-        options?: {
-            model?: string;
-            seconds?: number;
-            size?: string;
-            provider?: 'openai' | 'together';
-            test_mode?: boolean;
-        } | boolean
-    ): Promise<HTMLVideoElement>;
 }
 
 interface PuterFS {
@@ -105,7 +80,6 @@ declare global {
 export type {
     PuterAIResponse,
     PuterFile,
-    PuterImageResponse,
     PuterAI,
     PuterFS,
     Puter,

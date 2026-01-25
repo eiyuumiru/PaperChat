@@ -157,7 +157,6 @@ class ChatService {
         const usePool = getUseAccountPool();
 
         if (usePool) {
-            console.log('[DEBUG] Using Account Pool for multimodal message');
             const ipynbContents: string[] = [];
             const regularFiles: File[] = [];
 
@@ -218,7 +217,7 @@ class ChatService {
         const ipynbContents: string[] = [];
         const regularFiles: File[] = [];
 
-        console.log('[DEBUG] Starting file processing, files:', files.length);
+
 
         for (const file of files) {
             if (IPYNBParser.hasIPYNBExtension(file.name)) {
@@ -388,7 +387,6 @@ export function useChat(): UseChatReturn {
                 const assistantMessage: ChatMessage = { role: 'assistant', content: result.response };
                 setMessages((prev) => [...prev, assistantMessage]);
             } catch (err) {
-                console.error('File upload error:', err);
                 const errorMessage = err instanceof Error ? err.message : String(err);
                 setError(errorMessage || 'Không thể gửi tin nhắn với files');
                 setMessages(currentMessages);

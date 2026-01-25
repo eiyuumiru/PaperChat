@@ -5,7 +5,6 @@
 
 // Default model values
 export const DEFAULT_CHAT_MODEL = 'gpt-5.2' as const;
-export const DEFAULT_IMAGE_MODEL = 'gemini-3-pro-image-preview' as const;
 export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview' as const;
 
 // Models that support native web_search tool (OpenAI only)

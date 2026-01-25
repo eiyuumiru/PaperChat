@@ -4,6 +4,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import SantaHat from '../assets/santa-hat.svg';
+import { isHolidaySeason } from '../utils/seasonalTheme';
 import { remarkPlugins, rehypePlugins } from '../utils/markdown';
 import { ContentNormalizer } from '../utils/content';
 import { useLanguage } from '../utils/i18n';
@@ -92,7 +93,7 @@ function Message({ role, content, attachments }: ExtendedMessageProps): React.Re
         <div className={`message ${role}`}>
             <div className="message-role">
                 {roleLabel}
-                <img src={SantaHat} alt="" className="santa-hat santa-hat-role" />
+                {isHolidaySeason() && <img src={SantaHat} alt="" className="santa-hat santa-hat-role" />}
             </div>
             <div className="message-content markdown-body">
                 {/* Image attachments */}
@@ -159,7 +160,7 @@ function LoadingMessage({ searching = false }: LoadingMessageProps): React.React
         <div className="message assistant loading">
             <div className="message-role">
                 {t('ai')}
-                <img src={SantaHat} alt="" className="santa-hat santa-hat-role" />
+                {isHolidaySeason() && <img src={SantaHat} alt="" className="santa-hat santa-hat-role" />}
             </div>
             <div className="message-content">
                 {searching && (

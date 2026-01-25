@@ -51,51 +51,10 @@ const CHAT_MODELS: ModelGroup[] = [
     },
 ];
 
-/**
- * Image models configuration - ordered by stability
- */
-const IMAGE_MODELS: ModelGroup[] = [
-    {
-        group: 'Gemini',
-        models: [
-            { value: 'gemini-3-pro-image-preview', label: 'Nano Banana Pro' },
-            {
-                value: 'gemini-2.5-flash-image-preview',
-                label: 'Nano Banana',
-            },
-        ],
-    },
-    {
-        group: 'OpenAI',
-        models: [
-            { value: 'gpt-image-1', label: 'GPT Image 1' },
-            { value: 'gpt-image-1-mini', label: 'GPT Image 1 Mini' },
-            { value: 'dall-e-3', label: 'DALL-E 3' },
-        ],
-    },
-];
+function ModelSelector({ value, onChange, label }: ModelSelectorProps): React.ReactElement {
+    const { language } = useLanguage();
 
-function ModelSelector({ type, value, onChange, label }: ModelSelectorProps): React.ReactElement {
-    const { t, language } = useLanguage();
-
-    // Add "Other" group dynamically with translation
-    const getChatModels = (): ModelGroup[] => CHAT_MODELS;
-
-    const getImageModels = (): ModelGroup[] => [
-        ...IMAGE_MODELS,
-        {
-            group: t('other'),
-            models: [
-                { value: 'black-forest-labs/FLUX.1.1-pro', label: 'FLUX 1.1 Pro' },
-                {
-                    value: 'stabilityai/stable-diffusion-3.5-large',
-                    label: 'SD 3.5 Large',
-                },
-            ],
-        },
-    ];
-
-    const modelGroups = type === 'chat' ? getChatModels() : getImageModels();
+    const modelGroups = CHAT_MODELS;
 
     return (
         <div className="model-selector">
@@ -121,4 +80,4 @@ function ModelSelector({ type, value, onChange, label }: ModelSelectorProps): Re
 }
 
 export default ModelSelector;
-export { CHAT_MODELS, IMAGE_MODELS };
+export { CHAT_MODELS };

@@ -145,6 +145,3 @@ export class FileValidator {
         URL.revokeObjectURL(url);
     }
 }
-
-// Backward compatibility export
-export { FileValidator as ImageValidator };

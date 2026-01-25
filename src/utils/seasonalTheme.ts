@@ -16,17 +16,29 @@ export function isHolidaySeason(): boolean {
 }
 
 /**
+ * Check if current date is within Tet season (January - April)
+ * @returns true if in January, February, March or April, false otherwise
+ */
+export function isTetSeason(): boolean {
+    const now = new Date();
+    const month = now.getMonth(); // 0-indexed: 0 = January, 3 = April
+
+    // January (0), February (1), March (2), April (3)
+    return month >= 0 && month <= 3;
+}
+
+/**
  * Get current seasonal theme type
  * Can be extended in the future for other themes (Valentine's, Easter, etc.)
  */
 export type SeasonalTheme = 'christmas' | 'tet' | 'none';
 
 export function getCurrentSeasonalTheme(): SeasonalTheme {
-    if (!isHolidaySeason()) {
-        return 'none';
+    if (isHolidaySeason()) {
+        return 'christmas';
     }
-
-    // For now, return 'christmas' during the holiday season
-    // This can be changed to 'tet' for Vietnamese New Year theme
-    return 'christmas';
+    if (isTetSeason()) {
+        return 'tet';
+    }
+    return 'none';
 }

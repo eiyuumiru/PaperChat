@@ -6,19 +6,17 @@
 import { useState, useEffect } from 'react';
 import Snowfall from 'react-snowfall';
 import Header from './components/Header';
-import { isHolidaySeason } from './utils/seasonalTheme';
-import TabNavigation from './components/TabNavigation';
+import { isHolidaySeason, isTetSeason } from './utils/seasonalTheme';
 import ChatPanel from './components/ChatPanel';
-import ImagePanel from './components/ImagePanel';
-import VideoPanel from './components/VideoPanel';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
-import type { TabId } from './types';
 import './styles/admin.css';
+// Tet decorations
+import CayMaiLeft from './assets/cay-mai-left.png';
+import CayDaoRight from './assets/cay-dao-right.png';
+import PetalsFall from './components/PetalsFall';
 
 function App(): React.ReactElement {
-    const [activeTab, setActiveTab] = useState<TabId>('chat');
-
     // Admin mode states
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
@@ -71,15 +69,9 @@ function App(): React.ReactElement {
         setShowAdmin(false);
     };
 
-    // Show admin panel if authenticated
-    if (showAdmin) {
-        // Pass the entered password as the key for subsequent requests
-        return <AdminPanel onClose={handleCloseAdmin} adminKey={password} />;
-    }
-
     return (
         <>
-            {/* Snowfall Effect - Only during holiday season (Dec 1 - Jan 31) */}
+            {/* Snowfall Effect - Only during Christmas season (December) */}
             {isHolidaySeason() && (
                 <Snowfall
                     color="#82c3d9"
@@ -93,6 +85,25 @@ function App(): React.ReactElement {
                     }}
                 />
             )}
+
+            {/* Tet Decorations - Only during Tet season (January-April) */}
+            {isTetSeason() && (
+                <>
+                    <img
+                        src={CayMaiLeft}
+                        alt=""
+                        className="tet-decoration tet-mai-left"
+                    />
+                    <img
+                        src={CayDaoRight}
+                        alt=""
+                        className="tet-decoration tet-dao-right"
+                    />
+                </>
+            )}
+
+            {/* Cherry Blossom Petals - Tet season only */}
+            <PetalsFall />
 
             {/* Password Modal */}
             {showPasswordModal && (
@@ -134,18 +145,17 @@ function App(): React.ReactElement {
                 </div>
             )}
 
-            <div className="app-container">
-                <Header />
-                <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-
-                <main className="main-content">
-                    {activeTab === 'chat' && <ChatPanel />}
-                    {activeTab === 'image' && <ImagePanel />}
-                    {activeTab === 'video' && <VideoPanel />}
-                </main>
-
-                <Footer />
-            </div>
+            {showAdmin ? (
+                <AdminPanel onClose={handleCloseAdmin} adminKey={password} />
+            ) : (
+                <div className="app-container">
+                    <Header />
+                    <main className="main-content">
+                        <ChatPanel />
+                    </main>
+                    <Footer />
+                </div>
+            )}
         </>
     );
 }

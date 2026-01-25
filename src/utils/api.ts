@@ -25,8 +25,6 @@ interface ApiResponse<T> {
     code?: string;
     message?: string;
     response?: string;
-    imageUrl?: string;
-    videoUrl?: string;
     data?: T;
 }
 
@@ -37,27 +35,12 @@ interface ChatRequest {
     [key: string]: any;
 }
 
-interface ImageRequest {
-    prompt: string;
-    model?: string;
-    language?: string;
-}
-
-interface VideoRequest {
-    prompt: string;
-    model?: string;
-    seconds?: number;
-    size?: string;
-    testMode?: boolean;
-    language?: string;
-}
-
 /**
  * Generic API call function
  */
 async function apiCall<T>(
     endpoint: string,
-    body: ChatRequest | ImageRequest | VideoRequest
+    body: ChatRequest
 ): Promise<ApiResponse<T>> {
     const response = await fetch(endpoint, {
         method: 'POST',
@@ -87,30 +70,4 @@ export async function chatViaPool(request: ChatRequest): Promise<string> {
     }
 
     return result.response || '';
-}
-
-/**
- * Image generation API call
- */
-export async function generateImageViaPool(request: ImageRequest): Promise<string> {
-    const result = await apiCall<{ imageUrl: string }>('/api/image', request);
-
-    if (result.error) {
-        throw new Error(result.message || 'Image API error');
-    }
-
-    return result.imageUrl || '';
-}
-
-/**
- * Video generation API call
- */
-export async function generateVideoViaPool(request: VideoRequest): Promise<string> {
-    const result = await apiCall<{ videoUrl: string }>('/api/video', request);
-
-    if (result.error) {
-        throw new Error(result.message || 'Video API error');
-    }
-
-    return result.videoUrl || '';
 }

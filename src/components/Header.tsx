@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react
 import SantaHat from '../assets/santa-hat.svg';
 import { useLanguage } from '../utils/i18n';
 import { getUseAccountPool, setUseAccountPool } from '../utils/api';
-import { isHolidaySeason } from '../utils/seasonalTheme';
+import { isHolidaySeason, isTetSeason } from '../utils/seasonalTheme';
 
 interface PuterUser {
     username?: string;
@@ -384,8 +384,8 @@ function Header(): React.ReactElement {
             </div>
 
             <div className="title-wrapper">
-                <h1 className="app-title">
-                    <span className="title-emoji">{isHolidaySeason() ? '🎄' : '🎉'}</span> PaperChat
+                <h1 className={`app-title${isTetSeason() ? ' tet-theme' : ''}`}>
+                    <span className="title-emoji">{isHolidaySeason() ? '🎄' : isTetSeason() ? '🧧' : '🎉'}</span> PaperChat
                 </h1>
                 {isHolidaySeason() && <img src={SantaHat} alt="" className="santa-hat santa-hat-title" />}
             </div>
@@ -406,7 +406,7 @@ function Header(): React.ReactElement {
                         <div className="help-section">
                             <h3 className="help-section-title">{t('helpPurposeTitle')}</h3>
                             <p>
-                                <strong>PaperChat</strong> {language === 'vi' ? 'là ứng dụng AI Chat & Image Generation' : 'is an AI Chat & Image Generation app'}
+                                <strong>PaperChat</strong> {language === 'vi' ? 'là ứng dụng AI Chat' : 'is an AI Chat app'}
                                 <span className="hl-yellow"> {language === 'vi' ? 'hoàn toàn miễn phí' : 'completely free'}</span>, {language === 'vi' ? 'sử dụng' : 'using'}
                                 <span className="hl-blue"> Puter.js</span> {language === 'vi' ? 'để kết nối với các mô hình AI hàng đầu như GPT-5.2, Claude, Gemini và nhiều model khác.' : 'to connect with top AI models like GPT-5.2, Claude, Gemini and more.'}
                             </p>
@@ -503,9 +503,7 @@ function Header(): React.ReactElement {
                                         // Filter AI model entries
                                         const aiPrefixes = [
                                             'gpt', 'openai', 'claude', 'gemini', 'deepseek', 'o3',
-                                            'dall-e', 'flux', 'stable', 'black-forest',
-                                            'sora', 'veo', 'google/veo', 'kling', 'seedance', 'bytedance',
-                                            'minimax', 'hailuo', 'pixverse', 'wan', 'vidu'
+                                            'dall-e', 'flux'
                                         ];
 
                                         const filteredEntries = Object.entries(usageData.usage)
@@ -560,13 +558,16 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
-                                    <span className="version-tag major">v5.0.0</span>
+                                    <span className="version-tag tet">v5.0.0</span>
                                     <span className="version-date">24/01/2026</span>
                                 </div>
                                 <ul className="version-changes">
-                                    <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? 'Hỗ trợ native web_search cho các model OpenAI' : 'Native web_search support for OpenAI models'}</li>
+                                    <li><span className="change-type tet">🧧 {language === 'vi' ? 'Tết' : 'Tet'}</span> {language === 'vi' ? 'Chúc mừng năm mới! 🎊' : 'Happy Lunar New Year! 🎊'}</li>
+                                    <li><span className="change-type feature">🚀 Major</span> {language === 'vi' ? <>Hỗ trợ native <code>web_search</code> cho các model OpenAI</> : <>Native <code>web_search</code> support for OpenAI models</>}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm giao diện Code Block mới với syntax highlighting và nút copy' : 'New Code Block UI with syntax highlighting and copy button'}</li>
                                     <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Hỗ trợ đọc file Word, Excel, PowerPoint và các file văn bản/code' : 'Support for Word, Excel, PowerPoint and text/code files'}</li>
+                                    <li><span className="change-type improve">🎨 {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Thêm giao diện Tết độc đáo với hoa đào, hoa mai và cánh hoa rơi' : 'Added unique Tet theme with peach blossom, apricot blossom and falling petals'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'Clean code: Loại bỏ các logic và UI không còn sử dụng để tăng hiệu suất' : 'Clean code: Removed unused logic and UI for better performance'}</li>
                                     <li><span className="change-type improve">🗑️ {language === 'vi' ? 'Xoá' : 'Remove'}</span> {language === 'vi' ? 'Xoá tính năng tạo ảnh và video (ít người dùng, tốn tài nguyên)' : 'Removed image and video generation (low usage, resource-intensive)'}</li>
                                     <li><span className="change-type fix">🔧 {language === 'vi' ? 'Sửa' : 'Fix'}</span> {language === 'vi' ? 'Sửa lỗi gpt-5.2-pro không thể upload ảnh' : 'Fixed gpt-5.2-pro not being able to upload images'}</li>
                                 </ul>

@@ -191,6 +191,14 @@ body {
   color: initial;
 }
 
+/* Tet theme - Red/Gold gradient for Vietnamese New Year */
+.app-title.tet-theme {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 30%, #f59e0b 70%, #eab308 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.2);
+}
+
 .app-subtitle {
   font-family: "Mali", cursive;
   font-size: 1.1rem;
@@ -301,6 +309,82 @@ body {
   50% {
     transform: scale(1.2);
     opacity: 1;
+  }
+}
+
+/* ============================================
+   TET DECORATIONS - Vietnamese New Year
+   ============================================ */
+
+.tet-decoration {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  width: 500px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.tet-mai-left {
+  top: 0;
+  left: 0;
+}
+
+.tet-dao-right {
+  top: 0;
+  right: 0;
+}
+
+/* Responsive Tet decorations */
+@media (max-width: 768px) {
+  .tet-decoration {
+    width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tet-decoration {
+    width: 100px;
+  }
+}
+
+/* ============================================
+   PETALS FALL - Cherry Blossom Effect
+   ============================================ */
+
+.petals-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle at center, #ffb7c5, #ff6b9d);
+  border-radius: 50% 0 50% 0;
+  opacity: 0.7;
+  animation: petal-fall linear;
+  --drift-x: 20vw;
+  /* Default drift, overridden by JS */
+}
+
+.petals-container.paused .petal {
+  animation-play-state: paused !important;
+}
+
+/* Diagonal fall with random drift */
+@keyframes petal-fall {
+  0% {
+    transform: translateX(0) translateY(-10px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(var(--drift-x)) translateY(110vh) rotate(720deg);
   }
 }
 
@@ -1323,6 +1407,13 @@ body {
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
 }
 
+/* Tết (Lunar New Year) theme - Peach Blossom Pink (Hoa Đào) */
+.version-tag.tet {
+  background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+  color: #fff;
+}
+
 .version-date {
   font-family: "Patrick Hand", cursive;
   font-size: 0.95rem;
@@ -1347,6 +1438,14 @@ body {
 
 .version-changes li:last-child {
   margin-bottom: 0;
+}
+
+.version-changes code {
+  font-family: inherit;
+  background-color: rgba(0, 0, 0, 0.08);
+  padding: 0px 4px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 
 /* Links in changelog */
@@ -1410,6 +1509,12 @@ body {
   color: #b91c1c;
 }
 
+/* Tết (Lunar New Year) badge - Peach Blossom */
+.change-type.tet {
+  background-color: #fbcfe8;
+  color: #9d174d;
+}
+
 
 /* Dark mode changelog */
 [data-theme="dark"] .changelog-version {
@@ -1459,6 +1564,15 @@ body {
 [data-theme="dark"] .change-type.santa {
   background-color: rgba(220, 38, 38, 0.3);
   color: #fca5a5;
+}
+
+[data-theme="dark"] .change-type.tet {
+  background-color: rgba(236, 72, 153, 0.3);
+  color: #f9a8d4;
+}
+
+[data-theme="dark"] .version-changes code {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 
@@ -1513,8 +1627,7 @@ body {
   flex-direction: column;
 }
 
-.chat-panel,
-.image-panel {
+.chat-panel {
   background-color: var(--paper-cream);
   border: none;
   border-radius: 12px;
@@ -1532,8 +1645,7 @@ body {
 }
 
 /* Dot Grid Background */
-.chat-panel::before,
-.image-panel::before {
+.chat-panel::before {
   content: "";
   position: absolute;
   top: 0;
@@ -1545,10 +1657,6 @@ body {
   opacity: 0.5;
   pointer-events: none;
   z-index: 0;
-}
-
-.image-panel::before {
-  opacity: 0.4;
 }
 
 /* ============================================
@@ -2212,6 +2320,13 @@ body {
   font-size: 1.8rem;
   color: var(--accent-blue);
   margin-bottom: 10px;
+}
+
+.welcome-title.tet-theme {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 30%, #f59e0b 70%, #eab308 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .welcome-text {

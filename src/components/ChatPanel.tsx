@@ -231,7 +231,6 @@ function ChatPanel(): React.ReactElement {
             <div className="chat-panel">
                 <div className="chat-header">
                     <ModelSelector
-                        type="chat"
                         value={model}
                         onChange={setModel}
                         label={t('selectModel')}

@@ -33,16 +33,7 @@ export interface ModelGroup {
     models: ModelOption[];
 }
 
-export type ModelType = 'chat' | 'image' | 'video';
-
-// ==================== Tab Types ====================
-
-export type TabId = 'chat' | 'image' | 'video';
-
-export interface TabItem {
-    id: TabId;
-    label: string;
-}
+export type ModelType = 'chat';
 
 // ==================== Tips Types ====================
 
@@ -61,16 +52,11 @@ export interface FileAttachment {
 
 // Type aliases for semantic clarity
 export type AttachedFile = FileAttachment;
-export type AttachedImage = FileAttachment; // Backward compatibility
-export type SourceImage = FileAttachment;
 
 export interface FileValidationResult {
     valid: boolean;
     error?: string;
 }
-
-// Backward compatibility
-export type ImageValidationResult = FileValidationResult;
 
 // ==================== Hook Return Types ====================
 
@@ -93,34 +79,6 @@ export interface UseChatReturn {
     setError: Dispatch<SetStateAction<string | null>>;
 }
 
-export interface UseImageGenerationReturn {
-    imageUrl: string | null;
-    isLoading: boolean;
-    error: string | null;
-    lastPrompt: string;
-    generateImage: (prompt: string, model: string) => Promise<void>;
-    editImage: (prompt: string, imageFile: File, model: string) => Promise<void>;
-    resetImage: () => void;
-    setError: Dispatch<SetStateAction<string | null>>;
-}
-
-export interface VideoGenerationOptions {
-    model: string;
-    seconds?: number;
-    size?: string;
-    testMode?: boolean;
-}
-
-export interface UseVideoGenerationReturn {
-    videoUrl: string | null;
-    isLoading: boolean;
-    error: string | null;
-    lastPrompt: string;
-    generateVideo: (prompt: string, options: VideoGenerationOptions) => Promise<void>;
-    resetVideo: () => void;
-    setError: Dispatch<SetStateAction<string | null>>;
-}
-
 // ==================== Component Props ====================
 
 export interface MessageProps {
@@ -134,26 +92,11 @@ export interface LoadingMessageProps {
 }
 
 export interface ModelSelectorProps {
-    type: ModelType;
     value: string;
     onChange: (value: string) => void;
     label?: string;
 }
 
-export interface TabNavigationProps {
-    activeTab: TabId;
-    setActiveTab: (tab: TabId) => void;
-}
-
 export interface WelcomeMessageProps {
     onPromptClick: (prompt: string) => void;
-}
-
-export interface ImageErrorProps {
-    message: string;
-}
-
-export interface GeneratedImageProps {
-    url: string;
-    prompt: string;
 }
