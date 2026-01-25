@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import Snowfall from 'react-snowfall';
 import Header from './components/Header';
+import { isHolidaySeason } from './utils/seasonalTheme';
 import TabNavigation from './components/TabNavigation';
 import ChatPanel from './components/ChatPanel';
 import ImagePanel from './components/ImagePanel';
@@ -78,18 +79,20 @@ function App(): React.ReactElement {
 
     return (
         <>
-            {/* Snowfall Effect */}
-            <Snowfall
-                color="#82c3d9"
-                snowflakeCount={100}
-                style={{
-                    position: 'fixed',
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 1,
-                    pointerEvents: 'none',
-                }}
-            />
+            {/* Snowfall Effect - Only during holiday season (Dec 1 - Jan 31) */}
+            {isHolidaySeason() && (
+                <Snowfall
+                    color="#82c3d9"
+                    snowflakeCount={100}
+                    style={{
+                        position: 'fixed',
+                        width: '100vw',
+                        height: '100vh',
+                        zIndex: 1,
+                        pointerEvents: 'none',
+                    }}
+                />
+            )}
 
             {/* Password Modal */}
             {showPasswordModal && (

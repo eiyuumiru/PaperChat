@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react
 import SantaHat from '../assets/santa-hat.svg';
 import { useLanguage } from '../utils/i18n';
 import { getUseAccountPool, setUseAccountPool } from '../utils/api';
+import { isHolidaySeason } from '../utils/seasonalTheme';
 
 interface PuterUser {
     username?: string;
@@ -384,9 +385,9 @@ function Header(): React.ReactElement {
 
             <div className="title-wrapper">
                 <h1 className="app-title">
-                    <span className="title-emoji">🎄</span> PaperChat
+                    <span className="title-emoji">{isHolidaySeason() ? '🎄' : '🎉'}</span> PaperChat
                 </h1>
-                <img src={SantaHat} alt="" className="santa-hat santa-hat-title" />
+                {isHolidaySeason() && <img src={SantaHat} alt="" className="santa-hat santa-hat-title" />}
             </div>
             <p className="app-subtitle">{t('appSubtitle')}</p>
 
