@@ -9,6 +9,7 @@ export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview' as con
 
 // Models that support native web_search tool (OpenAI only)
 export const NATIVE_WEB_SEARCH_MODELS = [
+    'gpt-5.3-chat',
     'gpt-5.2-chat-latest',
     'gpt-5.2',
     'gpt-5.2-pro',

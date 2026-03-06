@@ -558,6 +558,16 @@ function Header(): React.ReactElement {
                         <div className="changelog-content">
                             <div className="changelog-version">
                                 <div className="version-header">
+                                    <span className="version-tag">v5.0.1</span>
+                                    <span className="version-date">06/03/2026</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm model GPT-5.3 Instant' : 'Added GPT-5.3 Instant model'}</li>
+                                </ul>
+                            </div>
+
+                            <div className="changelog-version">
+                                <div className="version-header">
                                     <span className="version-tag tet">v5.0.0</span>
                                     <span className="version-date">24/01/2026</span>
                                 </div>

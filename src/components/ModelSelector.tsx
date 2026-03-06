@@ -14,6 +14,7 @@ const CHAT_MODELS: ModelGroup[] = [
     {
         group: 'OpenAI',
         models: [
+            { value: 'gpt-5.3-chat', label: 'GPT-5.3 Instant' },
             { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2 Instant' },
             { value: 'gpt-5.2', label: 'GPT-5.2 Thinking' },
             { value: 'gpt-5.2-pro', label: 'GPT-5.2 Pro' },
