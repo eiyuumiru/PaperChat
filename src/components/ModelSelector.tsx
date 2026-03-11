@@ -35,8 +35,8 @@ const CHAT_MODELS: ModelGroup[] = [
     {
         group: 'Gemini',
         models: [
-            { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro' },
-            { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash' },
+            { value: 'google/gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro' },
+            { value: 'google/gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite' },
         ],
     },
     {
