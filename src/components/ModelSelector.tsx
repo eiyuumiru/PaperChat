@@ -15,9 +15,8 @@ const CHAT_MODELS: ModelGroup[] = [
         group: 'OpenAI',
         models: [
             { value: 'gpt-5.3-chat', label: 'GPT-5.3 Instant' },
-            { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2 Instant' },
-            { value: 'gpt-5.2', label: 'GPT-5.2 Thinking' },
-            { value: 'gpt-5.2-pro', label: 'GPT-5.2 Pro' },
+            { value: 'gpt-5.4', label: 'GPT-5.4 Thinking' },
+            { value: 'gpt-5.4-pro', label: 'GPT-5.4 Pro' },
             {
                 value: 'openrouter:openai/gpt-4o-search-preview',
                 label: 'GPT-4o Search',
@@ -28,8 +27,9 @@ const CHAT_MODELS: ModelGroup[] = [
     {
         group: 'Claude',
         models: [
-            { value: 'claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
-            { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' },
+            { value: 'anthropic/claude-opus-4-6', label: 'Claude Opus 4.6' },
+            { value: 'anthropic/claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+            { value: 'claude-haiku-4-5', label: 'Claude Haiku 4.5' },
         ],
     },
     {

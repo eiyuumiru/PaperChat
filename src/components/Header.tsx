@@ -408,7 +408,7 @@ function Header(): React.ReactElement {
                             <p>
                                 <strong>PaperChat</strong> {language === 'vi' ? 'là ứng dụng AI Chat' : 'is an AI Chat app'}
                                 <span className="hl-yellow"> {language === 'vi' ? 'hoàn toàn miễn phí' : 'completely free'}</span>, {language === 'vi' ? 'sử dụng' : 'using'}
-                                <span className="hl-blue"> Puter.js</span> {language === 'vi' ? 'để kết nối với các mô hình AI hàng đầu như GPT-5.2, Claude, Gemini và nhiều model khác.' : 'to connect with top AI models like GPT-5.2, Claude, Gemini and more.'}
+                                <span className="hl-blue"> Puter.js</span> {language === 'vi' ? 'để kết nối với các mô hình AI hàng đầu như GPT-5.4, Claude, Gemini và nhiều model khác.' : 'to connect with top AI models like GPT-5.4, Claude, Gemini and more.'}
                             </p>
                         </div>
 
@@ -556,6 +556,18 @@ function Header(): React.ReactElement {
                         <h2 className="help-modal-title">{t('changelogTitle')}</h2>
 
                         <div className="changelog-content">
+                            <div className="changelog-version">
+                                <div className="version-header">
+                                    <span className="version-tag">v5.0.2</span>
+                                    <span className="version-date">11/03/2026</span>
+                                </div>
+                                <ul className="version-changes">
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm model GPT-5.4 Thinking và GPT-5.4 Pro' : 'Added GPT-5.4 Thinking and GPT-5.4 Pro models'}</li>
+                                    <li><span className="change-type feature">✨ {language === 'vi' ? 'Mới' : 'New'}</span> {language === 'vi' ? 'Thêm Claude Opus 4.6, Sonnet 4.6 và Haiku 4.5' : 'Added Claude Opus 4.6, Sonnet 4.6 and Haiku 4.5'}</li>
+                                    <li><span className="change-type improve">⚡ {language === 'vi' ? 'Cải thiện' : 'Improve'}</span> {language === 'vi' ? 'GPT-5.4 Thinking là model mặc định (thay thế GPT-5.2)' : 'GPT-5.4 Thinking is now the default model (replaces GPT-5.2)'}</li>
+                                </ul>
+                            </div>
+
                             <div className="changelog-version">
                                 <div className="version-header">
                                     <span className="version-tag">v5.0.1</span>
