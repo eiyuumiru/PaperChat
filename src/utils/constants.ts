@@ -4,15 +4,16 @@
  */
 
 // Default model values
-export const DEFAULT_CHAT_MODEL = 'gpt-5.4' as const;
+export const DEFAULT_CHAT_MODEL = 'gpt-5.3-chat' as const;
 export const WEB_SEARCH_MODEL = 'openrouter:openai/gpt-4o-search-preview' as const;
 
 // Models that support native web_search tool (OpenAI only)
+// Note: isNativeWebSearchModel() uses substring match, so 'gpt-5.5' also covers
+// 'gpt-5.5-pro' and 'gpt-5.4' covers 'gpt-5.4-pro'.
 export const NATIVE_WEB_SEARCH_MODELS = [
     'gpt-5.3-chat',
     'gpt-5.4',
-    'gpt-5.4-pro',
-    'o3',
+    'gpt-5.5',
 ] as const;
 
 export const isNativeWebSearchModel = (model: string): boolean => {

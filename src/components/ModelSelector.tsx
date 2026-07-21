@@ -8,26 +8,26 @@ import { useLanguage } from '../utils/i18n';
 
 /**
  * Chat models configuration
- * Source: https://docs.puter.com/AI/listModels/
+ * Source: Puter live model list (drivers/call → puter-chat-completion "models"),
+ * verified 2026-07-21. Values are aliases confirmed accepted by the ai-chat router.
  */
 const CHAT_MODELS: ModelGroup[] = [
     {
         group: 'OpenAI',
         models: [
-            { value: 'gpt-5.3-chat', label: 'GPT-5.3 Instant' },
+            { value: 'gpt-5.5', label: 'GPT-5.5 Thinking' },
             { value: 'gpt-5.4', label: 'GPT-5.4 Thinking' },
-            { value: 'gpt-5.4-pro', label: 'GPT-5.4 Pro' },
+            { value: 'gpt-5.3-chat', label: 'GPT-5.3 Instant' },
             {
                 value: 'openrouter:openai/gpt-4o-search-preview',
                 label: 'GPT-4o Search',
             },
-            { value: 'o3', label: 'o3 (Reasoning)' },
         ],
     },
     {
         group: 'Claude',
         models: [
-            { value: 'anthropic/claude-opus-4-6', label: 'Claude Opus 4.6' },
+            { value: 'claude-sonnet-5', label: 'Claude Sonnet 5' },
             { value: 'anthropic/claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
             { value: 'claude-haiku-4-5', label: 'Claude Haiku 4.5' },
         ],
@@ -35,19 +35,23 @@ const CHAT_MODELS: ModelGroup[] = [
     {
         group: 'Gemini',
         models: [
+            { value: 'google/gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
             { value: 'google/gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro' },
-            { value: 'google/gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite' },
+        ],
+    },
+    {
+        group: 'Grok (xAI)',
+        models: [
+            { value: 'x-ai/grok-4.5', label: 'Grok 4.5' },
+            { value: 'x-ai/grok-4-1-fast', label: 'Grok 4.1 Fast' },
+            { value: 'x-ai/grok-4-fast', label: 'Grok 4 Fast' },
         ],
     },
     {
         group: 'DeepSeek',
         models: [
-            { value: 'deepseek-chat', label: 'DeepSeek Chat' },
-            { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner' },
-            {
-                value: 'openrouter:tngtech/deepseek-r1t2-chimera:free',
-                label: 'DeepSeek R1 Chimera (Free)',
-            },
+            { value: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
+            { value: 'deepseek-chat', label: 'DeepSeek V4 Flash' },
         ],
     },
 ];
