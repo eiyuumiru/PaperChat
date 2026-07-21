@@ -139,7 +139,108 @@ async function driverCall(
 }
 
 /**
- * Chat with AI model
+ * Detect credit/quota errors so we can let the account pool handle them
+ * (mark exhausted + retry with another account) instead of falling back.
+ */
+function isLikelyCreditError(errorMessage: string): boolean {
+    const lower = errorMessage.toLowerCase();
+    return ['insufficient', 'quota', 'exceeded', 'limit'].some((k) => lower.includes(k));
+}
+
+/**
+ * Convert the internal (Responses-style) content parts produced by the /api/chat
+ * handler into the OpenAI Chat Completions format expected by the
+ * OpenAI-compatible endpoint. Only used by the fallback path below.
+ * Plain string content and already-OpenAI-shaped parts are passed through.
+ */
+function toOpenAIMessages(messages: ChatMessage[]): unknown[] {
+    return messages.map((msg) => {
+        if (!Array.isArray(msg.content)) {
+            return msg;
+        }
+
+        const content = msg.content.map((item: any) => {
+            if (!item || typeof item !== 'object') return item;
+            switch (item.type) {
+                case 'input_text':
+                    return { type: 'text', text: item.text ?? '' };
+                case 'input_image':
+                    return {
+                        type: 'image_url',
+                        image_url: {
+                            url: typeof item.image_url === 'string' ? item.image_url : item.image_url?.url,
+                        },
+                    };
+                case 'input_file':
+                    return {
+                        type: 'file',
+                        file: { filename: item.filename, file_data: item.file_data },
+                    };
+                default:
+                    // Already OpenAI-shaped (text / image_url / file) or unknown — leave as-is.
+                    return item;
+            }
+        });
+
+        return { ...msg, content };
+    });
+}
+
+/**
+ * Fallback chat via Puter's stable OpenAI-compatible endpoint.
+ * Uses the same Puter auth token and supports GPT/Claude/Gemini/Grok models.
+ * https://api.puter.com/puterai/openai/v1/chat/completions
+ */
+async function chatViaOpenAI(
+    authToken: string,
+    model: string,
+    messages: ChatMessage[]
+): Promise<{ response: string; usage?: unknown }> {
+    const response = await fetch(`${PUTER_API_ORIGIN}/puterai/openai/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+            model,
+            messages: toOpenAIMessages(messages),
+        }),
+    });
+
+    if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new Error(`Puter OpenAI endpoint error: ${response.status}${errText ? ` - ${errText}` : ''}`);
+    }
+
+    const data = await response.json();
+    const choice = Array.isArray(data?.choices) ? data.choices[0] : undefined;
+    const content = choice?.message?.content;
+
+    let responseText = '';
+    if (typeof content === 'string') {
+        responseText = content;
+    } else if (Array.isArray(content)) {
+        responseText = content
+            .filter((item: any) => (item?.type === 'text' || item?.type === 'output_text') && item?.text)
+            .map((item: any) => item.text)
+            .join('');
+    }
+
+    return {
+        response: responseText,
+        usage: data?.usage,
+    };
+}
+
+/**
+ * Chat with AI model.
+ *
+ * Primary path: the `ai-chat` router driver via /drivers/call (routes to the
+ * right provider based on `model`). Because `ai-chat` is undocumented and Puter
+ * has changed it before, on a non-credit failure we fall back to the stable
+ * OpenAI-compatible endpoint. The fallback only runs when the primary call
+ * throws, so the happy path is completely unaffected.
  */
 export async function chat(
     authToken: string,
@@ -147,35 +248,54 @@ export async function chat(
 ): Promise<{ response: string; usage?: unknown }> {
     const { messages, model, ...extraParams } = options;
 
-    const result = await driverCall(
-        authToken,
-        'puter-chat-completion',
-        'ai-chat',
-        'complete',
-        {
-            messages,
-            model,
-            ...extraParams,
+    try {
+        const result = await driverCall(
+            authToken,
+            'puter-chat-completion',
+            'ai-chat',
+            'complete',
+            {
+                messages,
+                model,
+                ...extraParams,
+            }
+        ) as { message?: { content?: string | Array<{ type: string; text?: string }> }; usage?: unknown };
+
+        // Handle content as string or array (Claude returns array format)
+        let responseText = '';
+        const content = result?.message?.content;
+        if (typeof content === 'string') {
+            responseText = content;
+        } else if (Array.isArray(content)) {
+            // Extract text from array format: [{ type: "text", text: "..." }]
+            responseText = content
+                .filter((item) => item.type === 'text' && item.text)
+                .map((item) => item.text)
+                .join('');
         }
-    ) as { message?: { content?: string | Array<{ type: string; text?: string }> }; usage?: unknown };
 
-    // Handle content as string or array (Claude returns array format)
-    let responseText = '';
-    const content = result?.message?.content;
-    if (typeof content === 'string') {
-        responseText = content;
-    } else if (Array.isArray(content)) {
-        // Extract text from array format: [{ type: "text", text: "..." }]
-        responseText = content
-            .filter((item) => item.type === 'text' && item.text)
-            .map((item) => item.text)
-            .join('');
+        return {
+            response: responseText,
+            usage: result?.usage,
+        };
+    } catch (primaryError) {
+        const message = primaryError instanceof Error ? primaryError.message : String(primaryError);
+
+        // Credit/quota errors must propagate so the pool marks the account
+        // exhausted and retries with a different account — never fall back here.
+        if (isLikelyCreditError(message)) {
+            throw primaryError;
+        }
+
+        // Driver failed for another reason (e.g. driver removed/renamed) — try
+        // the OpenAI-compatible endpoint as a resilience fallback.
+        try {
+            return await chatViaOpenAI(authToken, model, messages);
+        } catch {
+            // Surface the original driver error so pool handling stays accurate.
+            throw primaryError;
+        }
     }
-
-    return {
-        response: responseText,
-        usage: result?.usage,
-    };
 }
 
 /**
